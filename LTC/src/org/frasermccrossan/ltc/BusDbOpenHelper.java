@@ -9,17 +9,7 @@ public class BusDbOpenHelper extends SQLiteOpenHelper {
 	private static final int DATABASE_VERSION = 1;
 	private static final String DATABASE_NAME = "ltcdb";
 	
-	static final String ROUTE_TABLE = "routes";
-	static final String ROUTE_NUMBER = "route_number";
-	static final String ROUTE_NAME = "route_name";
-	
-	static final String STOP_TABLE = "stops";
-	static final String STOP_NUMBER = "stop_number";
-	static final String STOP_NAME = "stop_name";
-	static final String DIRECTION = "direction";
-	static final String LATITUDE = "latitude";
-	static final String LONGITUDE = "longitude";
-	
+
 	BusDbOpenHelper(Context context) {
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
@@ -28,10 +18,20 @@ public class BusDbOpenHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		String s;
 		s = String.format("CREATE TABLE %s (_id integer primary key, %s TEXT, %s TEXT)",
-				ROUTE_TABLE, ROUTE_NUMBER, ROUTE_NAME);
+				BusDb.ROUTE_TABLE, BusDb.ROUTE_NUMBER, BusDb.ROUTE_NAME);
 		db.execSQL(s);
-		s = String.format("CREATE TABLE %s (_id integer primary key, %s number, %s TEXT, %s TEXT, %s NUMBER, %s NUMBER)",
-				STOP_TABLE, STOP_NUMBER, STOP_NAME, DIRECTION, LATITUDE, LONGITUDE);
+		s = String.format("CREATE TABLE %s (_id integer primary key, %s number, %s TEXT, %s NUMBER, %s NUMBER)",
+				BusDb.STOP_TABLE, BusDb.STOP_NUMBER, BusDb.STOP_NAME, BusDb.LATITUDE, BusDb.LONGITUDE);
+		db.execSQL(s);
+		s = String.format("CREATE TABLE %s (_id integer primary key, %s NUMBER, %s TEXT)",
+				BusDb.DIRECTION_TABLE, BusDb.DIRECTION_NUMBER, BusDb.DIRECTION_NAME);
+		db.execSQL(s);
+		s = String.format("CREATE TABLE %s (_id integer primary key, %s TEXT, %s NUMBER, %s NUMBER)",
+				BusDb.LINK_TABLE, BusDb.ROUTE_NUMBER, BusDb.DIRECTION_NUMBER, BusDb.STOP_NUMBER);
+		db.execSQL(s);
+		s = String.format("CREATE UNIQUE INDEX route_index ON %s ( %s )", BusDb.ROUTE_TABLE, BusDb.ROUTE_NUMBER);
+		db.execSQL(s);
+		s = String.format("CREATE UNIQUE INDEX stop_index ON %s ( %s )", BusDb.STOP_TABLE, BusDb.STOP_NUMBER);
 		db.execSQL(s);
 		// for first-time users
 		onUpgrade(db, 1, DATABASE_VERSION);
