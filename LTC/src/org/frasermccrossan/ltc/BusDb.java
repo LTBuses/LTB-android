@@ -48,18 +48,21 @@ public class BusDb {
 		db.beginTransaction();
 		try {
 			ContentValues cv = new ContentValues(5); // 5 should deal with everything
+			db.delete(ROUTE_TABLE, null, null);
 			for (LTCRoute route : routes) {
 				cv.clear();
 				cv.put(ROUTE_NUMBER, route.number);
 				cv.put(ROUTE_NAME, route.name);
 				db.insertOrThrow (ROUTE_TABLE, null, cv);
 			}
+			db.delete(DIRECTION_TABLE, null, null);
 			for (LTCDirection dir : directions) {
 				cv.clear();
 				cv.put(DIRECTION_NUMBER, dir.number);
 				cv.put(DIRECTION_NAME, dir.name);
 				db.insertOrThrow (DIRECTION_TABLE, null, cv);				
 			}
+			db.delete(STOP_TABLE, null, null);
 			for (LTCStop dir : stops) {
 				cv.clear();
 				cv.put(STOP_NUMBER, dir.number);
@@ -68,6 +71,7 @@ public class BusDb {
 				cv.put(LONGITUDE, dir.longitude);
 				db.insertOrThrow (STOP_TABLE, null, cv);				
 			}
+			db.delete(LINK_TABLE, null, null);
 			for (RouteStopLink link : links) {
 				cv.clear();
 				cv.put(ROUTE_NUMBER, link.routeNumber);
