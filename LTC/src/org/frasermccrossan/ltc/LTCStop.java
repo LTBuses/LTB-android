@@ -18,5 +18,10 @@ public class LTCStop {
 		this.latitude = lat;
 		this.longitude = longi;
 	}
+	
+	@Override
+	public String toString() {
+		return this.name;
+	}
 
 }

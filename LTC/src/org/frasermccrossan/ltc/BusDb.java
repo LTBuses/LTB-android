@@ -1,11 +1,17 @@
 package org.frasermccrossan.ltc;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.text.TextUtils;
 
 /* although called BusDb, this is actually a helper class to abstract all the
  * database stuff into method calls
@@ -28,6 +34,11 @@ public class BusDb {
 	static final String DIRECTION_NAME = "direction_name";
 
 	static final String LINK_TABLE = "route_stops";
+	
+	// fake columns, defined here for consistency
+	static final String DESTINATION = "destination";
+	static final String CROSSING_TIME = "crossing_time";
+	static final String DATE_VALUE = "date_value";
 
 	SQLiteDatabase db;
 	
@@ -40,6 +51,62 @@ public class BusDb {
 		db.close();
 	}
 	
+	LTCStop findStop(String stopNumber) {
+		LTCStop stop = null;
+		Cursor c = db.query(STOP_TABLE,
+				new String[] { STOP_NUMBER, STOP_NAME },
+				String.format("%s = ?", STOP_NUMBER), new String[] { stopNumber },
+				null, null, null);
+		if (c.moveToFirst()) {
+			stop = new LTCStop(c.getInt(0), c.getString(1));
+		}
+		c.close();
+		return stop;
+	}
+	
+	LTCRoute[] findStopRoutes(String stopNumber) {
+		Cursor c = db.rawQuery(String.format("select %s.%s, %s.%s, %s.%s from %s, %s where %s.%s = %s.%s and %s.%s = ?",
+											 ROUTE_TABLE, ROUTE_NUMBER,
+											 ROUTE_TABLE, ROUTE_NAME,
+											 LINK_TABLE, DIRECTION_NUMBER,
+											 ROUTE_TABLE, LINK_TABLE,
+											 ROUTE_TABLE, ROUTE_NUMBER, LINK_TABLE, ROUTE_NUMBER,
+											 LINK_TABLE, STOP_NUMBER),
+				new String[] { stopNumber });
+		if (c.moveToFirst()) {
+			LTCRoute[] routes = new LTCRoute[c.getCount()];
+			int i;
+			for (i = 0; !c.isAfterLast(); i++, c.moveToNext()) {
+				routes[i] = new LTCRoute(c.getString(0), c.getString(1), c.getInt(2));
+			}
+			c.close();
+			return routes;
+		}
+		else {
+			return new LTCRoute[0];
+		}
+	}
+	
+	List<HashMap<String, String>> findStops(CharSequence text) {
+		String[] words = text.toString().trim().toLowerCase().split("\\s+");
+		String[] likes = new String[words.length];
+		List<HashMap<String, String>> stops = new ArrayList<HashMap<String, String>>();
+		int i;
+		for (i = 0; i < words.length; ++i) {
+			likes[i] = String.format("stop_name like %s", DatabaseUtils.sqlEscapeString("%"+words[i]+"%"));
+		}
+		String whereLike = TextUtils.join(" and ", likes);
+		Cursor c = db.query(STOP_TABLE, new String[] { STOP_NUMBER, STOP_NAME }, whereLike, null, null, null, STOP_NAME, "20");
+		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+			HashMap<String,String> map = new HashMap<String,String>(2);
+			map.put(STOP_NUMBER, c.getString(0));
+			map.put(STOP_NAME, c.getString(1));
+			stops.add(map);
+		}
+		c.close();
+		return stops;
+	}
+
 	// called by the scraper to load everything it found into the database
 	public void saveBusData(Collection<LTCRoute> routes,
 			Collection<LTCDirection> directions,

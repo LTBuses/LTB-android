@@ -1,32 +1,94 @@
 package org.frasermccrossan.ltc;
 
+import java.util.HashMap;
+import java.util.List;
+
 import android.app.Activity;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
 public class FindStop extends Activity {
-
-	TextView status;
-	LTCScraper scraper;
+	
+	EditText searchField;
+	ListView stopList;
+	SearchTask mySearchTask = null;
+	BusDb db;
+	
+	OnItemClickListener stopListener = new OnItemClickListener() {
+		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+			TextView stopNumberView = (TextView)view.findViewById(R.id.stop_number);
+			String stopNumber = stopNumberView.getText().toString();
+	    	Intent stopTimeIntent = new Intent(FindStop.this, StopTimes.class);
+	    	stopTimeIntent.putExtra(BusDb.STOP_NUMBER, stopNumber);
+	    	startActivity(stopTimeIntent);    	
+		}
+	};
 	
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.find_stop);
-        status = (TextView)findViewById(R.id.status);
-        scraper = new LTCScraper(this, new FindStatus());
+        searchField = (EditText)findViewById(R.id.search);
+        searchField.addTextChangedListener(new TextWatcher() {
+        	public void afterTextChanged(Editable s) {
+        		updateStops(s);
+        	}
+        	
+        	// don't care
+        	public void	beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        	public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        });
+        
+        stopList = (ListView)findViewById(R.id.stop_list);
+        stopList.setOnItemClickListener(stopListener);
+        db = new BusDb(this);
     }
 	
 	@Override
-	public void onStart() {
+	protected void onStart() {
 		super.onStart();
-		scraper.loadAll();
-		scraper.close();
+		updateStops(searchField.getText());
 	}
     
-	private class FindStatus implements ScrapingStatus {
-		public void update(LoadProgress progress) {
-			status.setText(progress.message);
+	@Override
+	protected void onDestroy() {
+		db.close();
+		super.onDestroy();
+	}
+	
+	public void updateStops(CharSequence searchText) {
+		if (mySearchTask != null && ! mySearchTask.isCancelled()) {
+			mySearchTask.cancel(true);
 		}
+		mySearchTask = new SearchTask();
+		mySearchTask.execute(searchText);
+
+	}
+	
+	class SearchTask extends AsyncTask<CharSequence, Void, List<HashMap<String, String>>> {
+		
+		protected List<HashMap<String, String>> doInBackground(CharSequence... strings) {
+			return db.findStops(strings[0]);
+	     }
+
+	     protected void onPostExecute(List<HashMap<String, String>> result) {
+	    	 
+	         SimpleAdapter adapter = new SimpleAdapter(FindStop.this,
+	        		 result,
+	        		 R.layout.stop_list_item,
+	        		 new String[] { BusDb.STOP_NUMBER, BusDb.STOP_NAME },
+	        		 new int[] { R.id.stop_number, R.id.stop_name });
+	         stopList.setAdapter(adapter);
+	     }
 	}
 }

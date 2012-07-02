@@ -2,6 +2,7 @@ package org.frasermccrossan.ltc;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,25 +21,88 @@ import android.os.AsyncTask;
 // everything required to load the LTC_supplied data into the database
 public class LTCScraper {
 
-	BusDb db;
-	ScrapingStatus status;
+	BusDb db = null;
+	ScrapingStatus status = null;
 	Context c;
 	static final String ROUTE_URL = "http://teuchter.lan:8000/routes.html";
 	static final String DIRECTION_URL = "http://teuchter.lan:8000/direction%s.html";
 	static final String STOPS_URL = "http://teuchter.lan:8000/direction%sd%d.html";
+	static final String PREDICTIONS_URL = "http://teuchter.lan:8000/dundas-westbound-sample.html";
+	static Pattern TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{2}) ([AP])");
+	//static Pattern TIME_PATTERN = Pattern.compile("");
 	
 	LTCScraper(Context c, ScrapingStatus s) {
 		db = new BusDb(c);
 		status = s;
 	}
 	
+	LTCScraper() {
+		/* no init - only instantiate this way if you only plan to check bus
+		 * predictions
+		 */
+	}
+	
 	public void close() {
-		db.close();
+		if (db != null) {
+			db.close();
+		}
 	}
 	
 	public void loadAll() {
 		LoadTask task = new LoadTask();
 		task.execute();
+	}
+	
+	String predictionUrl(LTCRoute route, String stopNumber) {
+		//return PREDICTIONS_URL;
+		return String.format("http://www.ltconline.ca/WebWatch/ada.aspx?r=%s&d=%s&s=%s",
+				route.number, route.direction, stopNumber);
+	}
+	
+	String getTimeAsMilliseconds(Calendar reference, Pattern timePattern, String textTime) {
+		Calendar cal = (Calendar)reference.clone();
+		Matcher m = timePattern.matcher(textTime);
+		if (m.find()) {
+			cal.set(Calendar.HOUR, Integer.valueOf(m.group(1)));
+			cal.set(Calendar.MINUTE, Integer.valueOf(m.group(2)));
+			cal.set(Calendar.AM_PM, m.group(3) == "A" ? Calendar.AM : Calendar.PM);
+			if (cal.before(reference)) {
+				// make sure expiry time is in the future
+				cal.add(Calendar.HOUR_OF_DAY, 24);
+			}
+		}
+		return String.format("%015d", cal.getTimeInMillis());
+	}
+		
+	public ArrayList<HashMap<String, String>> getPredictions(LTCRoute route, String stopNumber) throws ScrapeException {
+		ArrayList<HashMap<String, String>> predictions = new ArrayList<HashMap<String, String>>(3); // usually get 3 of them
+		try {
+			Calendar now = Calendar.getInstance();
+			now.set(Calendar.SECOND, 0);
+			now.set(Calendar.MILLISECOND, 0); // now we have 'now' set to the current time
+			Connection conn = Jsoup.connect(predictionUrl(route, stopNumber));
+			Document doc = conn.get();
+			Elements timeRows = doc.select("table.CrossingTimes tr");
+			//Log.i("GP", String.format("rows=%d", timeRows.size()));
+			for (Element timeRow: timeRows) {
+				Elements cols = timeRow.select("td");
+				//Log.i("GP", String.format("cols=%d", cols.size()));
+				if (cols.size() >= 2) {
+					Element timeLink = cols.get(0).select("a.ada").first();
+					HashMap<String, String> crossingTime = new HashMap<String, String>(3);
+					crossingTime.put(BusDb.ROUTE_NAME, route.name);
+					String textTime = timeLink.attr("title");
+					crossingTime.put(BusDb.CROSSING_TIME, textTime);
+					crossingTime.put(BusDb.DATE_VALUE, getTimeAsMilliseconds(now, TIME_PATTERN, textTime));
+					crossingTime.put(BusDb.DESTINATION, cols.get(1).text());
+					predictions.add(crossingTime);
+				}
+			}
+		}
+		catch (IOException e) {
+			// we'll think of something
+		}
+		return predictions;
 	}
 	
 	public ArrayList<LTCRoute> loadRoutes() throws ScrapeException, IOException {
@@ -54,7 +118,7 @@ public class LTCScraper {
 			Matcher m = numFinder.matcher(href);
 			if (m.find()) {
 				String number = m.group(1);
-				LTCRoute route = new LTCRoute(number, name, href);
+				LTCRoute route = new LTCRoute(number, name/*, href*/);
 				routes.add(route);
 			}
 			else {

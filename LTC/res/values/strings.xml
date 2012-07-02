@@ -3,5 +3,11 @@
 
     <string name="status">Status field initial value</string>
     <string name="app_name">LTC</string>
+    <string name="find_hint">Enter stop number or keywords, e.g. dundas well</string>
+    <string name="stop_number">Stop #</string>
+    <string name="stop_name">Stop Name</string>
+    <string name="last_updated">Last updated</string>
+    <string name="at_this_stop">At this stop: %1$s</string>
+    <string name="stop_times">Stop Times</string>
 
 </resources>

@@ -5,9 +5,27 @@
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/status"
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:text="@string/status" />
+        android:id="@+id/find_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@android:style/TextAppearance.DeviceDefault.Small"
+        android:text="@string/find_hint" />
+    
+    <EditText
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        style="@android:style/TextAppearance.DeviceDefault.Large"
+        android:inputType="text|textNoSuggestions" >
+
+        <requestFocus />
+    </EditText>
+    
+    <ListView
+        android:id="@+id/stop_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+    </ListView>
 
 </LinearLayout>
