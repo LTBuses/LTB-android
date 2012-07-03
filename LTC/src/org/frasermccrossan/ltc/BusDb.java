@@ -51,6 +51,16 @@ public class BusDb {
 		db.close();
 	}
 	
+	public boolean isValid() {
+		Cursor c = db.rawQuery(String.format("select count(*) from %s", ROUTE_TABLE), null);
+		if (c.moveToFirst()) {
+			boolean valid = (c.getInt(0) > 0);
+			c.close();
+			return valid;
+		}
+		return false;
+	}
+	
 	LTCStop findStop(String stopNumber) {
 		LTCStop stop = null;
 		Cursor c = db.query(STOP_TABLE,

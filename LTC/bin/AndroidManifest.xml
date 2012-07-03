@@ -22,6 +22,9 @@
         <activity
             android:name=".StopTimes"
             android:label="@string/stop_times" />
-    </application>
+        <activity
+            android:name=".UpdateDatabase"
+            android:label="@string/stop_times" />
+        </application>
 
 </manifest>

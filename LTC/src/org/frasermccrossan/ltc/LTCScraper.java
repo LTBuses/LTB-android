@@ -54,7 +54,7 @@ public class LTCScraper {
 	}
 	
 	String predictionUrl(LTCRoute route, String stopNumber) {
-		//return PREDICTIONS_URL;
+//		return PREDICTIONS_URL;
 		return String.format("http://www.ltconline.ca/WebWatch/ada.aspx?r=%s&d=%s&s=%s",
 				route.number, route.direction, stopNumber);
 	}
@@ -188,27 +188,27 @@ public class LTCScraper {
     		HashMap<Integer, LTCStop> allStops = new HashMap<Integer, LTCStop>();
     		// all stops that each route stops at in each direction
     		ArrayList<RouteStopLink> links = new ArrayList<RouteStopLink>();
-    		publishProgress(new LoadProgress("Loading route names", 0));
+    		publishProgress(new LoadProgress("Downloading routes", 0));
     		try {
     			routes = loadRoutes();
     			if (routes.size() == 0) {
     				publishProgress(new LoadProgress("No routes found", 100));
     			}
     			else {
-    				for (LTCRoute route: routes) {
-        				publishProgress(new LoadProgress("Loading directions for " + route.name, 100));
-        				ArrayList<LTCDirection> routeDirections = loadDirections(route.number);
+    				int i;
+    				for (i = 0; i < routes.size(); ++i) {
+        				publishProgress(new LoadProgress("Loading route " + routes.get(i).name, 5 + 90 * i / routes.size()));
+        				ArrayList<LTCDirection> routeDirections = loadDirections(routes.get(i).number);
         				for (LTCDirection dir: routeDirections) {
         					if (!allDirections.containsKey(dir.number)) {
         						allDirections.put(dir.number, dir);
         					}
-            				publishProgress(new LoadProgress("Loading stops for " + route.name + " " + dir.name, 100));
-        					ArrayList<LTCStop> stops = loadStops(route.number, dir.number);
+        					ArrayList<LTCStop> stops = loadStops(routes.get(i).number, dir.number);
         					for (LTCStop stop: stops) {
         						if (!allStops.containsKey(stop.number)) {
         							allStops.put(stop.number, stop);
         						}
-        						links.add(new RouteStopLink(route.number, dir.number, stop.number));
+        						links.add(new RouteStopLink(routes.get(i).number, dir.number, stop.number));
         					}
         				}
     				}

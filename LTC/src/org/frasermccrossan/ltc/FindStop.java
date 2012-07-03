@@ -57,7 +57,13 @@ public class FindStop extends Activity {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		updateStops(searchField.getText());
+        if (!db.isValid()) {
+	    	Intent updateDatabaseIntent = new Intent(FindStop.this, UpdateDatabase.class);
+	    	startActivity(updateDatabaseIntent);    	
+        }
+        else {
+        	updateStops(searchField.getText());
+        }
 	}
     
 	@Override
