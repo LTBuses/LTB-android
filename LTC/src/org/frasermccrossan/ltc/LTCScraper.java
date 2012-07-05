@@ -59,22 +59,38 @@ public class LTCScraper {
 				route.number, route.direction, stopNumber);
 	}
 	
-	String getTimeAsMilliseconds(Calendar reference, Pattern timePattern, String textTime) {
+	long getTimeDiffAsMinutes(Calendar reference, Pattern timePattern, String textTime) {
+		Calendar grace = (Calendar)reference.clone();
+		grace.add(Calendar.HOUR_OF_DAY, -1); // allow times to be up to an hour earlier than now before bouncing to the next day
 		Calendar cal = (Calendar)reference.clone();
 		Matcher m = timePattern.matcher(textTime);
 		if (m.find()) {
 			cal.set(Calendar.HOUR, Integer.valueOf(m.group(1)));
 			cal.set(Calendar.MINUTE, Integer.valueOf(m.group(2)));
-			cal.set(Calendar.AM_PM, m.group(3) == "A" ? Calendar.AM : Calendar.PM);
-			if (cal.before(reference)) {
+			cal.set(Calendar.AM_PM, m.group(3).equals("A") ? Calendar.AM : Calendar.PM);
+			if (cal.before(grace)) {
 				// make sure expiry time is in the future
 				cal.add(Calendar.HOUR_OF_DAY, 24);
 			}
 		}
-		return String.format("%015d", cal.getTimeInMillis());
+		return (cal.getTimeInMillis() - reference.getTimeInMillis())/60000;
 	}
-		
-	public ArrayList<HashMap<String, String>> getPredictions(LTCRoute route, String stopNumber) throws ScrapeException {
+	
+	String minutesAsText(long minutes) {
+		boolean negative = false;
+		if (minutes < 0) {
+			negative = true;
+			minutes = -minutes;
+		}
+		if (minutes < 60) {
+			return String.format("%s%d min", negative ? "-" : "", minutes);
+		}
+		else {
+			return String.format("%dh%dm", minutes / 60, minutes % 60);
+		}
+	}
+			
+	public ArrayList<HashMap<String, String>> getPredictions(LTCRoute route, String stopNumber) {
 		ArrayList<HashMap<String, String>> predictions = new ArrayList<HashMap<String, String>>(3); // usually get 3 of them
 		try {
 			Calendar now = Calendar.getInstance();
@@ -83,24 +99,54 @@ public class LTCScraper {
 			Connection conn = Jsoup.connect(predictionUrl(route, stopNumber));
 			Document doc = conn.get();
 			Elements timeRows = doc.select("table.CrossingTimes tr");
+			if (timeRows.size() == 0) {
+				throw new ScrapeException("time table not found");
+			}
 			//Log.i("GP", String.format("rows=%d", timeRows.size()));
 			for (Element timeRow: timeRows) {
 				Elements cols = timeRow.select("td");
+				if (cols.size() == 0) {
+					throw new ScrapeException("missing time columns");
+				}
 				//Log.i("GP", String.format("cols=%d", cols.size()));
+				Element timeLink = cols.get(0).select("a.ada").first();
+				if (timeLink == null) {
+					throw new ScrapeException("missing time");
+				}
+				HashMap<String, String> crossingTime = new HashMap<String, String>(3);
+				String textTime = timeLink.attr("title");
+				crossingTime.put(BusDb.ROUTE_NUMBER, route.number);
 				if (cols.size() >= 2) {
-					Element timeLink = cols.get(0).select("a.ada").first();
-					HashMap<String, String> crossingTime = new HashMap<String, String>(3);
-					crossingTime.put(BusDb.ROUTE_NAME, route.name);
-					String textTime = timeLink.attr("title");
-					crossingTime.put(BusDb.CROSSING_TIME, textTime);
-					crossingTime.put(BusDb.DATE_VALUE, getTimeAsMilliseconds(now, TIME_PATTERN, textTime));
+					long timeDifference = getTimeDiffAsMinutes(now, TIME_PATTERN, textTime);
+					crossingTime.put(BusDb.DATE_VALUE, String.format("%08d", timeDifference));
+					crossingTime.put(BusDb.CROSSING_TIME, minutesAsText(timeDifference));
 					crossingTime.put(BusDb.DESTINATION, cols.get(1).text());
+					predictions.add(crossingTime);
+				}
+				else if (textTime.matches("^No further.*$")) {
+					crossingTime.put(BusDb.DATE_VALUE, "0");
+					crossingTime.put(BusDb.CROSSING_TIME, "None");
+					crossingTime.put(BusDb.DESTINATION, "");
 					predictions.add(crossingTime);
 				}
 			}
 		}
+		catch (ScrapeException e) {
+			HashMap<String, String> scrapeReport = new HashMap<String, String>(3);
+			scrapeReport.put(BusDb.ROUTE_NUMBER, route.number);
+			scrapeReport.put(BusDb.DATE_VALUE, "0");
+			scrapeReport.put(BusDb.CROSSING_TIME, "BUG!");
+			scrapeReport.put(BusDb.DESTINATION, e.getMessage());
+			predictions.add(scrapeReport);
+
+		}
 		catch (IOException e) {
-			// we'll think of something
+			HashMap<String, String> failReport = new HashMap<String, String>(3);
+			failReport.put(BusDb.ROUTE_NUMBER, route.number);
+			failReport.put(BusDb.DATE_VALUE, "0");
+			failReport.put(BusDb.CROSSING_TIME, "Fail");
+			failReport.put(BusDb.DESTINATION, e.getMessage());
+			predictions.add(failReport);
 		}
 		return predictions;
 	}

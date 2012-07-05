@@ -54,8 +54,8 @@ public class StopTimes extends Activity {
 		adapter = new SimpleAdapter(StopTimes.this,
        		 predictions,
        		 R.layout.prediction_item,
-       		 new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NAME, BusDb.DESTINATION },
-       		 new int[] { R.id.crossing_time, R.id.route_name, R.id.destination });
+       		 new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.DESTINATION },
+       		 new int[] { R.id.crossing_time, R.id.route_number, R.id.destination });
         predictionList.setAdapter(adapter);
         getPredictions();
 	}
@@ -88,13 +88,8 @@ public class StopTimes extends Activity {
 		protected Void doInBackground(LTCRoute... routes) {
 			LTCScraper scraper = new LTCScraper();
 			for (LTCRoute route: routes) {
-				try {
-					ArrayList<HashMap<String, String>> routePreds = scraper.getPredictions(route, stopNumber);
-					publishProgress(routePreds);
-				}
-				catch (ScrapeException e) {
-					// nothing yet, we'll think of something
-				}
+				ArrayList<HashMap<String, String>> routePreds = scraper.getPredictions(route, stopNumber);
+				publishProgress(routePreds);
 			}
 			return null;
 		}
