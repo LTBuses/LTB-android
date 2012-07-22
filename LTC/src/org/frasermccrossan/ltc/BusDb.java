@@ -98,14 +98,21 @@ public class BusDb {
 	}
 	
 	List<HashMap<String, String>> findStops(CharSequence text) {
-		String[] words = text.toString().trim().toLowerCase().split("\\s+");
-		String[] likes = new String[words.length];
+		String searchText = text.toString();
 		List<HashMap<String, String>> stops = new ArrayList<HashMap<String, String>>();
-		int i;
-		for (i = 0; i < words.length; ++i) {
-			likes[i] = String.format("stop_name like %s", DatabaseUtils.sqlEscapeString("%"+words[i]+"%"));
+		String whereLike;
+		if (searchText.matches("^\\d+$")) {
+			whereLike = String.format("%s = %s", STOP_NUMBER, text);
 		}
-		String whereLike = TextUtils.join(" and ", likes);
+		else {
+			String[] words = searchText.trim().toLowerCase().split("\\s+");
+			String[] likes = new String[words.length];
+			int i;
+			for (i = 0; i < words.length; ++i) {
+				likes[i] = String.format("stop_name like %s", DatabaseUtils.sqlEscapeString("%"+words[i]+"%"));
+			}
+			whereLike = TextUtils.join(" and ", likes);
+		}
 		Cursor c = db.query(STOP_TABLE, new String[] { STOP_NUMBER, STOP_NAME }, whereLike, null, null, null, STOP_NAME, "20");
 		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
 			HashMap<String,String> map = new HashMap<String,String>(2);

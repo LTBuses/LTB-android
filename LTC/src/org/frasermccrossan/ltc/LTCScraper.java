@@ -27,9 +27,11 @@ public class LTCScraper {
 	static final String ROUTE_URL = "http://teuchter.lan:8000/routes.html";
 	static final String DIRECTION_URL = "http://teuchter.lan:8000/direction%s.html";
 	static final String STOPS_URL = "http://teuchter.lan:8000/direction%sd%d.html";
-	static final String PREDICTIONS_URL = "http://teuchter.lan:8000/dundas-westbound-sample.html";
-	static Pattern TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{2}) ([AP])");
-	//static Pattern TIME_PATTERN = Pattern.compile("");
+	static final String PREDICTIONS_URL = "http://teuchter.lan:8000/foo.html";
+	static final Pattern TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{2}) ?([AP])?");
+	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything
+	static final int DAY_MINUTES = 24 * 60;
+	static final int HALF_DAY_MINUTES = DAY_MINUTES / 2;
 	
 	LTCScraper(Context c, ScrapingStatus s) {
 		db = new BusDb(c);
@@ -59,31 +61,58 @@ public class LTCScraper {
 				route.number, route.direction, stopNumber);
 	}
 	
-	long getTimeDiffAsMinutes(Calendar reference, Pattern timePattern, String textTime) {
-		Calendar grace = (Calendar)reference.clone();
-		grace.add(Calendar.HOUR_OF_DAY, -1); // allow times to be up to an hour earlier than now before bouncing to the next day
-		Calendar cal = (Calendar)reference.clone();
+	/* given a time in text scraped from the website, get the best guess of the time it
+	 * represents; we do this all manually rather than use Calendar because the AM/PM
+	 * behaviour of Calendar is broken
+	 */
+	int getTimeDiffAsMinutes(Calendar reference, Pattern timePattern, String textTime) {
 		Matcher m = timePattern.matcher(textTime);
 		if (m.find()) {
-			cal.set(Calendar.HOUR, Integer.valueOf(m.group(1)));
-			cal.set(Calendar.MINUTE, Integer.valueOf(m.group(2)));
-			cal.set(Calendar.AM_PM, m.group(3).equals("A") ? Calendar.AM : Calendar.PM);
-			if (cal.before(grace)) {
-				// make sure expiry time is in the future
-				cal.add(Calendar.HOUR_OF_DAY, 24);
+			int hour=Integer.valueOf(m.group(1));
+			if (hour == 12) { hour = 0; } // makes calculations easier
+			int minute = Integer.valueOf(m.group(2));
+			String am_pm = m.group(3);
+			if (m.group(3) == null) {
+				// no am/pm indicator, assume it's within 12 hours of now and take a best guess
+				int ref12Hour = reference.get(Calendar.HOUR);
+				if (ref12Hour == 12) { ref12Hour = 0; }
+				int minsAfterMid = hour * 60 + minute; // after midnight or midday, don't care
+				int refMinsAfterMid = ref12Hour * 60 + reference.get(Calendar.MINUTE);
+				if (minsAfterMid >= refMinsAfterMid) {
+					// it looks like it's shortly after the current time
+					return minsAfterMid - refMinsAfterMid;
+				}
+				else {
+					// it looks like it has crossed the midday/midnight boundary
+					return HALF_DAY_MINUTES - refMinsAfterMid + minsAfterMid;
+				}
+			}
+			else {
+				am_pm = am_pm.toLowerCase();
+				if (am_pm.equals("p")) {
+					hour += 12; // we fixed the hour values above, so 12 is zero
+				}
+				int minsAfterMidnight = hour*60 + minute;
+				int refMinsAfterMidnight = reference.get(Calendar.HOUR_OF_DAY) * 60 + reference.get(Calendar.MINUTE);
+				if (minsAfterMidnight >= refMinsAfterMidnight) {
+					return minsAfterMidnight - refMinsAfterMidnight;
+				}
+				else {
+					return DAY_MINUTES - refMinsAfterMidnight + minsAfterMidnight;
+				}
 			}
 		}
-		return (cal.getTimeInMillis() - reference.getTimeInMillis())/60000;
+		else {
+			return -1;
+		}
 	}
 	
 	String minutesAsText(long minutes) {
-		boolean negative = false;
 		if (minutes < 0) {
-			negative = true;
-			minutes = -minutes;
+			return "?";
 		}
 		if (minutes < 60) {
-			return String.format("%s%d min", negative ? "-" : "", minutes);
+			return String.format("%d min", minutes);
 		}
 		else {
 			return String.format("%dh%dm", minutes / 60, minutes % 60);
@@ -124,7 +153,7 @@ public class LTCScraper {
 					predictions.add(crossingTime);
 				}
 				else if (textTime.matches("^No further.*$")) {
-					crossingTime.put(BusDb.DATE_VALUE, "0");
+					crossingTime.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
 					crossingTime.put(BusDb.CROSSING_TIME, "None");
 					crossingTime.put(BusDb.DESTINATION, "");
 					predictions.add(crossingTime);
@@ -134,7 +163,7 @@ public class LTCScraper {
 		catch (ScrapeException e) {
 			HashMap<String, String> scrapeReport = new HashMap<String, String>(3);
 			scrapeReport.put(BusDb.ROUTE_NUMBER, route.number);
-			scrapeReport.put(BusDb.DATE_VALUE, "0");
+			scrapeReport.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
 			scrapeReport.put(BusDb.CROSSING_TIME, "BUG!");
 			scrapeReport.put(BusDb.DESTINATION, e.getMessage());
 			predictions.add(scrapeReport);
@@ -143,7 +172,7 @@ public class LTCScraper {
 		catch (IOException e) {
 			HashMap<String, String> failReport = new HashMap<String, String>(3);
 			failReport.put(BusDb.ROUTE_NUMBER, route.number);
-			failReport.put(BusDb.DATE_VALUE, "0");
+			failReport.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
 			failReport.put(BusDb.CROSSING_TIME, "Fail");
 			failReport.put(BusDb.DESTINATION, e.getMessage());
 			predictions.add(failReport);
