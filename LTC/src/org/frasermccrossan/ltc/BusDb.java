@@ -33,6 +33,13 @@ public class BusDb {
 	static final String DIRECTION_NUMBER = "direction_number";
 	static final String DIRECTION_NAME = "direction_name";
 
+	static final String FRESHNESS = "freshness";
+	
+	static final String FRESHNESS_TABLE = "last_updates";
+	static final String WEEKDAY_FRESHNESS = "weekday_freshness";
+	static final String SATURDAY_FRESHNESS = "saturday_freshness";
+	static final String SUNDAY_FRESHNESS = "sunday_freshness";
+	
 	static final String LINK_TABLE = "route_stops";
 	
 	// fake columns, defined here for consistency
@@ -130,37 +137,41 @@ public class BusDb {
 			Collection<LTCStop> stops,
 			Collection<RouteStopLink> links) throws SQLException {
 		db.beginTransaction();
+		/* we use insert for everything below because all tables have an appropriate UNIQUE constraint with
+		 * ON CONFLICT REPLACE
+		 */
 		try {
+			long now = System.currentTimeMillis();
 			ContentValues cv = new ContentValues(5); // 5 should deal with everything
-			db.delete(ROUTE_TABLE, null, null);
 			for (LTCRoute route : routes) {
 				cv.clear();
 				cv.put(ROUTE_NUMBER, route.number);
 				cv.put(ROUTE_NAME, route.name);
+				cv.put(FRESHNESS, now);
 				db.insertOrThrow (ROUTE_TABLE, null, cv);
 			}
-			db.delete(DIRECTION_TABLE, null, null);
 			for (LTCDirection dir : directions) {
 				cv.clear();
 				cv.put(DIRECTION_NUMBER, dir.number);
 				cv.put(DIRECTION_NAME, dir.name);
+				cv.put(FRESHNESS, now);
 				db.insertOrThrow (DIRECTION_TABLE, null, cv);				
 			}
-			db.delete(STOP_TABLE, null, null);
 			for (LTCStop dir : stops) {
 				cv.clear();
 				cv.put(STOP_NUMBER, dir.number);
 				cv.put(STOP_NAME, dir.name);
 				cv.put(LATITUDE, dir.latitude);
 				cv.put(LONGITUDE, dir.longitude);
+				cv.put(FRESHNESS, now);
 				db.insertOrThrow (STOP_TABLE, null, cv);				
 			}
-			db.delete(LINK_TABLE, null, null);
 			for (RouteStopLink link : links) {
 				cv.clear();
 				cv.put(ROUTE_NUMBER, link.routeNumber);
 				cv.put(DIRECTION_NUMBER, link.directionNumber);
 				cv.put(STOP_NUMBER, link.stopNumber);
+				cv.put(FRESHNESS, now);
 				db.insertOrThrow (LINK_TABLE, null, cv);				
 			}
 			db.setTransactionSuccessful();

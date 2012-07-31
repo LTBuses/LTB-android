@@ -17,6 +17,8 @@ import org.jsoup.select.Elements;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
+import android.text.TextUtils.SimpleStringSplitter;
+import android.text.TextUtils.StringSplitter;
 
 // everything required to load the LTC_supplied data into the database
 public class LTCScraper {
@@ -27,6 +29,7 @@ public class LTCScraper {
 	static final String ROUTE_URL = "http://teuchter.lan:8000/routes.html";
 	static final String DIRECTION_URL = "http://teuchter.lan:8000/direction%s.html";
 	static final String STOPS_URL = "http://teuchter.lan:8000/direction%sd%d.html";
+	static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
 	static final String PREDICTIONS_URL = "http://teuchter.lan:8000/foo.html";
 	static final Pattern TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{2}) ?([AP])?");
 	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything
@@ -253,6 +256,31 @@ public class LTCScraper {
 
 	}
 	
+	/* this just updates existing stops with any locations found from the google map URL */
+	void loadStopLocations(String routeNum, ArrayList<LTCStop> stops) throws ScrapeException, IOException {
+		String url = String.format(MAP_URL, routeNum);
+		Connection conn = Jsoup.connect(url);
+		Document doc = conn.get();
+		Elements scripts = doc.select("script");
+		for (Element script : scripts) {
+			String stopData = script.data();
+			if (stopData.contains("var initInfoString")) {
+				int offset = 0;
+				// skip past the crap at the start by finding the 4th asterisk
+				for (int i = 0; i < 4; ++i) {
+					offset = stopData.indexOf('*', offset) + 1;
+				}
+				String actualStopText = stopData.substring(offset);
+				StringSplitter splitter = new SimpleStringSplitter(';');
+				splitter.setString(actualStopText);
+				for (String stopInfo : splitter) {
+					String foo = stopInfo;
+				}
+				return;
+			}
+		}
+	}
+	
     private class LoadTask extends AsyncTask<Void, LoadProgress, Void> {
 
     	protected Void doInBackground(Void... thing) {
@@ -279,6 +307,7 @@ public class LTCScraper {
         						allDirections.put(dir.number, dir);
         					}
         					ArrayList<LTCStop> stops = loadStops(routes.get(i).number, dir.number);
+        					loadStopLocations(routes.get(i).number, stops);
         					for (LTCStop stop: stops) {
         						if (!allStops.containsKey(stop.number)) {
         							allStops.put(stop.number, stop);
