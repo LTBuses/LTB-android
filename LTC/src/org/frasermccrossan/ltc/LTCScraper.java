@@ -14,13 +14,16 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.text.TextUtils.StringSplitter;
+import android.util.Log;
 
 // everything required to load the LTC_supplied data into the database
+@SuppressLint("UseSparseArrays")
 public class LTCScraper {
 
 	BusDb db = null;
@@ -32,6 +35,7 @@ public class LTCScraper {
 	static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
 	static final String PREDICTIONS_URL = "http://teuchter.lan:8000/foo.html";
 	static final Pattern TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{2}) ?([AP])?");
+	static final Pattern LOCATION_STOP_PATTERN = Pattern.compile("(\\d+)");
 	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything
 	static final int DAY_MINUTES = 24 * 60;
 	static final int HALF_DAY_MINUTES = DAY_MINUTES / 2;
@@ -231,8 +235,8 @@ public class LTCScraper {
 
 	}
 	
-	ArrayList<LTCStop> loadStops(String routeNum, int direction) throws ScrapeException, IOException {
-		ArrayList<LTCStop> stops = new ArrayList<LTCStop>();
+	HashMap<Integer, LTCStop> loadStops(String routeNum, int direction) throws ScrapeException, IOException {
+		HashMap<Integer, LTCStop> stops = new HashMap<Integer, LTCStop>();
 		String url = String.format(STOPS_URL, routeNum, direction);
 		Connection conn = Jsoup.connect(url);
 		Document doc = conn.get();
@@ -246,7 +250,7 @@ public class LTCScraper {
 			if (m.find()) {
 				Integer number = Integer.valueOf(m.group(1));
 				LTCStop stop = new LTCStop(number, name);
-				stops.add(stop);
+				stops.put(stop.number, stop);
 			}
 			else {
 				throw new ScrapeException("unrecognized route URL format");
@@ -257,7 +261,7 @@ public class LTCScraper {
 	}
 	
 	/* this just updates existing stops with any locations found from the google map URL */
-	void loadStopLocations(String routeNum, ArrayList<LTCStop> stops) throws ScrapeException, IOException {
+	void loadStopLocations(String routeNum, HashMap<Integer, LTCStop> stops) throws ScrapeException, IOException {
 		String url = String.format(MAP_URL, routeNum);
 		Connection conn = Jsoup.connect(url);
 		Document doc = conn.get();
@@ -270,11 +274,27 @@ public class LTCScraper {
 				for (int i = 0; i < 4; ++i) {
 					offset = stopData.indexOf('*', offset) + 1;
 				}
-				String actualStopText = stopData.substring(offset);
+				/* get the interesting part, and while we're at it, remove all asterisks
+				 * so we don't have to deal with them at the start of latitudes later
+				 */
+				String actualStopText = stopData.substring(offset).replace("*", "");
 				StringSplitter splitter = new SimpleStringSplitter(';');
 				splitter.setString(actualStopText);
 				for (String stopInfo : splitter) {
-					String foo = stopInfo;
+					String elems[] = stopInfo.split("\\|");
+					if (elems.length == 7) {
+						double latitude = Double.valueOf(elems[0]);
+						double longitude = Double.valueOf(elems[1]);
+						Matcher stopNumMatch = LOCATION_STOP_PATTERN.matcher(elems[4]);
+						if (stopNumMatch.find()) {
+							int stopNum = Integer.valueOf(stopNumMatch.group(1));
+							LTCStop stop = stops.get(stopNum);
+							if (stop != null) {
+								stop.latitude = latitude;
+								stop.longitude = longitude;
+							}
+						}
+					}
 				}
 				return;
 			}
@@ -306,20 +326,17 @@ public class LTCScraper {
         					if (!allDirections.containsKey(dir.number)) {
         						allDirections.put(dir.number, dir);
         					}
-        					ArrayList<LTCStop> stops = loadStops(routes.get(i).number, dir.number);
+        					HashMap<Integer, LTCStop> stops = loadStops(routes.get(i).number, dir.number);
         					loadStopLocations(routes.get(i).number, stops);
-        					for (LTCStop stop: stops) {
-        						if (!allStops.containsKey(stop.number)) {
-        							allStops.put(stop.number, stop);
+        					for (int stopNumber: stops.keySet()) {
+        						if (!allStops.containsKey(stopNumber)) {
+        							allStops.put(stopNumber, stops.get(stopNumber));
         						}
-        						links.add(new RouteStopLink(routes.get(i).number, dir.number, stop.number));
+        						links.add(new RouteStopLink(routes.get(i).number, dir.number, stopNumber));
         					}
         				}
     				}
-    				publishProgress(new LoadProgress(String.valueOf(routes.size()) + " routes "
-    						+ String.valueOf(allDirections.size()) + " directions "
-    						+ String.valueOf(allStops.size()) + " stops "
-    						+ String.valueOf(links.size() + " links"), 100));
+    				publishProgress(new LoadProgress("", 100));
     				db.saveBusData(routes, allDirections.values(), allStops.values(), links);
     			}
     		}

@@ -10,6 +10,7 @@
             android:id="@+id/stop_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingLeft="3dp"
             android:minEms="3"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textStyle="italic" />

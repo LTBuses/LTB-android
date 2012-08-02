@@ -8,6 +8,7 @@
             android:id="@+id/route_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingLeft="3dp"
             android:minEms="2"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
@@ -23,6 +24,7 @@
              android:id="@+id/crossing_time"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
+             android:paddingRight="3dp"
              android:minEms="3"
              android:gravity="right"
              android:singleLine="true"

@@ -40,9 +40,9 @@ public class UpdateDatabase extends Activity {
 		public void update(LoadProgress progress) {
 			statusText.setText(progress.message);
 			progressBar.setProgress(progress.percent);
-//			if (progress.percent >= 100) {
-//				finish();
-//			}
+			if (progress.percent >= 100) {
+				finish();
+			}
 		}
 	}
 }

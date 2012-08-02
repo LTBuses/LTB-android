@@ -23,6 +23,7 @@ public class StopTimes extends Activity {
 	LTCRoute[] routeList;
 	SimpleAdapter adapter;
 	ListView predictionList;
+	PredictionTask task = null;
 	ArrayList<HashMap<String, String>> predictions;
 	
 	@Override
@@ -62,6 +63,10 @@ public class StopTimes extends Activity {
 	
 	@Override
 	protected void onStop() {
+		if (task != null) {
+			task.cancel(true); // we don't care if this fails because it has already stopped
+			task = null;
+		}
 		adapter = null;
 		predictions = null;
 		super.onStop();
@@ -75,7 +80,7 @@ public class StopTimes extends Activity {
 	
 	void getPredictions() {
 		predictions.clear();
-		PredictionTask task = new PredictionTask();
+		task = new PredictionTask();
 		task.execute(routeList);
 	}
 	
