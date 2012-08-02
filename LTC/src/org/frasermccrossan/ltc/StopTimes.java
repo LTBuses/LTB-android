@@ -94,6 +94,9 @@ public class StopTimes extends Activity {
 			LTCScraper scraper = new LTCScraper();
 			for (LTCRoute route: routes) {
 				ArrayList<HashMap<String, String>> routePreds = scraper.getPredictions(route, stopNumber);
+				if (isCancelled()) {
+					break;
+				}
 				publishProgress(routePreds);
 			}
 			return null;
@@ -101,12 +104,18 @@ public class StopTimes extends Activity {
 		
 		protected void onProgressUpdate(ArrayList<HashMap<String,String>>... predictionMaps) {
 			// update predictions and ping the listview
+			if (isCancelled()) {
+				return;
+			}
 			for (ArrayList<HashMap<String,String>> predMap: predictionMaps) {
 				predictions.addAll(predMap);
 				Collections.sort(predictions, new PredictionComparator());
 			}
-			adapter.notifyDataSetChanged();
+			if (adapter != null) {
+				adapter.notifyDataSetChanged();
+			}
 		}
+		
 	}
 	
 	class PredictionComparator implements Comparator<Map<String, String>> {

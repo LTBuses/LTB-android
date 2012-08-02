@@ -11,6 +11,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.location.Location;
 import android.text.TextUtils;
 
 /* although called BusDb, this is actually a helper class to abstract all the
@@ -104,7 +105,7 @@ public class BusDb {
 		}
 	}
 	
-	List<HashMap<String, String>> findStops(CharSequence text) {
+	List<HashMap<String, String>> findStops(CharSequence text, Location location) {
 		String searchText = text.toString();
 		List<HashMap<String, String>> stops = new ArrayList<HashMap<String, String>>();
 		String whereLike;
@@ -120,7 +121,17 @@ public class BusDb {
 			}
 			whereLike = TextUtils.join(" and ", likes);
 		}
-		Cursor c = db.query(STOP_TABLE, new String[] { STOP_NUMBER, STOP_NAME }, whereLike, null, null, null, STOP_NAME, "20");
+		String order;
+		if (location == null) {
+			order = STOP_NAME;
+		}
+		else {
+			double lat = location.getLatitude();
+			double lon = location.getLongitude();
+			order = String.format("(latitude-(%f))*(latitude-(%f)) + (longitude-(%f))*(longitude-(%f))",
+					lat, lat, lon, lon);
+		}
+		Cursor c = db.query(STOP_TABLE, new String[] { STOP_NUMBER, STOP_NAME }, whereLike, null, null, null, order, "20");
 		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
 			HashMap<String,String> map = new HashMap<String,String>(2);
 			map.put(STOP_NUMBER, c.getString(0));
