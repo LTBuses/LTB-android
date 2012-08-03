@@ -10,15 +10,32 @@
         android:layout_height="wrap_content"
         style="@android:style/TextAppearance.DeviceDefault.Small"
         android:text="@string/find_hint" />
-    
-    <EditText
-        android:id="@+id/search"
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        style="@android:style/TextAppearance.DeviceDefault.Large"
-        android:inputType="text|textNoSuggestions" >
-    </EditText>
+        android:layout_height="wrap_content" >
+
+        <EditText
+            android:id="@+id/search"
+            style="@android:style/TextAppearance.DeviceDefault.Large"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:inputType="text|textNoSuggestions" >
+
+            <requestFocus />
+        </EditText>
+
+        <ImageView
+            android:id="@+id/location_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:contentDescription="@string/location_status"
+            android:src="@drawable/ic_action_no_location" />
+
+    </LinearLayout>
     
     <ListView
         android:id="@+id/stop_list"

@@ -14,19 +14,23 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class FindStop extends Activity {
 	
 	EditText searchField;
 	ListView stopList;
+	ImageView locationImage;
 	LocationManager myLocationManager;
 	String locProvider = null;
 	Location lastLocation;
@@ -46,14 +50,16 @@ public class FindStop extends Activity {
 	LocationListener locationListener = new LocationListener() {
 		public void onLocationChanged(Location location) {
 			// Called when a new location is found by the network location provider.
-			if (lastLocation == null) {
-				lastLocation = location;
+			lastLocation= location;
+			String provider = lastLocation.getProvider();
+			if (provider.equals(LocationManager.GPS_PROVIDER)) {
+				locationImage.setImageResource(R.drawable.ic_action_satellite_location);
+			}
+			else if (provider.equals(LocationManager.NETWORK_PROVIDER)) {
+				locationImage.setImageResource(R.drawable.ic_action_antenna_location);
 			}
 			else {
-				if (location.getAccuracy() < lastLocation.getAccuracy() &&
-						location.getTime() > lastLocation.getTime()) {
-					lastLocation = location;
-				}
+				locationImage.setImageResource(R.drawable.ic_action_no_location);
 			}
 			updateStops();
 		}
@@ -82,6 +88,7 @@ public class FindStop extends Activity {
         myLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         stopList = (ListView)findViewById(R.id.stop_list);
         stopList.setOnItemClickListener(stopListener);
+        locationImage = (ImageView) findViewById(R.id.location_status);
         db = new BusDb(this);
     }
 	
@@ -107,14 +114,38 @@ public class FindStop extends Activity {
 	@Override
 	protected void onStop() {
 		myLocationManager.removeUpdates(locationListener);
+		if (mySearchTask != null && ! mySearchTask.isCancelled()) {
+			mySearchTask.cancel(true);
+		}
 		super.onStop();
 	}
+	
 	@Override
 	protected void onDestroy() {
 		db.close();
 		super.onDestroy();
 	}
 	
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+        case R.id.about:
+        	startActivity(new Intent(this, About.class));
+        	return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    
 	public void updateStops() {
 		if (mySearchTask != null && ! mySearchTask.isCancelled()) {
 			mySearchTask.cancel(true);
@@ -137,7 +168,9 @@ public class FindStop extends Activity {
 	        		 R.layout.stop_list_item,
 	        		 new String[] { BusDb.STOP_NUMBER, BusDb.STOP_NAME },
 	        		 new int[] { R.id.stop_number, R.id.stop_name });
-	         stopList.setAdapter(adapter);
+	         if (!isCancelled() && stopList != null) {
+	        	 stopList.setAdapter(adapter);
+	         }
 	     }
 	}
 }

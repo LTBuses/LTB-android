@@ -20,7 +20,6 @@ import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.text.TextUtils.StringSplitter;
-import android.util.Log;
 
 // everything required to load the LTC_supplied data into the database
 @SuppressLint("UseSparseArrays")
