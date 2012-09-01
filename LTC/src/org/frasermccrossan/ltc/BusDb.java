@@ -47,6 +47,7 @@ public class BusDb {
 	static final String DESTINATION = "destination";
 	static final String CROSSING_TIME = "crossing_time";
 	static final String DATE_VALUE = "date_value";
+	static final String FAILED = "failed";
 
 	SQLiteDatabase db;
 	
@@ -82,20 +83,23 @@ public class BusDb {
 		return stop;
 	}
 	
+	/* this fetches routes, but it also adds the direction and direction initial letter */
 	LTCRoute[] findStopRoutes(String stopNumber) {
-		Cursor c = db.rawQuery(String.format("select %s.%s, %s.%s, %s.%s from %s, %s where %s.%s = %s.%s and %s.%s = ?",
+		Cursor c = db.rawQuery(String.format("select %s.%s, %s.%s, %s.%s, %s.%s from %s, %s, %s where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ?",
 											 ROUTE_TABLE, ROUTE_NUMBER,
 											 ROUTE_TABLE, ROUTE_NAME,
 											 LINK_TABLE, DIRECTION_NUMBER,
-											 ROUTE_TABLE, LINK_TABLE,
+											 DIRECTION_TABLE, DIRECTION_NAME,
+											 ROUTE_TABLE, LINK_TABLE, DIRECTION_TABLE,
 											 ROUTE_TABLE, ROUTE_NUMBER, LINK_TABLE, ROUTE_NUMBER,
+											 LINK_TABLE, DIRECTION_NUMBER, DIRECTION_TABLE, DIRECTION_NUMBER,
 											 LINK_TABLE, STOP_NUMBER),
 				new String[] { stopNumber });
 		if (c.moveToFirst()) {
 			LTCRoute[] routes = new LTCRoute[c.getCount()];
 			int i;
 			for (i = 0; !c.isAfterLast(); i++, c.moveToNext()) {
-				routes[i] = new LTCRoute(c.getString(0), c.getString(1), c.getInt(2));
+				routes[i] = new LTCRoute(c.getString(0), c.getString(1), c.getInt(2), c.getString(3));
 			}
 			c.close();
 			return routes;

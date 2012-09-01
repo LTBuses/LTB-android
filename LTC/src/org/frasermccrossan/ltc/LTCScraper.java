@@ -125,7 +125,7 @@ public class LTCScraper {
 		}
 	}
 			
-	public ArrayList<HashMap<String, String>> getPredictions(LTCRoute route, String stopNumber) {
+	public ArrayList<HashMap<String, String>> getPredictions(LTCRoute route, String stopNumber, ScrapeStatus scrapeStatus) {
 		ArrayList<HashMap<String, String>> predictions = new ArrayList<HashMap<String, String>>(3); // usually get 3 of them
 		try {
 			Calendar now = Calendar.getInstance();
@@ -150,12 +150,12 @@ public class LTCScraper {
 				}
 				HashMap<String, String> crossingTime = new HashMap<String, String>(3);
 				String textTime = timeLink.attr("title");
-				crossingTime.put(BusDb.ROUTE_NUMBER, route.number);
+				crossingTime.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());
 				if (cols.size() >= 2) {
 					long timeDifference = getTimeDiffAsMinutes(now, TIME_PATTERN, textTime);
 					crossingTime.put(BusDb.DATE_VALUE, String.format("%08d", timeDifference));
 					crossingTime.put(BusDb.CROSSING_TIME, minutesAsText(timeDifference));
-					crossingTime.put(BusDb.DESTINATION, cols.get(1).text());
+					crossingTime.put(BusDb.DESTINATION, String.format("%s %s", route.directionName, cols.get(1).text()));
 					predictions.add(crossingTime);
 				}
 				else if (textTime.matches("^No further.*$")) {
@@ -165,13 +165,15 @@ public class LTCScraper {
 					predictions.add(crossingTime);
 				}
 			}
+			scrapeStatus.setStatus(ScrapeStatus.OK, null);
 		}
 		catch (ScrapeException e) {
 			HashMap<String, String> scrapeReport = new HashMap<String, String>(3);
 			scrapeReport.put(BusDb.ROUTE_NUMBER, route.number);
 			scrapeReport.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
 			scrapeReport.put(BusDb.CROSSING_TIME, "BUG!");
-			scrapeReport.put(BusDb.DESTINATION, e.getMessage());
+			scrapeReport.put(BusDb.DESTINATION, route.directionName);
+			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
 			predictions.add(scrapeReport);
 
 		}
@@ -180,7 +182,8 @@ public class LTCScraper {
 			failReport.put(BusDb.ROUTE_NUMBER, route.number);
 			failReport.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
 			failReport.put(BusDb.CROSSING_TIME, "Fail");
-			failReport.put(BusDb.DESTINATION, e.getMessage());
+			failReport.put(BusDb.DESTINATION, route.directionName);
+			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
 			predictions.add(failReport);
 		}
 		return predictions;

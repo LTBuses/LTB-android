@@ -4,9 +4,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
+    <LinearLayout
         android:id="@+id/route_list"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingLeft="3dp"
         android:paddingRight="3dp"
