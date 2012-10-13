@@ -37,5 +37,10 @@
     \n\nAntenna icon from \"Antenna\" symbol by Christian Hohenfeld, from thenounproject.com collection.
     </string>
     <string name="location_status">location status</string>
+    <string name="refresh">Refresh</string>
+    <string name="msg_idle">Wait</string>
+    <string name="msg_querying">(Wait)</string>
+    <string name="msg_fail">Fail</string>
+    <string name="msg_bug">Bug</string>
 
 </resources>

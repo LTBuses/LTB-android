@@ -28,9 +28,13 @@ public class LTCScraper {
 	BusDb db = null;
 	ScrapingStatus status = null;
 	Context c;
-	static final String ROUTE_URL = "http://teuchter.lan:8000/routes.html";
-	static final String DIRECTION_URL = "http://teuchter.lan:8000/direction%s.html";
-	static final String STOPS_URL = "http://teuchter.lan:8000/direction%sd%d.html";
+	//static final String ROUTE_URL = "http://teuchter.lan:8000/routes.html";
+	static final String ROUTE_URL = "http://www.ltconline.ca/WebWatch/ada.aspx?mode=d";
+	//static final String DIRECTION_URL = "http://teuchter.lan:8000/direction%s.html";
+	static final String DIRECTION_URL = "http://www.ltconline.ca/WebWatch/ada.aspx?r=%s";
+	//static final String STOPS_URL = "http://teuchter.lan:8000/direction%sd%d.html";
+	static final String STOPS_URL = "http://www.ltconline.ca/WebWatch/ada.aspx?r=%s&d=%d";
+	//static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
 	static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
 	static final String PREDICTIONS_URL = "http://teuchter.lan:8000/foo.html";
 	static final Pattern TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{2}) ?([AP])?");
@@ -132,6 +136,7 @@ public class LTCScraper {
 			now.set(Calendar.SECOND, 0);
 			now.set(Calendar.MILLISECOND, 0); // now we have 'now' set to the current time
 			Connection conn = Jsoup.connect(predictionUrl(route, stopNumber));
+			conn.timeout(20000);
 			Document doc = conn.get();
 			Elements timeRows = doc.select("table.CrossingTimes tr");
 			if (timeRows.size() == 0) {
@@ -151,6 +156,7 @@ public class LTCScraper {
 				HashMap<String, String> crossingTime = new HashMap<String, String>(3);
 				String textTime = timeLink.attr("title");
 				crossingTime.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());
+				crossingTime.put(BusDb.DIRECTION_NAME, route.directionName);
 				if (cols.size() >= 2) {
 					long timeDifference = getTimeDiffAsMinutes(now, TIME_PATTERN, textTime);
 					crossingTime.put(BusDb.DATE_VALUE, String.format("%08d", timeDifference));
@@ -170,6 +176,7 @@ public class LTCScraper {
 		catch (ScrapeException e) {
 			HashMap<String, String> scrapeReport = new HashMap<String, String>(3);
 			scrapeReport.put(BusDb.ROUTE_NUMBER, route.number);
+			scrapeReport.put(BusDb.DIRECTION_NAME, route.directionName);
 			scrapeReport.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
 			scrapeReport.put(BusDb.CROSSING_TIME, "BUG!");
 			scrapeReport.put(BusDb.DESTINATION, route.directionName);
@@ -180,6 +187,7 @@ public class LTCScraper {
 		catch (IOException e) {
 			HashMap<String, String> failReport = new HashMap<String, String>(3);
 			failReport.put(BusDb.ROUTE_NUMBER, route.number);
+			failReport.put(BusDb.DIRECTION_NAME, route.directionName);
 			failReport.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
 			failReport.put(BusDb.CROSSING_TIME, "Fail");
 			failReport.put(BusDb.DESTINATION, route.directionName);
