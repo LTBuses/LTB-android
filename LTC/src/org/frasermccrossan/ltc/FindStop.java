@@ -36,6 +36,7 @@ public class FindStop extends Activity {
 	Location lastLocation;
 	SearchTask mySearchTask = null;
 	BusDb db;
+	int downloadTry;
 	
 	OnItemClickListener stopListener = new OnItemClickListener() {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -90,6 +91,7 @@ public class FindStop extends Activity {
         stopList.setOnItemClickListener(stopListener);
         locationImage = (ImageView) findViewById(R.id.location_status);
         db = new BusDb(this);
+        downloadTry = 0;
     }
 	
 	@Override
@@ -102,9 +104,17 @@ public class FindStop extends Activity {
 			myLocationManager.requestLocationUpdates(locProvider, 10 * 1000, 0, locationListener);
 			//myLocationManager.requestSingleUpdate(locProvider, locationListener, null);
 		}
-        if (!db.isValid()) {
-	    	Intent updateDatabaseIntent = new Intent(FindStop.this, UpdateDatabase.class);
-	    	startActivity(updateDatabaseIntent);    	
+		int updateStatus = db.updateStatus();
+        if (updateStatus != BusDb.UPDATE_NOT_REQUIRED) {
+        	++downloadTry;
+        	if (downloadTry <= 1) {
+        		Intent updateDatabaseIntent = new Intent(FindStop.this, UpdateDatabase.class);
+        		startActivity(updateDatabaseIntent);
+        	}
+        	else if (updateStatus == BusDb.UPDATE_REQUIRED) {
+        		finish();
+        	}
+        	updateStops();
         }
         else {
         	updateStops();
@@ -140,6 +150,10 @@ public class FindStop extends Activity {
         case R.id.about:
         	startActivity(new Intent(this, About.class));
         	return true;
+        case R.id.update_database:
+    		Intent updateDatabaseIntent = new Intent(FindStop.this, UpdateDatabase.class);
+    		startActivity(updateDatabaseIntent);
+    		return true;
         default:
             return super.onOptionsItemSelected(item);
         }

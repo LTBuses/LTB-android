@@ -28,13 +28,15 @@ public class LTCScraper {
 	BusDb db = null;
 	ScrapingStatus status = null;
 	Context c;
-	//static final String ROUTE_URL = "http://teuchter.lan:8000/routes.html";
+	// for development only
+//	static final String ROUTE_URL = "http://teuchter.lan:8000/routes.html";
+//	static final String DIRECTION_URL = "http://teuchter.lan:8000/direction%s.html";
+//	static final String STOPS_URL = "http://teuchter.lan:8000/direction%sd%d.html";
+//	static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
+	// for production
 	static final String ROUTE_URL = "http://www.ltconline.ca/WebWatch/ada.aspx?mode=d";
-	//static final String DIRECTION_URL = "http://teuchter.lan:8000/direction%s.html";
 	static final String DIRECTION_URL = "http://www.ltconline.ca/WebWatch/ada.aspx?r=%s";
-	//static final String STOPS_URL = "http://teuchter.lan:8000/direction%sd%d.html";
 	static final String STOPS_URL = "http://www.ltconline.ca/WebWatch/ada.aspx?r=%s&d=%d";
-	//static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
 	static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
 	static final String PREDICTIONS_URL = "http://teuchter.lan:8000/foo.html";
 	static final Pattern TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{2}) ?([AP])?");

@@ -33,13 +33,13 @@ public class BusDbOpenHelper extends SQLiteOpenHelper {
 				BusDb.ROUTE_NUMBER, BusDb.DIRECTION_NUMBER, BusDb.STOP_NUMBER);
 		db.execSQL(s);
 		s = String.format("CREATE TABLE %s (%s NUMBER NOT NULL, %s NUMBER NOT NULL, %s NUMBER NOT NULL)",
-				BusDb.FRESHNESS_TABLE, BusDb.WEEKDAY_FRESHNESS, BusDb.SATURDAY_FRESHNESS, BusDb.SUNDAY_FRESHNESS);
+				BusDb.FRESHNESS_TABLE, BusDb.WEEKDAY_FRESHNESS_COLUMN, BusDb.SATURDAY_FRESHNESS_COLUMN, BusDb.SUNDAY_FRESHNESS_COLUMN);
 		db.execSQL(s);
 		// init this table with zeros
 		ContentValues cv = new ContentValues(3);
-		cv.put(BusDb.WEEKDAY_FRESHNESS, 0);
-		cv.put(BusDb.SATURDAY_FRESHNESS, 0);
-		cv.put(BusDb.SUNDAY_FRESHNESS, 0);
+		cv.put(BusDb.WEEKDAY_FRESHNESS_COLUMN, 0);
+		cv.put(BusDb.SATURDAY_FRESHNESS_COLUMN, 0);
+		cv.put(BusDb.SUNDAY_FRESHNESS_COLUMN, 0);
 		db.insertOrThrow(BusDb.FRESHNESS_TABLE, null, cv);
 		s = String.format("CREATE UNIQUE INDEX route_index ON %s ( %s )", BusDb.ROUTE_TABLE, BusDb.ROUTE_NUMBER);
 		db.execSQL(s);

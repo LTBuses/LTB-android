@@ -1,6 +1,7 @@
 package org.frasermccrossan.ltc;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -37,9 +38,17 @@ public class BusDb {
 	static final String FRESHNESS = "freshness";
 	
 	static final String FRESHNESS_TABLE = "last_updates";
-	static final String WEEKDAY_FRESHNESS = "weekday_freshness";
-	static final String SATURDAY_FRESHNESS = "saturday_freshness";
-	static final String SUNDAY_FRESHNESS = "sunday_freshness";
+	static final int WEEKDAY_FRESHNESS = 0;
+	static final int SATURDAY_FRESHNESS = 1;
+	static final int SUNDAY_FRESHNESS = 2;
+	static final String WEEKDAY_FRESHNESS_COLUMN = "weekday_freshness";
+	static final String SATURDAY_FRESHNESS_COLUMN = "saturday_freshness";
+	static final String SUNDAY_FRESHNESS_COLUMN = "sunday_freshness";
+	
+	static final int UPDATE_NOT_REQUIRED = 0;
+	static final int UPDATE_RECOMMENDED = 1;
+	static final int UPDATE_REQUIRED = 2;
+	static final long ONE_MONTH = 1000L * 60L * 60L * 24L * 30L;
 	
 	static final String LINK_TABLE = "route_stops";
 	
@@ -60,14 +69,78 @@ public class BusDb {
 		db.close();
 	}
 	
-	public boolean isValid() {
-		Cursor c = db.rawQuery(String.format("select count(*) from %s", ROUTE_TABLE), null);
-		if (c.moveToFirst()) {
-			boolean valid = (c.getInt(0) > 0);
-			c.close();
-			return valid;
+	public int updateFreshness(Calendar time) {
+		switch(time.get(Calendar.DAY_OF_WEEK)) {
+		case Calendar.SATURDAY:
+			return SATURDAY_FRESHNESS;
+		case Calendar.SUNDAY:
+			return SUNDAY_FRESHNESS;
+		default:
+			return WEEKDAY_FRESHNESS;
 		}
-		return false;
+	}
+	
+	private String freshnessColumn(Calendar time) {
+		switch(updateFreshness(time)) {
+		case SATURDAY_FRESHNESS:
+			return SATURDAY_FRESHNESS_COLUMN;
+		case SUNDAY_FRESHNESS:
+			return SUNDAY_FRESHNESS_COLUMN;
+		default:
+			return WEEKDAY_FRESHNESS_COLUMN;
+		}
+	}
+	
+	public int freshnessStrRes() {
+		Calendar now = Calendar.getInstance();
+		switch(updateFreshness(now)) {
+		case SATURDAY_FRESHNESS:
+			return R.string.on_saturday;
+		case SUNDAY_FRESHNESS:
+			return R.string.on_sunday;
+		default:
+			return R.string.on_weekday;
+		}
+	}
+	
+	public int updateStrRes() {
+		switch(updateStatus()) {
+		case UPDATE_REQUIRED:
+			return R.string.update_required;
+		case UPDATE_RECOMMENDED:
+			return R.string.update_recommended;
+		default:
+			return R.string.update_not_required;
+		}
+	}
+	
+	// determines if an update is recommended or required
+	public int updateStatus() {
+		Calendar now = Calendar.getInstance();
+		Cursor c = db.rawQuery(String.format("select %s from %s", freshnessColumn(now), FRESHNESS_TABLE), null);
+		if (c.moveToFirst()) {
+			long freshness = c.getLong(0);
+			c.close();
+			if (freshness == 0) {
+				return UPDATE_REQUIRED;
+			}
+			/* I don't know why we need this bullshit here, but the expression
+			 * now.getTimeInMillis() - freshness >= ONE_MONTH gives an incorrect result;
+			 * some weird Java casting rule I'm not aware of?
+			 */
+			long gtim = now.getTimeInMillis();
+			long diff = gtim - freshness;
+			if (diff >= ONE_MONTH) {
+				return UPDATE_RECOMMENDED;
+			}
+			return UPDATE_NOT_REQUIRED; // I know, it's down there too
+		}
+		return UPDATE_NOT_REQUIRED;
+	}
+	
+	public boolean isValid() {
+		int status = updateStatus();
+		return status != UPDATE_REQUIRED;
 	}
 	
 	LTCStop findStop(String stopNumber) {
@@ -156,21 +229,22 @@ public class BusDb {
 		 * ON CONFLICT REPLACE
 		 */
 		try {
-			long now = System.currentTimeMillis();
+			Calendar now = Calendar.getInstance();
+			long nowMillis = now.getTimeInMillis();
 			ContentValues cv = new ContentValues(5); // 5 should deal with everything
 			for (LTCRoute route : routes) {
 				cv.clear();
 				cv.put(ROUTE_NUMBER, route.number);
 				cv.put(ROUTE_NAME, route.name);
-				cv.put(FRESHNESS, now);
-				db.insertOrThrow (ROUTE_TABLE, null, cv);
+				cv.put(FRESHNESS, nowMillis);
+				db.insertWithOnConflict(ROUTE_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 			}
 			for (LTCDirection dir : directions) {
 				cv.clear();
 				cv.put(DIRECTION_NUMBER, dir.number);
 				cv.put(DIRECTION_NAME, dir.name);
-				cv.put(FRESHNESS, now);
-				db.insertOrThrow (DIRECTION_TABLE, null, cv);				
+				cv.put(FRESHNESS, nowMillis);
+				db.insertWithOnConflict (DIRECTION_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
 			}
 			for (LTCStop dir : stops) {
 				cv.clear();
@@ -178,17 +252,20 @@ public class BusDb {
 				cv.put(STOP_NAME, dir.name);
 				cv.put(LATITUDE, dir.latitude);
 				cv.put(LONGITUDE, dir.longitude);
-				cv.put(FRESHNESS, now);
-				db.insertOrThrow (STOP_TABLE, null, cv);				
+				cv.put(FRESHNESS, nowMillis);
+				db.insertWithOnConflict (STOP_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
 			}
 			for (RouteStopLink link : links) {
 				cv.clear();
 				cv.put(ROUTE_NUMBER, link.routeNumber);
 				cv.put(DIRECTION_NUMBER, link.directionNumber);
 				cv.put(STOP_NUMBER, link.stopNumber);
-				cv.put(FRESHNESS, now);
-				db.insertOrThrow (LINK_TABLE, null, cv);				
+				cv.put(FRESHNESS, nowMillis);
+				db.insertWithOnConflict (LINK_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
 			}
+			cv.clear();
+			cv.put(freshnessColumn(now), nowMillis);
+			db.update(FRESHNESS_TABLE, cv, null, null);
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
