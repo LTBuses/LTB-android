@@ -209,18 +209,16 @@ public class BusDb {
 	List<HashMap<String, String>> findStops(CharSequence text, Location location) {
 		String searchText = text.toString();
 		List<HashMap<String, String>> stops = new ArrayList<HashMap<String, String>>();
-		String whereLike;
-		if (searchText.matches("^\\d+$")) {
-			whereLike = String.format("%s = %s", STOP_NUMBER, text);
+		String whereClause;
+		String[] words = searchText.trim().toLowerCase().split("\\s+");
+		String[] likes = new String[words.length];
+		int i;
+		for (i = 0; i < words.length; ++i) {
+			likes[i] = String.format("stop_name like %s", DatabaseUtils.sqlEscapeString("%"+words[i]+"%"));
 		}
-		else {
-			String[] words = searchText.trim().toLowerCase().split("\\s+");
-			String[] likes = new String[words.length];
-			int i;
-			for (i = 0; i < words.length; ++i) {
-				likes[i] = String.format("stop_name like %s", DatabaseUtils.sqlEscapeString("%"+words[i]+"%"));
-			}
-			whereLike = TextUtils.join(" and ", likes);
+		whereClause = "(" + TextUtils.join(" and ", likes) + ")";
+		if (searchText.matches("^\\d+$")) {
+			whereClause += String.format(" or (%s like %s)", STOP_NUMBER, DatabaseUtils.sqlEscapeString(text + "%"));
 		}
 		String order;
 		if (location == null) {
@@ -232,7 +230,7 @@ public class BusDb {
 			order = String.format("(latitude-(%f))*(latitude-(%f)) + (longitude-(%f))*(longitude-(%f))",
 					lat, lat, lon, lon);
 		}
-		Cursor c = db.query(STOP_TABLE, new String[] { STOP_NUMBER, STOP_NAME }, whereLike, null, null, null, order, "20");
+		Cursor c = db.query(STOP_TABLE, new String[] { STOP_NUMBER, STOP_NAME }, whereClause, null, null, null, order, "20");
 		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
 			HashMap<String,String> map = new HashMap<String,String>(2);
 			map.put(STOP_NUMBER, c.getString(0));
