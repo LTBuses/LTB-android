@@ -15,7 +15,7 @@
     <string name="no_provider">Location not available</string>
     <string name="about">About</string>
     <string name="about_text">
-    Although this app uses data from the London Transit Commission (LTC) website it is
+    Version 0.1 (alpha). Although this app uses data from the London Transit Commission (LTC) website it is
     not affiliated with the LTC. Do *not* report problems with this app to the LTC. Report problems
     to frasermccrossan@gmail.com.
     \n\nIf you have a problem with this app, I would like to hear from you
@@ -46,9 +46,9 @@
     <string name="on_weekday">on a week-day</string>
     <string name="on_saturday">on a Saturday</string>
     <string name="on_sunday">on a Sunday</string>
-    <string name="update_recommended">The bus route and stop database has not been updated for a while %s. An update is recommended.</string>
-    <string name="update_required">The bus route and stop database has never been downloaded %s. An update is required.</string>
-    <string name="update_not_required">The bus route and stop database has been recently updated %s. An update is not required unless you know that routes or stops have recently changed.</string>
+    <string name="update_recommended">The bus route and stop database has not been generated for a while %s. An update is recommended.</string>
+    <string name="update_required">The bus route and stop database has never been generated %s. An update is required.</string>
+    <string name="update_not_required">The bus route and stop database has been recently generated %s. An update is not required unless you know that routes or stops have recently changed.</string>
     <string name="update_database">Update Database</string>
 
 </resources>

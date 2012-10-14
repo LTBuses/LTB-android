@@ -37,7 +37,7 @@ public class LTCScraper {
 	static final String ROUTE_URL = "http://www.ltconline.ca/WebWatch/ada.aspx?mode=d";
 	static final String DIRECTION_URL = "http://www.ltconline.ca/WebWatch/ada.aspx?r=%s";
 	static final String STOPS_URL = "http://www.ltconline.ca/WebWatch/ada.aspx?r=%s&d=%d";
-	static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
+	static final String MAP_URL = "http://www.ltconline.ca/WebWatch/map.aspx?mode=g&r=%s";
 	static final String PREDICTIONS_URL = "http://teuchter.lan:8000/foo.html";
 	static final Pattern TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{2}) ?([AP])?");
 	static final Pattern LOCATION_STOP_PATTERN = Pattern.compile("(\\d+)");
@@ -142,13 +142,13 @@ public class LTCScraper {
 			Document doc = conn.get();
 			Elements timeRows = doc.select("table.CrossingTimes tr");
 			if (timeRows.size() == 0) {
-				throw new ScrapeException("time table not found");
+				throw new ScrapeException("no data");
 			}
 			//Log.i("GP", String.format("rows=%d", timeRows.size()));
 			for (Element timeRow: timeRows) {
 				Elements cols = timeRow.select("td");
 				if (cols.size() == 0) {
-					throw new ScrapeException("missing time columns");
+					throw new ScrapeException("none");
 				}
 				//Log.i("GP", String.format("cols=%d", cols.size()));
 				Element timeLink = cols.get(0).select("a.ada").first();
@@ -177,10 +177,10 @@ public class LTCScraper {
 		}
 		catch (ScrapeException e) {
 			HashMap<String, String> scrapeReport = new HashMap<String, String>(3);
-			scrapeReport.put(BusDb.ROUTE_NUMBER, route.number);
+			scrapeReport.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());
 			scrapeReport.put(BusDb.DIRECTION_NAME, route.directionName);
 			scrapeReport.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
-			scrapeReport.put(BusDb.CROSSING_TIME, "BUG!");
+			scrapeReport.put(BusDb.CROSSING_TIME, "[" + e.getMessage() + "]");
 			scrapeReport.put(BusDb.DESTINATION, route.directionName);
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
 			predictions.add(scrapeReport);
@@ -188,7 +188,7 @@ public class LTCScraper {
 		}
 		catch (IOException e) {
 			HashMap<String, String> failReport = new HashMap<String, String>(3);
-			failReport.put(BusDb.ROUTE_NUMBER, route.number);
+			failReport.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());
 			failReport.put(BusDb.DIRECTION_NAME, route.directionName);
 			failReport.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
 			failReport.put(BusDb.CROSSING_TIME, "Fail");
@@ -348,8 +348,9 @@ public class LTCScraper {
         					}
         				}
     				}
-    				publishProgress(new LoadProgress("", 100));
+    				publishProgress(new LoadProgress("Saving database...", 95));
     				db.saveBusData(routes, allDirections.values(), allStops.values(), links);
+    				publishProgress(new LoadProgress("", 100));
     			}
     		}
     		catch (IOException e) {
