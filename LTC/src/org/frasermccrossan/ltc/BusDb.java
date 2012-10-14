@@ -1,6 +1,5 @@
 package org.frasermccrossan.ltc;
 
-import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -38,6 +37,7 @@ public class BusDb {
 	
 	static final String STOP_LAST_USE_TABLE = "stop_uses";
 	static final String STOP_LAST_USE_TIME = "stop_last_use_time";
+	static final int STOP_HISTORY_LENGTH = 100;
 
 	static final String FRESHNESS = "freshness";
 	
@@ -153,6 +153,18 @@ public class BusDb {
 		cv.put(STOP_NUMBER, stop.number);
 		cv.put(STOP_LAST_USE_TIME, now);
 		db.insert(STOP_LAST_USE_TABLE, null, cv);
+		// now delete all but the last STOP_HISTORY_LENGTH
+		String q = String.format("delete from %s " +
+				"where %s < " +
+				"(select %s from %s " +
+				"order by %s desc limit 1 offset %d)",
+				STOP_LAST_USE_TABLE,
+				STOP_LAST_USE_TIME,
+				STOP_LAST_USE_TIME,
+				STOP_LAST_USE_TABLE,
+				STOP_LAST_USE_TIME,
+				STOP_HISTORY_LENGTH - 1);
+		db.execSQL(q);
 	}
 	
 	LTCStop findStop(String stopNumber) {
