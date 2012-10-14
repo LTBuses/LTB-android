@@ -1,5 +1,6 @@
 package org.frasermccrossan.ltc;
 
+import java.security.acl.LastOwnerException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -34,6 +35,9 @@ public class BusDb {
 	static final String DIRECTION_TABLE = "directions";
 	static final String DIRECTION_NUMBER = "direction_number";
 	static final String DIRECTION_NAME = "direction_name";
+	
+	static final String STOP_LAST_USE_TABLE = "stop_uses";
+	static final String STOP_LAST_USE_TIME = "stop_last_use_time";
 
 	static final String FRESHNESS = "freshness";
 	
@@ -141,6 +145,14 @@ public class BusDb {
 	public boolean isValid() {
 		int status = updateStatus();
 		return status != UPDATE_REQUIRED;
+	}
+	
+	void noteStopUse(LTCStop stop) {
+		long now = System.currentTimeMillis();
+		ContentValues cv = new ContentValues(2);
+		cv.put(STOP_NUMBER, stop.number);
+		cv.put(STOP_LAST_USE_TIME, now);
+		db.insert(STOP_LAST_USE_TABLE, null, cv);
 	}
 	
 	LTCStop findStop(String stopNumber) {

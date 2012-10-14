@@ -52,6 +52,7 @@ public class StopTimes extends Activity {
         LTCStop stop = db.findStop(stopNumber);
         if (stop != null) {
         	setTitle(stop.name);
+        	db.noteStopUse(stop);
         }
         
         refreshButton = (Button)findViewById(R.id.refresh);

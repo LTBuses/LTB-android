@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class BusDbOpenHelper extends SQLiteOpenHelper {
 
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	private static final String DATABASE_NAME = "ltcdb";
 	
 
@@ -58,7 +58,14 @@ public class BusDbOpenHelper extends SQLiteOpenHelper {
 	}
 
 	private void upgradeTo(SQLiteDatabase db, int version) {
+		String s;
 		switch(version) {
+		case 2:
+			// after first alpha testing release
+			s = String.format("CREATE TABLE %s (%s NUMBER NOT NULL, %s NUMBER NOT NULL)",
+					BusDb.STOP_LAST_USE_TABLE, BusDb.STOP_NUMBER, BusDb.STOP_LAST_USE_TIME);
+			db.execSQL(s);
+			break;
 		default:
 			// nothing yet
 			break;

@@ -20,6 +20,7 @@ import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.text.TextUtils.StringSplitter;
+import android.util.Log;
 
 // everything required to load the LTC_supplied data into the database
 @SuppressLint("UseSparseArrays")
@@ -44,6 +45,8 @@ public class LTCScraper {
 	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything
 	static final int DAY_MINUTES = 24 * 60;
 	static final int HALF_DAY_MINUTES = DAY_MINUTES / 2;
+	static final int FETCH_TIMEOUT = 30 * 1000;
+	static final int FAILURE_LIMIT = 20;
 	
 	LTCScraper(Context c, ScrapingStatus s) {
 		db = new BusDb(c);
@@ -138,7 +141,7 @@ public class LTCScraper {
 			now.set(Calendar.SECOND, 0);
 			now.set(Calendar.MILLISECOND, 0); // now we have 'now' set to the current time
 			Connection conn = Jsoup.connect(predictionUrl(route, stopNumber));
-			conn.timeout(20000);
+			conn.timeout(FETCH_TIMEOUT);
 			Document doc = conn.get();
 			Elements timeRows = doc.select("table.CrossingTimes tr");
 			if (timeRows.size() == 0) {
@@ -148,7 +151,7 @@ public class LTCScraper {
 			for (Element timeRow: timeRows) {
 				Elements cols = timeRow.select("td");
 				if (cols.size() == 0) {
-					throw new ScrapeException("none");
+					throw new ScrapeException("no bus");
 				}
 				//Log.i("GP", String.format("cols=%d", cols.size()));
 				Element timeLink = cols.get(0).select("a.ada").first();
@@ -202,6 +205,7 @@ public class LTCScraper {
 	public ArrayList<LTCRoute> loadRoutes() throws ScrapeException, IOException {
 		ArrayList<LTCRoute> routes = new ArrayList<LTCRoute>();
 		Connection conn = Jsoup.connect(ROUTE_URL);
+		//conn.timeout(FETCH_TIMEOUT);
 		Document doc = conn.get();
 		Elements routeLinks = doc.select("a.ada");
 		Pattern numFinder = Pattern.compile("r=(\\d{1,2})$");
@@ -226,6 +230,7 @@ public class LTCScraper {
 		ArrayList<LTCDirection> directions = new ArrayList<LTCDirection>(2); // probably 2
 		String url = String.format(DIRECTION_URL, routeNum);
 		Connection conn = Jsoup.connect(url);
+		conn.timeout(FETCH_TIMEOUT);
 		Document doc = conn.get();
 		Elements dirLinks = doc.select("a.ada");
 		Pattern numFinder = Pattern.compile("d=(\\d{1,2})$");
@@ -251,6 +256,7 @@ public class LTCScraper {
 		HashMap<Integer, LTCStop> stops = new HashMap<Integer, LTCStop>();
 		String url = String.format(STOPS_URL, routeNum, direction);
 		Connection conn = Jsoup.connect(url);
+		conn.timeout(FETCH_TIMEOUT);
 		Document doc = conn.get();
 		Elements stopLinks = doc.select("a.ada");
 		Pattern numFinder = Pattern.compile("s=(\\d+)$");
@@ -276,6 +282,7 @@ public class LTCScraper {
 	void loadStopLocations(String routeNum, HashMap<Integer, LTCStop> stops) throws ScrapeException, IOException {
 		String url = String.format(MAP_URL, routeNum);
 		Connection conn = Jsoup.connect(url);
+		conn.timeout(FETCH_TIMEOUT);
 		Document doc = conn.get();
 		Elements scripts = doc.select("script");
 		for (Element script : scripts) {
@@ -316,7 +323,8 @@ public class LTCScraper {
     private class LoadTask extends AsyncTask<Void, LoadProgress, Void> {
 
     	protected Void doInBackground(Void... thing) {
-    		ArrayList<LTCRoute> routes; // all routes
+    		ArrayList<LTCRoute> routesToDo;
+    		ArrayList<LTCRoute> routesDone;
     		// all distinct directions (should only end up with four)
     		HashMap<Integer, LTCDirection> allDirections = new HashMap<Integer, LTCDirection>(4);
     		// all distinct stops
@@ -325,36 +333,59 @@ public class LTCScraper {
     		ArrayList<RouteStopLink> links = new ArrayList<RouteStopLink>();
     		publishProgress(new LoadProgress("Downloading routes", 0));
     		try {
-    			routes = loadRoutes();
-    			if (routes.size() == 0) {
+    			routesToDo = loadRoutes();
+    			if (routesToDo.size() == 0) {
     				publishProgress(new LoadProgress("No routes found", 100));
     			}
     			else {
-    				int i;
-    				for (i = 0; i < routes.size(); ++i) {
-        				publishProgress(new LoadProgress("Loading route " + routes.get(i).name, 5 + 90 * i / routes.size()));
-        				ArrayList<LTCDirection> routeDirections = loadDirections(routes.get(i).number);
-        				for (LTCDirection dir: routeDirections) {
-        					if (!allDirections.containsKey(dir.number)) {
-        						allDirections.put(dir.number, dir);
-        					}
-        					HashMap<Integer, LTCStop> stops = loadStops(routes.get(i).number, dir.number);
-        					loadStopLocations(routes.get(i).number, stops);
-        					for (int stopNumber: stops.keySet()) {
-        						if (!allStops.containsKey(stopNumber)) {
-        							allStops.put(stopNumber, stops.get(stopNumber));
-        						}
-        						links.add(new RouteStopLink(routes.get(i).number, dir.number, stopNumber));
-        					}
-        				}
+    				int totalToDo = routesToDo.size();
+    				routesDone = new ArrayList<LTCRoute>(totalToDo);
+    				int tries = 0;
+    				ALLROUTEFETCH: while (routesToDo.size() > 0) {
+    					int failures = 0;
+    					int i = 0;
+    					while (i < routesToDo.size()) {
+    						try {
+    							int pct = 5 + 90 * routesDone.size() / totalToDo;
+    							String tryStr = tries > 0 ? "Retrying route " : "Loading route ";
+    							publishProgress(new LoadProgress(tryStr + "directions " + routesToDo.get(i).name, pct));
+    							ArrayList<LTCDirection> routeDirections = loadDirections(routesToDo.get(i).number);
+    							//        				Log.d("loadtask", String.format("route %s has %d directions", routes.get(i).number, routeDirections.size()));
+    							for (LTCDirection dir: routeDirections) {
+    								if (!allDirections.containsKey(dir.number)) {
+    									allDirections.put(dir.number, dir);
+    								}
+        							publishProgress(new LoadProgress(tryStr + dir.name + " " + routesToDo.get(i).name, pct));
+    								HashMap<Integer, LTCStop> stops = loadStops(routesToDo.get(i).number, dir.number);
+    								//            				Log.d("loadtask", String.format("route %s has %d directions", routes.get(i).number, routeDirections.size()));
+    								loadStopLocations(routesToDo.get(i).number, stops);
+    								for (int stopNumber: stops.keySet()) {
+    									if (!allStops.containsKey(stopNumber)) {
+    										allStops.put(stopNumber, stops.get(stopNumber));
+    									}
+    									links.add(new RouteStopLink(routesToDo.get(i).number, dir.number, stopNumber));
+    								}
+    							}
+    							routesDone.add(routesToDo.get(i));
+    							routesToDo.remove(i); // don't increment i, just remove the one we just did
+    						}
+    						catch (IOException e) {
+    							failures++; // note that one failed
+    							if (failures > FAILURE_LIMIT) {
+    			    				throw(new ScrapeException("Too many failures, try again later."));
+    							}
+    							i++; // go to the next one
+    						}
+    					}
+    					tries++;
     				}
     				publishProgress(new LoadProgress("Saving database...", 95));
-    				db.saveBusData(routes, allDirections.values(), allStops.values(), links);
+    				db.saveBusData(routesDone, allDirections.values(), allStops.values(), links);
     				publishProgress(new LoadProgress("", 100));
     			}
     		}
     		catch (IOException e) {
-    			publishProgress(new LoadProgress(e.getMessage(), -1));
+    			publishProgress(new LoadProgress("Unable to load routes", -1));
     		}
     		catch (ScrapeException e) {
     			publishProgress(new LoadProgress(e.getMessage(), -1));
