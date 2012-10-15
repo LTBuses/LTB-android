@@ -37,7 +37,9 @@ public class BusDb {
 	
 	static final String STOP_LAST_USE_TABLE = "stop_uses";
 	static final String STOP_LAST_USE_TIME = "stop_last_use_time";
-	static final int STOP_HISTORY_LENGTH = 100;
+	static final String STOPS_WITH_USES = "stops_with_uses";
+	static final String STOP_USES_COUNT = "stop_uses_count"; // for the count view
+	static final int STOP_HISTORY_LENGTH = 200;
 
 	static final String FRESHNESS = "freshness";
 	
@@ -222,7 +224,7 @@ public class BusDb {
 		}
 		String order;
 		if (location == null) {
-			order = STOP_NAME;
+			order = String.format("%s desc, %s", STOP_USES_COUNT, STOP_NAME);
 		}
 		else {
 			double lat = location.getLatitude();
@@ -230,7 +232,7 @@ public class BusDb {
 			order = String.format("(latitude-(%f))*(latitude-(%f)) + (longitude-(%f))*(longitude-(%f))",
 					lat, lat, lon, lon);
 		}
-		Cursor c = db.query(STOP_TABLE, new String[] { STOP_NUMBER, STOP_NAME }, whereClause, null, null, null, order, "20");
+		Cursor c = db.query(STOPS_WITH_USES, new String[] { STOP_NUMBER, STOP_NAME }, whereClause, null, null, null, order, "20");
 		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
 			HashMap<String,String> map = new HashMap<String,String>(2);
 			map.put(STOP_NUMBER, c.getString(0));

@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class BusDbOpenHelper extends SQLiteOpenHelper {
 
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 	private static final String DATABASE_NAME = "ltcdb";
 	
 
@@ -66,6 +66,22 @@ public class BusDbOpenHelper extends SQLiteOpenHelper {
 					BusDb.STOP_LAST_USE_TABLE, BusDb.STOP_NUMBER, BusDb.STOP_LAST_USE_TIME);
 			db.execSQL(s);
 			break;
+		case 3:
+			/* this view should contain the same stuff that the stop table does, plus a count of
+			 * recent usage
+			 */
+			s = String.format("CREATE VIEW %s as " +
+					"select %s.%s, %s, %s, %s, %s, " +
+					"count(%s) as %s " +
+					"from %s left outer join %s " +
+					"on %s.%s = %s.%s " +
+					"group by 1, 2, 3, 4, 5",
+					BusDb.STOPS_WITH_USES,
+					BusDb.STOP_TABLE, BusDb.STOP_NUMBER, BusDb.STOP_NAME, BusDb.LATITUDE, BusDb.LONGITUDE, BusDb.FRESHNESS,
+					BusDb.STOP_LAST_USE_TIME, BusDb.STOP_USES_COUNT,
+					BusDb.STOP_TABLE, BusDb.STOP_LAST_USE_TABLE,
+					BusDb.STOP_TABLE, BusDb.STOP_NUMBER, BusDb.STOP_LAST_USE_TABLE, BusDb.STOP_NUMBER);
+			db.execSQL(s);
 		default:
 			// nothing yet
 			break;
