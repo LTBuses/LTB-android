@@ -54,7 +54,7 @@ public class BusDb {
 	static final int UPDATE_NOT_REQUIRED = 0;
 	static final int UPDATE_RECOMMENDED = 1;
 	static final int UPDATE_REQUIRED = 2;
-	static final long ONE_MONTH = 1000L * 60L * 60L * 24L * 30L;
+	static final long UPDATE_DATABASE_AGE_REMINDER = 1000L * 60L * 60L * 24L * 60L; // 60 days
 	
 	static final String LINK_TABLE = "route_stops";
 	
@@ -131,12 +131,12 @@ public class BusDb {
 				return UPDATE_REQUIRED;
 			}
 			/* I don't know why we need this bullshit here, but the expression
-			 * now.getTimeInMillis() - freshness >= ONE_MONTH gives an incorrect result;
+			 * now.getTimeInMillis() - freshness >= UPDATE_DATABASE_AGE_REMINDER gives an incorrect result;
 			 * some weird Java casting rule I'm not aware of?
 			 */
 			long gtim = now.getTimeInMillis();
 			long diff = gtim - freshness;
-			if (diff >= ONE_MONTH) {
+			if (diff >= UPDATE_DATABASE_AGE_REMINDER) {
 				return UPDATE_RECOMMENDED;
 			}
 			return UPDATE_NOT_REQUIRED; // I know, it's down there too
