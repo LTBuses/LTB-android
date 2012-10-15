@@ -30,6 +30,9 @@
             android:name=".About"
             android:label="@string/about" />
         <activity
+            android:name=".FindStopHelp"
+            android:label="@string/help" />
+        <activity
             android:name=".UpdateDatabase"
             android:label="@string/stop_times" />
         </application>

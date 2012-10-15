@@ -154,6 +154,9 @@ public class FindStop extends Activity {
     		Intent updateDatabaseIntent = new Intent(FindStop.this, UpdateDatabase.class);
     		startActivity(updateDatabaseIntent);
     		return true;
+        case R.id.find_stop_help:
+        	startActivity(new Intent(this, FindStopHelp.class));
+    		return true;
         default:
             return super.onOptionsItemSelected(item);
         }

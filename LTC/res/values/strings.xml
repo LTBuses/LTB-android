@@ -38,6 +38,16 @@
     \n\nAntenna icon from \"Antenna\" symbol by Christian Hohenfeld, from thenounproject.com collection.
     \n\nRefresh icon is \"Cloud Refresh\" by Adam Whitfield, from thenounproject.com.
     </string>
+    <string name="stop_list_help_text">
+    This screen shows stops matching the search text. If GPS is enabled, they are
+    the stops closest to you, else they are the ones you have checked most often.
+    \n\nIf the search is only digits, it matches both stop numbers (on the blue signs)
+    and stops containing numbers (e.g. \"1102 Jalna NB\"). If there are any non-digits,
+    it just matches stop names.
+    \n\nCase is ignored, and multiple, partial words work. For example to find stops at Dundas and Richmond, try
+    \"dun rich\".
+    </string>
+    <string name="help">Help</string>
     <string name="location_status">location status</string>
     <string name="refresh">Refresh</string>
     <string name="msg_idle">Wait</string>
