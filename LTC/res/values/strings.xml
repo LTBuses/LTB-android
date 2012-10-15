@@ -15,28 +15,57 @@
     <string name="no_provider">Location not available</string>
     <string name="about">About</string>
     <string name="about_text">
+    <![CDATA[<html>
+    <body>
+    <p>
     Version 0.1 (alpha). Although this app uses data from the London Transit Commission (LTC) website it is
     not affiliated with the LTC. Do *not* report problems with this app to the LTC. Report problems
-    to frasermccrossan@gmail.com.
-    \n\nIf you have a problem with this app, I would like to hear from you
+    at <a href="http://code.google.com/p/ltc-buses/issues/list">the issues page</a>, by email to
+    <a href="mailto:frasermccrossan@gmail.com">frasermccrossan@gmail.com</a>,
+    or by Twitter to <a href="https://twitter.com/joatca">@joatca</a>.
+    </p>
+    <p>
+    If you have a problem with this app, I would like to hear from you
     and have an opportunity to fix it before you leave a bad review. This
     app is completely free to use and does not have ads.
-    \n\nThis program is free software: you can redistribute it and/or modify
+    </p>
+    <p>
+    This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
-    \n\nThis program is distributed in the hope that it will be useful,
+    </p>
+    <p>
+    This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-    \n\nYou should have received a copy of the GNU General Public License
-    along with this program.  If not, see http://www.gnu.org/licenses/.
-    \n\nHTML parsing using jsoup by Jonathan Hedley http://jsoup.org/
-    \n\nLauncher icon adapted from \"Bus\" symbol by Roger Cook and Don Shanosky, AIGA, U.S. Department of Transportation, from thenounproject.com collection.
-    \n\nAbout icon from \"Information\" symbol by Sven Hofmann, from thenounproject.com collection.
-    \n\nSatellite icon from \"Satellite\" symbol by Jose Luis Algara, from thenounproject.com collection.
-    \n\nAntenna icon from \"Antenna\" symbol by Christian Hohenfeld, from thenounproject.com collection.
-    \n\nRefresh icon is \"Cloud Refresh\" by Adam Whitfield, from thenounproject.com.
+    </p>
+    <p>
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see
+    <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
+    </p>
+    <p>
+    HTML parsing using <a href="http://jsoup.org/">jsoup</a> by Jonathan Hedley
+    </p>
+    <p>
+    Launcher icon adapted from \"Bus\" symbol by Roger Cook and Don Shanosky, AIGA, U.S. Department of Transportation, from thenounproject.com collection.
+    </p>
+    <p>
+    About icon from \"Information\" symbol by Sven Hofmann, from thenounproject.com collection.
+    </p>
+    <p>
+    Satellite icon from \"Satellite\" symbol by Jose Luis Algara, from thenounproject.com collection.
+    </p>
+    <p>
+    Antenna icon from \"Antenna\" symbol by Christian Hohenfeld, from thenounproject.com collection.
+    </p>
+    <p>
+    Refresh icon is \"Cloud Refresh\" by Adam Whitfield, from thenounproject.com.
+    </body>
+    </html>
+    ]]>
     </string>
     <string name="stop_list_help_text">
     This screen shows stops matching the search text. If GPS is enabled, they are
