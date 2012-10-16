@@ -16,11 +16,11 @@ import org.jsoup.select.Elements;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.text.TextUtils.StringSplitter;
-import android.util.Log;
 
 // everything required to load the LTC_supplied data into the database
 @SuppressLint("UseSparseArrays")
@@ -331,6 +331,7 @@ public class LTCScraper {
     		HashMap<Integer, LTCStop> allStops = new HashMap<Integer, LTCStop>();
     		// all stops that each route stops at in each direction
     		ArrayList<RouteStopLink> links = new ArrayList<RouteStopLink>();
+    		//Resources res = getApplicationContext().getResources();
     		publishProgress(new LoadProgress("Downloading routes", 0));
     		try {
     			routesToDo = loadRoutes();

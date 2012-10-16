@@ -51,17 +51,17 @@ public class FindStop extends Activity {
 	LocationListener locationListener = new LocationListener() {
 		public void onLocationChanged(Location location) {
 			// Called when a new location is found by the network location provider.
-			lastLocation= location;
+			lastLocation = location;
 			String provider = lastLocation.getProvider();
-			if (provider.equals(LocationManager.GPS_PROVIDER)) {
-				locationImage.setImageResource(R.drawable.ic_action_satellite_location);
-			}
-			else if (provider.equals(LocationManager.NETWORK_PROVIDER)) {
-				locationImage.setImageResource(R.drawable.ic_action_antenna_location);
-			}
-			else {
-				locationImage.setImageResource(R.drawable.ic_action_no_location);
-			}
+//			if (provider.equals(LocationManager.GPS_PROVIDER)) {
+//				locationImage.setImageResource(R.drawable.ic_action_satellite_location);
+//			}
+//			else if (provider.equals(LocationManager.NETWORK_PROVIDER)) {
+//				locationImage.setImageResource(R.drawable.ic_action_antenna_location);
+//			}
+//			else {
+//				locationImage.setImageResource(R.drawable.ic_action_no_location);
+//			}
 			updateStops();
 		}
 
@@ -99,9 +99,9 @@ public class FindStop extends Activity {
 		super.onStart();
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
-		locProvider = myLocationManager.getBestProvider(criteria, true);
+		locProvider = myLocationManager.GPS_PROVIDER;
 		if (locProvider != null) {
-			myLocationManager.requestLocationUpdates(locProvider, 10 * 1000, 0, locationListener);
+			myLocationManager.requestLocationUpdates(locProvider, 5 * 1000, 0, locationListener);
 			//myLocationManager.requestSingleUpdate(locProvider, locationListener, null);
 		}
 		int updateStatus = db.updateStatus();

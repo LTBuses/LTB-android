@@ -8,7 +8,7 @@
         android:layout_height="match_parent" >
 
         <WebView
-            android:id="@+id/webView"
+            android:id="@+id/about_web_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/about_text" />

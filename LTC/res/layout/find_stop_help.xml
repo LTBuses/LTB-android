@@ -7,8 +7,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <TextView
-            android:id="@+id/textView1"
+        <WebView
+            android:id="@+id/find_stop_help_web_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/stop_list_help_text" />
