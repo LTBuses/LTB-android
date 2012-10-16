@@ -98,19 +98,17 @@ public class RouteDirTextView extends TextView implements ScrapeStatus {
 	// used when predictions aren't available
 	ArrayList<HashMap<String, String>> predictionSugar() {
 		Resources res = getResources();
-		HashMap<String, String> sugar = new HashMap<String, String>(3);
-		sugar.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());
-		sugar.put(BusDb.DIRECTION_NAME, route.directionName);
-		sugar.put(BusDb.DESTINATION, route.directionName);
+		HashMap<String, String> sugar;
+		String dateValue;
 		switch (state) {
 		case FAILED:
-			sugar.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
+			dateValue = VERY_FAR_AWAY;
 			break;
 		default:
-			sugar.put(BusDb.DATE_VALUE, VERY_CLOSE);
+			dateValue = VERY_CLOSE;
 			break;
 		}
-		sugar.put(BusDb.CROSSING_TIME, res.getString(msgResource()));
+		sugar = LTCScraper.predictionEntry(route, dateValue, res.getString(msgResource()), null);
 		ArrayList<HashMap<String, String>> arl = new ArrayList<HashMap<String, String>>(1);
 		arl.add(sugar);
 		return arl;

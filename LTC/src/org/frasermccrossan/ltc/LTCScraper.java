@@ -47,6 +47,7 @@ public class LTCScraper {
 	static final int HALF_DAY_MINUTES = DAY_MINUTES / 2;
 	static final int FETCH_TIMEOUT = 30 * 1000;
 	static final int FAILURE_LIMIT = 20;
+	static final String ROUTE_INTERNAL_NUMBER = "route_object"; // for storing route object in prediction entry
 	
 	LTCScraper(Context c, ScrapingStatus s) {
 		db = new BusDb(c);
@@ -158,48 +159,62 @@ public class LTCScraper {
 				if (timeLink == null) {
 					throw new ScrapeException("missing time");
 				}
-				HashMap<String, String> crossingTime = new HashMap<String, String>(3);
 				String textTime = timeLink.attr("title");
-				crossingTime.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());
-				crossingTime.put(BusDb.DIRECTION_NAME, route.directionName);
+				HashMap<String, String> crossingTime;// = new HashMap<String, String>(3);
 				if (cols.size() >= 2) {
 					long timeDifference = getTimeDiffAsMinutes(now, TIME_PATTERN, textTime);
-					crossingTime.put(BusDb.DATE_VALUE, String.format("%08d", timeDifference));
-					crossingTime.put(BusDb.CROSSING_TIME, minutesAsText(timeDifference));
-					crossingTime.put(BusDb.DESTINATION, String.format("%s %s", route.directionName, cols.get(1).text()));
+					crossingTime = predictionEntry(route, 
+							String.format("%08d", timeDifference),
+							minutesAsText(timeDifference),
+							String.format("%s %s",
+									route.directionName,
+									cols.get(1).text()));
 					predictions.add(crossingTime);
 				}
 				else if (textTime.matches("^No further.*$")) {
-					crossingTime.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
-					crossingTime.put(BusDb.CROSSING_TIME, "None");
-					crossingTime.put(BusDb.DESTINATION, route.directionName);
+					crossingTime = predictionEntry(route, 
+							VERY_FAR_AWAY,
+							"None",
+							null);
 					predictions.add(crossingTime);
 				}
 			}
 			scrapeStatus.setStatus(ScrapeStatus.OK, null);
 		}
 		catch (ScrapeException e) {
-			HashMap<String, String> scrapeReport = new HashMap<String, String>(3);
-			scrapeReport.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());
-			scrapeReport.put(BusDb.DIRECTION_NAME, route.directionName);
-			scrapeReport.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
-			scrapeReport.put(BusDb.CROSSING_TIME, "[" + e.getMessage() + "]");
-			scrapeReport.put(BusDb.DESTINATION, route.directionName);
+			HashMap<String, String> scrapeReport = predictionEntry(route,
+					VERY_FAR_AWAY,
+					"[" + e.getMessage() + "]",
+					null);
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
 			predictions.add(scrapeReport);
 
 		}
 		catch (IOException e) {
-			HashMap<String, String> failReport = new HashMap<String, String>(3);
-			failReport.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());
-			failReport.put(BusDb.DIRECTION_NAME, route.directionName);
-			failReport.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
-			failReport.put(BusDb.CROSSING_TIME, "Fail");
-			failReport.put(BusDb.DESTINATION, route.directionName);
+			HashMap<String, String> failReport = predictionEntry(route,
+					VERY_FAR_AWAY,
+					"Fail",
+					null
+					);
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
 			predictions.add(failReport);
 		}
 		return predictions;
+	}
+	
+	static HashMap<String, String> predictionEntry(LTCRoute route,
+			String dateValue,
+			String crossingTime,
+			String destination)
+	{
+		HashMap<String, String> p = new HashMap<String, String>(5);
+		p.put(ROUTE_INTERNAL_NUMBER, route.number); // useful to look up route later
+		p.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());
+		p.put(BusDb.DIRECTION_NAME, route.directionName);
+		p.put(BusDb.DATE_VALUE, dateValue);
+		p.put(BusDb.CROSSING_TIME, crossingTime);
+		p.put(BusDb.DESTINATION, destination == null ? route.directionName : destination);
+		return p;
 	}
 	
 	public ArrayList<LTCRoute> loadRoutes() throws ScrapeException, IOException {
