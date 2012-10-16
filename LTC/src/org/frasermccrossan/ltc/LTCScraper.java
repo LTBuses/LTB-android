@@ -172,7 +172,7 @@ public class LTCScraper {
 				else if (textTime.matches("^No further.*$")) {
 					crossingTime.put(BusDb.DATE_VALUE, VERY_FAR_AWAY);
 					crossingTime.put(BusDb.CROSSING_TIME, "None");
-					crossingTime.put(BusDb.DESTINATION, "");
+					crossingTime.put(BusDb.DESTINATION, route.directionName);
 					predictions.add(crossingTime);
 				}
 			}
