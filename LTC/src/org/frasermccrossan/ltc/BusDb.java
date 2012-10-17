@@ -40,6 +40,8 @@ public class BusDb {
 	static final String STOPS_WITH_USES = "stops_with_uses";
 	static final String STOP_USES_COUNT = "stop_uses_count"; // for the count view
 	static final int STOP_HISTORY_LENGTH = 200;
+	
+	static final String ROUTE_LIST = "route_list";
 
 	static final String FRESHNESS = "freshness";
 	
@@ -208,6 +210,38 @@ public class BusDb {
 		}
 	}
 	
+	/* this fetches routes, but it also adds the direction and direction initial letter */
+	private String findStopRouteSummary(String stopNumber) {
+		Cursor c = db.rawQuery(String.format("select ltrim(%s.%s, '0')||substr(%s.%s, 1, 1) " +
+				"from %s, %s, %s " +
+				"where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ? " +
+				"order by %s.%s",
+				ROUTE_TABLE, ROUTE_NUMBER, DIRECTION_TABLE, DIRECTION_NAME,
+				ROUTE_TABLE, LINK_TABLE, DIRECTION_TABLE,
+				ROUTE_TABLE, ROUTE_NUMBER, LINK_TABLE, ROUTE_NUMBER,
+				LINK_TABLE, DIRECTION_NUMBER, DIRECTION_TABLE, DIRECTION_NUMBER,
+				LINK_TABLE, STOP_NUMBER,
+				ROUTE_TABLE, ROUTE_NUMBER),
+				new String[] { stopNumber });
+		if (c.moveToFirst()) {
+			String summary = null;
+			int i;
+			for (i = 0; !c.isAfterLast(); i++, c.moveToNext()) {
+				if (summary == null) {
+					summary = c.getString(0);
+				}
+				else {
+					summary += ", " + c.getString(0);
+				}
+			}
+			c.close();
+			return summary;
+		}
+		else {
+			return "";
+		}
+	}
+	
 	List<HashMap<String, String>> findStops(CharSequence text, Location location) {
 		String searchText = text.toString();
 		List<HashMap<String, String>> stops = new ArrayList<HashMap<String, String>>();
@@ -237,6 +271,8 @@ public class BusDb {
 			HashMap<String,String> map = new HashMap<String,String>(2);
 			map.put(STOP_NUMBER, c.getString(0));
 			map.put(STOP_NAME, c.getString(1));
+			map.put(ROUTE_LIST, findStopRouteSummary(c.getString(0)));
+			//Cursor c2 = db.query
 			stops.add(map);
 		}
 		c.close();

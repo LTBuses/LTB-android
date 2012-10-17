@@ -1,0 +1,7 @@
+
+    <resources>
+    <string-array name="search_types">
+        <item >Recent</item>
+        <item >Close</item>
+    </string-array>
+    </resources>

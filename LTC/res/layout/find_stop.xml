@@ -13,27 +13,21 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-        <EditText
+        android:layout_height="wrap_content" ><EditText
             android:id="@+id/search"
             style="@android:style/TextAppearance.DeviceDefault.Large"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:inputType="text|textNoSuggestions" >
-
-            <requestFocus />
-        </EditText>
-
-        <ImageView
-            android:id="@+id/location_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:contentDescription="@string/location_status"
-            android:src="@drawable/ic_action_no_location" />
+            android:inputType="text|textNoSuggestions" />
+
+        <Spinner
+            android:id="@+id/search_type_spinner"
+            android:entries="@array/search_types"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:spinnerMode="dropdown" />
 
     </LinearLayout>
     

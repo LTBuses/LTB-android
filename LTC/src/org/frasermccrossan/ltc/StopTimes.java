@@ -119,7 +119,7 @@ public class StopTimes extends Activity {
 		
 		protected Void doInBackground(RouteDirTextView... routeViews) {
 			Resources res = getResources();
-			LTCScraper scraper = new LTCScraper();
+			LTCScraper scraper = new LTCScraper(StopTimes.this);
 			for (RouteDirTextView routeView: routeViews) {
 				routeView.setStatus(RouteDirTextView.QUERYING, null);
 				publishProgress(routeView);

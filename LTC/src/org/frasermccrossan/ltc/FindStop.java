@@ -21,16 +21,16 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class FindStop extends Activity {
 	
 	EditText searchField;
 	ListView stopList;
-	ImageView locationImage;
+	Spinner searchTypeSpinner;
 	LocationManager myLocationManager;
 	String locProvider = null;
 	Location lastLocation;
@@ -89,7 +89,7 @@ public class FindStop extends Activity {
         myLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         stopList = (ListView)findViewById(R.id.stop_list);
         stopList.setOnItemClickListener(stopListener);
-        locationImage = (ImageView) findViewById(R.id.location_status);
+        searchTypeSpinner = (Spinner)findViewById(R.id.search_type_spinner);
         db = new BusDb(this);
         downloadTry = 0;
     }
@@ -101,8 +101,14 @@ public class FindStop extends Activity {
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		locProvider = myLocationManager.GPS_PROVIDER;
 		if (locProvider != null) {
-			myLocationManager.requestLocationUpdates(locProvider, 5 * 1000, 0, locationListener);
-			//myLocationManager.requestSingleUpdate(locProvider, locationListener, null);
+			if (myLocationManager.isProviderEnabled(locProvider)) {
+				searchTypeSpinner.setEnabled(true);
+				myLocationManager.requestLocationUpdates(locProvider, 5 * 1000, 0, locationListener);
+				//myLocationManager.requestSingleUpdate(locProvider, locationListener, null);
+			}
+			else {
+				searchTypeSpinner.setEnabled(false);
+			}
 		}
 		int updateStatus = db.updateStatus();
         if (updateStatus != BusDb.UPDATE_NOT_REQUIRED) {
@@ -183,8 +189,8 @@ public class FindStop extends Activity {
 	         SimpleAdapter adapter = new SimpleAdapter(FindStop.this,
 	        		 result,
 	        		 R.layout.stop_list_item,
-	        		 new String[] { BusDb.STOP_NUMBER, BusDb.STOP_NAME },
-	        		 new int[] { R.id.stop_number, R.id.stop_name });
+	        		 new String[] { BusDb.STOP_NUMBER, BusDb.STOP_NAME, BusDb.ROUTE_LIST },
+	        		 new int[] { R.id.stop_number, R.id.stop_name, R.id.route_list });
 	         if (!isCancelled() && stopList != null) {
 	        	 stopList.setAdapter(adapter);
 	         }

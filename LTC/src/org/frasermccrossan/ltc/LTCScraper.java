@@ -1,6 +1,7 @@
 package org.frasermccrossan.ltc;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ public class LTCScraper {
 
 	BusDb db = null;
 	ScrapingStatus status = null;
-	Context c;
+	Context context;
 	// for development only
 //	static final String ROUTE_URL = "http://teuchter.lan:8000/routes.html";
 //	static final String DIRECTION_URL = "http://teuchter.lan:8000/direction%s.html";
@@ -50,14 +51,15 @@ public class LTCScraper {
 	static final String ROUTE_INTERNAL_NUMBER = "route_object"; // for storing route object in prediction entry
 	
 	LTCScraper(Context c, ScrapingStatus s) {
-		db = new BusDb(c);
+		context = c;
+		db = new BusDb(context);
 		status = s;
 	}
 	
-	LTCScraper() {
-		/* no init - only instantiate this way if you only plan to check bus
-		 * predictions
+	LTCScraper(Context c) {
+		/* instantiate this way if you plan only to check bus predictions
 		 */
+		context = c;
 	}
 	
 	public void close() {
@@ -174,7 +176,7 @@ public class LTCScraper {
 				else if (textTime.matches("^No further.*$")) {
 					crossingTime = predictionEntry(route, 
 							VERY_FAR_AWAY,
-							"None",
+							R.string.times_none,
 							null);
 					predictions.add(crossingTime);
 				}
@@ -189,6 +191,15 @@ public class LTCScraper {
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
 			predictions.add(scrapeReport);
 
+		}
+		catch (SocketTimeoutException e) {
+			HashMap<String, String> failReport = predictionEntry(route,
+					VERY_FAR_AWAY,
+					R.string.times_timeout,
+					null
+					);
+			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
+			predictions.add(failReport);
 		}
 		catch (IOException e) {
 			HashMap<String, String> failReport = predictionEntry(route,
@@ -217,10 +228,19 @@ public class LTCScraper {
 		return p;
 	}
 	
+	HashMap<String, String> predictionEntry(LTCRoute route,
+			String dateValue,
+			int errorMsgRes, // look up this string resource to get displayed dateValue
+			String destination)
+	{
+		Resources res = context.getResources();
+		return predictionEntry(route, dateValue, res.getString(errorMsgRes), destination);
+	}
+	
 	public ArrayList<LTCRoute> loadRoutes() throws ScrapeException, IOException {
 		ArrayList<LTCRoute> routes = new ArrayList<LTCRoute>();
 		Connection conn = Jsoup.connect(ROUTE_URL);
-		//conn.timeout(FETCH_TIMEOUT);
+		conn.timeout(FETCH_TIMEOUT);
 		Document doc = conn.get();
 		Elements routeLinks = doc.select("a.ada");
 		Pattern numFinder = Pattern.compile("r=(\\d{1,2})$");

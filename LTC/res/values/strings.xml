@@ -122,5 +122,9 @@
     <string name="update_required">The bus route and stop database has never been generated %s. An update is required.</string>
     <string name="update_not_required">The bus route and stop database has been recently generated %s. An update is not required unless you know that routes or stops have recently changed.</string>
     <string name="update_database">Update Database</string>
+    <string name="retrying">Connection took too long, retrying...</string>
+    <string name="times_none">None</string>
+    <string name="times_fail">[Failed]</string>
+    <string name="times_timeout">[Timeout]</string>
 
 </resources>
