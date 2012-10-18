@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -38,13 +39,32 @@ public class FindStop extends Activity {
 	BusDb db;
 	int downloadTry;
 	
+	// entries in R.array.search_types
+	static final int RECENT_STOPS = 0;
+	static final int CLOSEST_STOPS = 1;
+	
 	OnItemClickListener stopListener = new OnItemClickListener() {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			TextView stopNumberView = (TextView)view.findViewById(R.id.stop_number);
 			String stopNumber = stopNumberView.getText().toString();
 	    	Intent stopTimeIntent = new Intent(FindStop.this, StopTimes.class);
 	    	stopTimeIntent.putExtra(BusDb.STOP_NUMBER, stopNumber);
-	    	startActivity(stopTimeIntent);    	
+	    	startActivity(stopTimeIntent);
+		}
+	};
+	
+	OnItemSelectedListener searchTypeListener = new OnItemSelectedListener() {
+
+		@Override
+		public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+			setLocationUpdates();
+			updateStops();
+		}
+
+		@Override
+		public void onNothingSelected(AdapterView<?> parent) {
+			// nothing
+			
 		}
 	};
 	
@@ -90,6 +110,7 @@ public class FindStop extends Activity {
         stopList = (ListView)findViewById(R.id.stop_list);
         stopList.setOnItemClickListener(stopListener);
         searchTypeSpinner = (Spinner)findViewById(R.id.search_type_spinner);
+        searchTypeSpinner.setOnItemSelectedListener(searchTypeListener);
         db = new BusDb(this);
         downloadTry = 0;
     }
@@ -103,13 +124,14 @@ public class FindStop extends Activity {
 		if (locProvider != null) {
 			if (myLocationManager.isProviderEnabled(locProvider)) {
 				searchTypeSpinner.setEnabled(true);
-				myLocationManager.requestLocationUpdates(locProvider, 5 * 1000, 0, locationListener);
 				//myLocationManager.requestSingleUpdate(locProvider, locationListener, null);
 			}
 			else {
+				searchTypeSpinner.setSelection(RECENT_STOPS);
 				searchTypeSpinner.setEnabled(false);
 			}
 		}
+		setLocationUpdates();
 		int updateStatus = db.updateStatus();
         if (updateStatus != BusDb.UPDATE_NOT_REQUIRED) {
         	++downloadTry;
@@ -168,6 +190,22 @@ public class FindStop extends Activity {
         }
     }
 
+    public void setLocationUpdates()
+    {
+		switch (searchTypeSpinner.getSelectedItemPosition()) {
+		case RECENT_STOPS:
+			myLocationManager.removeUpdates(locationListener);
+			lastLocation = null;
+			break;
+		case CLOSEST_STOPS:
+			myLocationManager.requestLocationUpdates(locProvider, 5 * 1000, 0, locationListener);
+			lastLocation = myLocationManager.getLastKnownLocation(locProvider);
+			break;
+		default:
+			// nothing
+			break;
+		}
+    }
     
 	public void updateStops() {
 		if (mySearchTask != null && ! mySearchTask.isCancelled()) {
