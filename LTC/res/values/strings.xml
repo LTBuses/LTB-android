@@ -126,5 +126,6 @@
     <string name="times_none">None</string>
     <string name="times_fail">[Failed]</string>
     <string name="times_timeout">[Timeout]</string>
+    <string name="finding_routes">Finding routes...</string>
 
 </resources>

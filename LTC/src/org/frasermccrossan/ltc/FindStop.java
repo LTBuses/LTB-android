@@ -1,5 +1,6 @@
 package org.frasermccrossan.ltc;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,6 +32,8 @@ public class FindStop extends Activity {
 	
 	EditText searchField;
 	ListView stopList;
+	SimpleAdapter stopListAdapter;
+	List<HashMap<String, String>> stops;
 	Spinner searchTypeSpinner;
 	LocationManager myLocationManager;
 	String locProvider = null;
@@ -109,6 +112,13 @@ public class FindStop extends Activity {
         myLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         stopList = (ListView)findViewById(R.id.stop_list);
         stopList.setOnItemClickListener(stopListener);
+		stops = new ArrayList<HashMap<String, String>>();
+		stopListAdapter = new SimpleAdapter(FindStop.this,
+        		 stops,
+        		 R.layout.stop_list_item,
+        		 new String[] { BusDb.STOP_NUMBER, BusDb.STOP_NAME, BusDb.ROUTE_LIST },
+        		 new int[] { R.id.stop_number, R.id.stop_name, R.id.route_list });
+		stopList.setAdapter(stopListAdapter);
         searchTypeSpinner = (Spinner)findViewById(R.id.search_type_spinner);
         searchTypeSpinner.setOnItemSelectedListener(searchTypeListener);
         db = new BusDb(this);
@@ -216,21 +226,24 @@ public class FindStop extends Activity {
 
 	}
 	
-	class SearchTask extends AsyncTask<CharSequence, Void, List<HashMap<String, String>>> {
+	class SearchTask extends AsyncTask<CharSequence, Void, Void> {
 		
-		protected List<HashMap<String, String>> doInBackground(CharSequence... strings) {
-			return db.findStops(strings[0], lastLocation);
-	     }
+		
+		protected Void doInBackground(CharSequence... strings) {
+			db.findStops(strings[0], lastLocation, stops);
+			publishProgress();
+			db.addRoutesToStopList(stops);
+			publishProgress();
+			return null;
+		}
+		
+		protected void onProgressUpdate(Void... progress) {
+			stopListAdapter.notifyDataSetChanged();
+		}
 
-	     protected void onPostExecute(List<HashMap<String, String>> result) {
+	     protected void onPostExecute() {
 	    	 
-	         SimpleAdapter adapter = new SimpleAdapter(FindStop.this,
-	        		 result,
-	        		 R.layout.stop_list_item,
-	        		 new String[] { BusDb.STOP_NUMBER, BusDb.STOP_NAME, BusDb.ROUTE_LIST },
-	        		 new int[] { R.id.stop_number, R.id.stop_name, R.id.route_list });
-	         if (!isCancelled() && stopList != null) {
-	        	 stopList.setAdapter(adapter);
+	         if (!isCancelled() && stops != null) {
 	         }
 	     }
 	}

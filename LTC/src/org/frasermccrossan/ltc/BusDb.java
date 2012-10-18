@@ -242,9 +242,8 @@ public class BusDb {
 		}
 	}
 	
-	List<HashMap<String, String>> findStops(CharSequence text, Location location) {
+	void findStops(CharSequence text, Location location, List<HashMap<String, String>> stops) {
 		String searchText = text.toString();
-		List<HashMap<String, String>> stops = new ArrayList<HashMap<String, String>>();
 		String whereClause;
 		String[] words = searchText.trim().toLowerCase().split("\\s+");
 		String[] likes = new String[words.length];
@@ -266,17 +265,23 @@ public class BusDb {
 			order = String.format("(latitude-(%f))*(latitude-(%f)) + (longitude-(%f))*(longitude-(%f))",
 					lat, lat, lon, lon);
 		}
+		stops.clear();
 		Cursor c = db.query(STOPS_WITH_USES, new String[] { STOP_NUMBER, STOP_NAME }, whereClause, null, null, null, order, "20");
 		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
 			HashMap<String,String> map = new HashMap<String,String>(2);
 			map.put(STOP_NUMBER, c.getString(0));
 			map.put(STOP_NAME, c.getString(1));
-			map.put(ROUTE_LIST, findStopRouteSummary(c.getString(0)));
 			//Cursor c2 = db.query
 			stops.add(map);
 		}
 		c.close();
-		return stops;
+	}
+	
+	void addRoutesToStopList(List<HashMap<String, String>> stops)
+	{
+		for (HashMap<String, String> stopEntry : stops) {
+			stopEntry.put(ROUTE_LIST, findStopRouteSummary(stopEntry.get(STOP_NUMBER)));
+		}
 	}
 
 	// called by the scraper to load everything it found into the database
