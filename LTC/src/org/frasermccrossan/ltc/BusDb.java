@@ -8,6 +8,7 @@ import java.util.List;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
@@ -67,9 +68,11 @@ public class BusDb {
 	static final String FAILED = "failed";
 
 	SQLiteDatabase db;
+	Context context;
 	
 	BusDb(Context c) {
-		BusDbOpenHelper helper = new BusDbOpenHelper(c);
+		context = c;
+		BusDbOpenHelper helper = new BusDbOpenHelper(context);
 		db = helper.getWritableDatabase();
 	}
 	
@@ -212,7 +215,7 @@ public class BusDb {
 	
 	/* this fetches routes, but it also adds the direction and direction initial letter */
 	private String findStopRouteSummary(String stopNumber) {
-		Cursor c = db.rawQuery(String.format("select ltrim(%s.%s, '0')||substr(%s.%s, 1, 1) " +
+		Cursor c = db.rawQuery(String.format("select ltrim(%s.%s, '0'), substr(%s.%s, 1, 1) " +
 				"from %s, %s, %s " +
 				"where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ? " +
 				"order by %s.%s",
@@ -225,14 +228,23 @@ public class BusDb {
 				new String[] { stopNumber });
 		if (c.moveToFirst()) {
 			String summary = null;
+			String lastRouteNum = "";
 			int i;
 			for (i = 0; !c.isAfterLast(); i++, c.moveToNext()) {
+				String routeNum = c.getString(0);
+				String routeDir = c.getString(1);
 				if (summary == null) {
-					summary = c.getString(0);
+					summary = routeNum + routeDir;
 				}
 				else {
-					summary += ", " + c.getString(0);
+					if (lastRouteNum.equals(routeNum)) {
+						summary += routeDir; // just append the direction to the same route number
+					}
+					else {
+						summary += " " + routeNum + routeDir; // append both
+					}
 				}
+				lastRouteNum = routeNum;
 			}
 			c.close();
 			return summary;
@@ -265,12 +277,15 @@ public class BusDb {
 			order = String.format("(latitude-(%f))*(latitude-(%f)) + (longitude-(%f))*(longitude-(%f))",
 					lat, lat, lon, lon);
 		}
+		Resources res = context.getResources();
+		String findingRoutes = res.getString(R.string.finding_routes);
 		List<HashMap<String, String>> stops = new ArrayList<HashMap<String, String>>();
 		Cursor c = db.query(STOPS_WITH_USES, new String[] { STOP_NUMBER, STOP_NAME }, whereClause, null, null, null, order, "20");
 		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
 			HashMap<String,String> map = new HashMap<String,String>(2);
 			map.put(STOP_NUMBER, c.getString(0));
 			map.put(STOP_NAME, c.getString(1));
+			map.put(ROUTE_LIST, findingRoutes);
 			//Cursor c2 = db.query
 			stops.add(map);
 		}
