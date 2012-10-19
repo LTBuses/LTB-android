@@ -66,6 +66,7 @@ public class BusDb {
 	static final String CROSSING_TIME = "crossing_time";
 	static final String DATE_VALUE = "date_value";
 	static final String FAILED = "failed";
+	static final String RAW_TIME = "rawtime";
 
 	SQLiteDatabase db;
 	Context context;

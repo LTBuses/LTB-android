@@ -108,7 +108,7 @@ public class RouteDirTextView extends TextView implements ScrapeStatus {
 			dateValue = VERY_CLOSE;
 			break;
 		}
-		sugar = LTCScraper.predictionEntry(route, dateValue, res.getString(msgResource()), null);
+		sugar = LTCScraper.predictionEntry(route, dateValue, res.getString(msgResource()), null, null);
 		ArrayList<HashMap<String, String>> arl = new ArrayList<HashMap<String, String>>(1);
 		arl.add(sugar);
 		return arl;

@@ -22,6 +22,7 @@ import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.text.TextUtils.StringSplitter;
+import android.text.format.DateFormat;
 
 // everything required to load the LTC_supplied data into the database
 @SuppressLint("UseSparseArrays")
@@ -164,10 +165,15 @@ public class LTCScraper {
 				String textTime = timeLink.attr("title");
 				HashMap<String, String> crossingTime;// = new HashMap<String, String>(3);
 				if (cols.size() >= 2) {
-					long timeDifference = getTimeDiffAsMinutes(now, TIME_PATTERN, textTime);
+					int timeDifference = getTimeDiffAsMinutes(now, TIME_PATTERN, textTime);
+					Calendar absTime = (Calendar)now.clone();
+					absTime.add(Calendar.MINUTE, timeDifference);
+					java.text.DateFormat absFormatter = DateFormat.getTimeFormat(context);
+					absFormatter.setCalendar(absTime);
 					crossingTime = predictionEntry(route, 
 							String.format("%08d", timeDifference),
 							minutesAsText(timeDifference),
+							absFormatter.format(absTime.getTime()),
 							String.format("%s %s",
 									route.directionName,
 									cols.get(1).text()));
@@ -187,6 +193,7 @@ public class LTCScraper {
 			HashMap<String, String> scrapeReport = predictionEntry(route,
 					VERY_FAR_AWAY,
 					"[" + e.getMessage() + "]",
+					null,
 					null);
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
 			predictions.add(scrapeReport);
@@ -205,6 +212,7 @@ public class LTCScraper {
 			HashMap<String, String> failReport = predictionEntry(route,
 					VERY_FAR_AWAY,
 					"Fail",
+					null,
 					null
 					);
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
@@ -216,6 +224,7 @@ public class LTCScraper {
 	static HashMap<String, String> predictionEntry(LTCRoute route,
 			String dateValue,
 			String crossingTime,
+			String rawCrossingTime, // the actual text from the website
 			String destination)
 	{
 		HashMap<String, String> p = new HashMap<String, String>(5);
@@ -224,6 +233,7 @@ public class LTCScraper {
 		p.put(BusDb.DIRECTION_NAME, route.directionName);
 		p.put(BusDb.DATE_VALUE, dateValue);
 		p.put(BusDb.CROSSING_TIME, crossingTime);
+		p.put(BusDb.RAW_TIME, rawCrossingTime);
 		p.put(BusDb.DESTINATION, destination == null ? route.directionName : destination);
 		return p;
 	}
@@ -234,7 +244,7 @@ public class LTCScraper {
 			String destination)
 	{
 		Resources res = context.getResources();
-		return predictionEntry(route, dateValue, res.getString(errorMsgRes), destination);
+		return predictionEntry(route, dateValue, res.getString(errorMsgRes), null, destination);
 	}
 	
 	public ArrayList<LTCRoute> loadRoutes() throws ScrapeException, IOException {
