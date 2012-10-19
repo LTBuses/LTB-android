@@ -46,6 +46,9 @@ public class FindStop extends Activity {
 	static final int RECENT_STOPS = 0;
 	static final int CLOSEST_STOPS = 1;
 	
+	static final long LOCATION_TIME_UPDATE = 30; // seconds between GPS update
+	static final float LOCATION_DISTANCE_UPDATE = 100; // minimum metres between GPS updates
+	
 	OnItemClickListener stopListener = new OnItemClickListener() {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 			TextView stopNumberView = (TextView)view.findViewById(R.id.stop_number);
@@ -208,7 +211,7 @@ public class FindStop extends Activity {
 			lastLocation = null;
 			break;
 		case CLOSEST_STOPS:
-			myLocationManager.requestLocationUpdates(locProvider, 5 * 1000, 0, locationListener);
+			myLocationManager.requestLocationUpdates(locProvider, LOCATION_TIME_UPDATE * 1000, LOCATION_DISTANCE_UPDATE, locationListener);
 			lastLocation = myLocationManager.getLastKnownLocation(locProvider);
 			break;
 		default:
@@ -226,25 +229,33 @@ public class FindStop extends Activity {
 
 	}
 	
-	class SearchTask extends AsyncTask<CharSequence, Void, Void> {
+	class SearchTask extends AsyncTask<CharSequence, List<HashMap<String, String>>, Void> {
 		
-		
+		@SuppressWarnings("unchecked")
 		protected Void doInBackground(CharSequence... strings) {
-			db.findStops(strings[0], lastLocation, stops);
-			publishProgress();
-			db.addRoutesToStopList(stops);
-			publishProgress();
+			List<HashMap<String, String>> newStops = db.findStops(strings[0], lastLocation);
+			if (!isCancelled()) {
+				publishProgress(newStops);
+			}
+			db.addRoutesToStopList(newStops);
+			if (!isCancelled()) {
+				// can publish a null since the above update updates all the same objects
+				publishProgress((List<HashMap<String, String>>) null);
+			}
 			return null;
 		}
 		
-		protected void onProgressUpdate(Void... progress) {
-			stopListAdapter.notifyDataSetChanged();
+		protected void onProgressUpdate(List<HashMap<String, String>>... newStops) {
+			if (!isCancelled() && stopListAdapter != null) {
+				for (List<HashMap<String, String>> newStop: newStops) {
+					if (newStop != null) {
+						stops.clear();
+						stops.addAll(newStop);
+					}
+				}
+				stopListAdapter.notifyDataSetChanged();
+			}
 		}
 
-	     protected void onPostExecute() {
-	    	 
-	         if (!isCancelled() && stops != null) {
-	         }
-	     }
 	}
 }

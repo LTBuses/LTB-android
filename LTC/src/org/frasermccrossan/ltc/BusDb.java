@@ -242,7 +242,7 @@ public class BusDb {
 		}
 	}
 	
-	void findStops(CharSequence text, Location location, List<HashMap<String, String>> stops) {
+	List<HashMap<String, String>> findStops(CharSequence text, Location location) {
 		String searchText = text.toString();
 		String whereClause;
 		String[] words = searchText.trim().toLowerCase().split("\\s+");
@@ -265,7 +265,7 @@ public class BusDb {
 			order = String.format("(latitude-(%f))*(latitude-(%f)) + (longitude-(%f))*(longitude-(%f))",
 					lat, lat, lon, lon);
 		}
-		stops.clear();
+		List<HashMap<String, String>> stops = new ArrayList<HashMap<String, String>>();
 		Cursor c = db.query(STOPS_WITH_USES, new String[] { STOP_NUMBER, STOP_NAME }, whereClause, null, null, null, order, "20");
 		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
 			HashMap<String,String> map = new HashMap<String,String>(2);
@@ -275,6 +275,7 @@ public class BusDb {
 			stops.add(map);
 		}
 		c.close();
+		return stops;
 	}
 	
 	void addRoutesToStopList(List<HashMap<String, String>> stops)
