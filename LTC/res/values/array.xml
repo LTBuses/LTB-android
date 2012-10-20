@@ -1,7 +1,7 @@
 
     <resources>
     <string-array name="search_types">
-        <item >Recent</item>
-        <item >Close</item>
+        <item >Favourites</item>
+        <item >Nearby</item>
     </string-array>
     </resources>

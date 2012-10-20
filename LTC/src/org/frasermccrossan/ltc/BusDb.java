@@ -57,7 +57,7 @@ public class BusDb {
 	static final int UPDATE_NOT_REQUIRED = 0;
 	static final int UPDATE_RECOMMENDED = 1;
 	static final int UPDATE_REQUIRED = 2;
-	static final long UPDATE_DATABASE_AGE_REMINDER = 1000L * 60L * 60L * 24L * 60L; // 60 days
+	static final long UPDATE_DATABASE_AGE_LIMIT = 1000L * 60L * 60L * 24L * 60L; // 60 days
 	
 	static final String LINK_TABLE = "route_stops";
 	
@@ -81,7 +81,7 @@ public class BusDb {
 		db.close();
 	}
 	
-	public int updateFreshness(Calendar time) {
+	public int getCurrentFreshnessDayType(Calendar time) {
 		switch(time.get(Calendar.DAY_OF_WEEK)) {
 		case Calendar.SATURDAY:
 			return SATURDAY_FRESHNESS;
@@ -92,8 +92,8 @@ public class BusDb {
 		}
 	}
 	
-	private String freshnessColumn(Calendar time) {
-		switch(updateFreshness(time)) {
+	private String currentFreshnessColumn(Calendar time) {
+		switch(getCurrentFreshnessDayType(time)) {
 		case SATURDAY_FRESHNESS:
 			return SATURDAY_FRESHNESS_COLUMN;
 		case SUNDAY_FRESHNESS:
@@ -103,57 +103,97 @@ public class BusDb {
 		}
 	}
 	
-	public int freshnessStrRes() {
-		Calendar now = Calendar.getInstance();
-		switch(updateFreshness(now)) {
-		case SATURDAY_FRESHNESS:
-			return R.string.on_saturday;
-		case SUNDAY_FRESHNESS:
-			return R.string.on_sunday;
-		default:
-			return R.string.on_weekday;
-		}
-	}
-	
-	public int updateStrRes() {
-		switch(updateStatus()) {
-		case UPDATE_REQUIRED:
-			return R.string.update_required;
+//	public int freshnessStrRes() {
+//		Calendar now = Calendar.getInstance();
+//		switch(getCurrentFreshnessDayType(now)) {
+//		case SATURDAY_FRESHNESS:
+//			return R.string.saturday;
+//		case SUNDAY_FRESHNESS:
+//			return R.string.sunday;
+//		default:
+//			return R.string.weekday;
+//		}
+//	}
+
+	public int updateStrRes(int updateStatus) {
+		switch(updateStatus) {
+		case UPDATE_NOT_REQUIRED:
+			return R.string.update_not_required;
 		case UPDATE_RECOMMENDED:
 			return R.string.update_recommended;
+		case UPDATE_REQUIRED:
+			return R.string.update_required;
 		default:
 			return R.string.update_not_required;
 		}
 	}
+
+//	public int updateStrRes() {
+//		switch(updateStatus()) {
+//		case UPDATE_REQUIRED:
+//			return R.string.update_required;
+//		case UPDATE_RECOMMENDED:
+//			return R.string.update_recommended;
+//		default:
+//			return R.string.update_not_required;
+//		}
+//	}
+	
+	HashMap<Integer, Long> getFreshnesses(long nowMillis) {
+		Cursor c = db.rawQuery(String.format("select %s, %s, %s from %s",
+				WEEKDAY_FRESHNESS_COLUMN, SATURDAY_FRESHNESS_COLUMN, SUNDAY_FRESHNESS_COLUMN, FRESHNESS_TABLE), null);
+		if (c.moveToFirst()) {
+			 HashMap<Integer, Long> f = new HashMap<Integer, Long>(3);
+			 f.put(WEEKDAY_FRESHNESS, nowMillis - c.getLong(0));
+			 f.put(SATURDAY_FRESHNESS, nowMillis - c.getLong(1));
+			 f.put(SUNDAY_FRESHNESS, nowMillis - c.getLong(2));
+			 c.close();
+			 return f;
+		}
+		c.close();
+		return null;
+	}
 	
 	// determines if an update is recommended or required
-	public int updateStatus() {
-		Calendar now = Calendar.getInstance();
-		Cursor c = db.rawQuery(String.format("select %s from %s", freshnessColumn(now), FRESHNESS_TABLE), null);
-		if (c.moveToFirst()) {
-			long freshness = c.getLong(0);
-			c.close();
-			if (freshness == 0) {
-				return UPDATE_REQUIRED;
-			}
-			/* I don't know why we need this bullshit here, but the expression
-			 * now.getTimeInMillis() - freshness >= UPDATE_DATABASE_AGE_REMINDER gives an incorrect result;
-			 * some weird Java casting rule I'm not aware of?
-			 */
-			long gtim = now.getTimeInMillis();
-			long diff = gtim - freshness;
-			if (diff >= UPDATE_DATABASE_AGE_REMINDER) {
-				return UPDATE_RECOMMENDED;
-			}
-			return UPDATE_NOT_REQUIRED; // I know, it's down there too
+	public int updateStatus(HashMap<Integer, Long> freshnesses, Calendar now) {
+		int currentFreshnessDayType = getCurrentFreshnessDayType(now);
+		if (freshnesses == null) {
+			return UPDATE_NOT_REQUIRED; // shouldn't happen
 		}
-		return UPDATE_NOT_REQUIRED;
+		long currentFreshness = freshnesses.get(currentFreshnessDayType);
+		if (currentFreshness < UPDATE_DATABASE_AGE_LIMIT) {
+			// freshness for today's day type is younger than the threshold, we can bail out now
+			return UPDATE_NOT_REQUIRED;
+		}
+		// nope, we need to know how old the others are
+		long latestOtherFreshness = UPDATE_DATABASE_AGE_LIMIT;
+		// at this point we are computing other freshness in epoch time
+		for (int ft: freshnesses.keySet()) {
+			if (ft != currentFreshnessDayType) {
+				if (freshnesses.get(ft) < latestOtherFreshness) {
+					latestOtherFreshness = freshnesses.get(ft);
+				}
+			}
+		}
+		if (latestOtherFreshness < UPDATE_DATABASE_AGE_LIMIT) {
+			// one of the others is recent enough, just recommend an update
+			return UPDATE_RECOMMENDED;
+		}
+		// nothing is young enough, require an update
+		return UPDATE_REQUIRED;
 	}
 	
-	public boolean isValid() {
-		int status = updateStatus();
-		return status != UPDATE_REQUIRED;
+	// this gets called from the main stop list screen so it does everything itself
+	public int getUpdateStatus() {
+		Calendar now = Calendar.getInstance();
+		HashMap<Integer, Long> freshnesses = getFreshnesses(now.getTimeInMillis());
+		return updateStatus(freshnesses, now);
 	}
+	
+//	public boolean isValid() {
+//		int status = updateStatus();
+//		return status != UPDATE_REQUIRED;
+//	}
 	
 	void noteStopUse(LTCStop stop) {
 		long now = System.currentTimeMillis();
@@ -346,7 +386,7 @@ public class BusDb {
 				db.insertWithOnConflict (LINK_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
 			}
 			cv.clear();
-			cv.put(freshnessColumn(now), nowMillis);
+			cv.put(currentFreshnessColumn(now), nowMillis);
 			db.update(FRESHNESS_TABLE, cv, null, null);
 			db.setTransactionSuccessful();
 		} finally {

@@ -145,7 +145,7 @@ public class FindStop extends Activity {
 			}
 		}
 		setLocationUpdates();
-		int updateStatus = db.updateStatus();
+		int updateStatus = db.getUpdateStatus();
         if (updateStatus != BusDb.UPDATE_NOT_REQUIRED) {
         	++downloadTry;
         	if (downloadTry <= 1) {

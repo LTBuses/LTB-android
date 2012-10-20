@@ -10,7 +10,7 @@
     <string name="last_updated">Last updated</string>
     <string name="at_this_stop">At this stop: %1$s</string>
     <string name="stop_times">Stop Times</string>
-    <string name="download_instructions">Downloading bus route and stop data takes about 2 minutes and uses between 1M and 2M of data. Downloading on wifi is recommended but not required.</string>
+    <string name="download_instructions">Downloading bus route and stop data takes 2&#8211;3 minutes and uses between 1M and 2M of data. Wifi is recommended but not required.</string>
     <string name="update">Download</string>
     <string name="using_provider">Location provider: %1$s</string>
     <string name="no_provider">Location not available</string>
@@ -85,17 +85,25 @@
     ]]>
     </string>
     <string name="stop_list_help_text">
-    <![CDATA[<html>
+    <![CDATA[
+    <html>
     <body>
     <h2>List of Stops</h2>
     <p>
-    If GPS is enabled, this screen shows the stops closest to you,
-    else it shows the stops you have viewed most often. Tap a stop
-    to show the next arrivals for all routes at the stop.
+    If GPS is enabled, you can choose between \"Favourites\" (stops you\'ve checked recently) and \"Nearby\" (stops close to you).
+    If GPS is disabled, you just get \"Favourites\".
+    </p>
+    <p>
+    Be patient with GPS - it may take a few seconds to find your position.
+    Only GPS is supported - Google\'s location service is not accurate enough, especially in areas with lots of stops like downtown.
+    </p>
+    <p>
+    Each stop also shows which route numbers stop in which directions.
+    Tap a stop to show the next arrivals for all routes.
     </p>
     <h2>Searching</h2>
     <p>
-    Enter text or numbers to search for a stop.
+    Enter text or numbers to narrow down which stop you want (still listed Favourites-first or Nearby-first, as above).
     If the search is only digits, it matches both stop numbers (on the blue signs)
     and stops containing numbers (e.g. \"1102 Jalna NB\"). If there are any non-digits,
     it just matches stop names.
@@ -108,6 +116,35 @@
     </html>
     ]]>
     </string>
+    <string name="update_database_help_text">
+    <![CDATA[
+    <html>
+    <body>
+    <h2>Update Database</h2>
+    <p>
+    LTC routes vary between weekdays, Saturdays and Sundays (that is, some buses call at different stops or in different
+    directions). Therefore the app works best if it can update the database on each type of day. If you only
+    ever take the bus on a weekday, you can safely ignore Saturdays and Sundays.
+    </p>
+    <ul>
+    <li>
+    If all of the downloads are older than the age limit, an update is <em>required</em>, and you must
+    update the database before you can check bus times.
+    </li>
+    <li>
+    If today\'s download is older than the age limit, but another download is younger,
+    an update is <em>recommended</em>. You should probably update the database, but
+    you may press the back key and check bus times. The app will keep annoying you
+    about it, though.
+    </li>
+    <li>
+    If today\'s download is younger than the age limit, an update is <em>not required</em>.
+    </li>
+    </ul>
+    </body>
+    </html>
+    ]]>
+    </string>
     <string name="help">Help</string>
     <string name="location_status">location status</string>
     <string name="refresh">Refresh</string>
@@ -115,17 +152,22 @@
     <string name="msg_querying">(Wait)</string>
     <string name="msg_fail">Fail</string>
     <string name="msg_bug">Bug</string>
-    <string name="on_weekday">on a weekday</string>
-    <string name="on_saturday">on a Saturday</string>
-    <string name="on_sunday">on a Sunday</string>
-    <string name="update_recommended">The bus route and stop database has not been generated for a while %s. An update is recommended.</string>
-    <string name="update_required">The bus route and stop database has never been generated %s. An update is required.</string>
-    <string name="update_not_required">The bus route and stop database has been recently generated %s. An update is not required unless you know that routes or stops have recently changed.</string>
+    <string name="weekday">weekday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    <string name="status_format">Last %1$s download: %2$s</string>
+    <string name="age_limit">Age limit: %1$s</string>
+    <string name="never">never</string>
+    <string name="days_ago">%1$d days ago</string>
+    <string name="day_ago">%1$d day ago</string>
+    <string name="update_recommended">An update is recommended.</string>
+    <string name="update_required">An update is required.</string>
+    <string name="update_not_required">An update is not required.</string>
     <string name="update_database">Update Database</string>
-    <string name="retrying">Connection took too long, retrying...</string>
+    <string name="retrying">Connection took too long, retrying&#8230;</string>
     <string name="times_none">None</string>
     <string name="times_fail">[Failed]</string>
     <string name="times_timeout">[Timeout]</string>
-    <string name="finding_routes">Finding routes...</string>
+    <string name="finding_routes">Finding routes&#8230;</string>
 
 </resources>

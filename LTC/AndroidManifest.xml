@@ -34,6 +34,9 @@
         <activity
             android:name=".UpdateDatabase"
             android:label="@string/stop_times" />
+        <activity
+            android:name=".UpdateDatabaseHelp"
+            android:label="@string/help" />
         </application>
 
 </manifest>

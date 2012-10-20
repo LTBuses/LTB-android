@@ -5,31 +5,59 @@
     android:orientation="vertical" >
 
     <TextView
-        android:id="@+id/freshness_text"
+        android:id="@+id/download_instructions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:text="@string/download_instructions"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:paddingBottom="8dip"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/weekday_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/saturday_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+        
+    <TextView
+        android:id="@+id/sunday_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/age_limit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="8dip"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <ProgressBar
         android:id="@+id/progress"
         style="?android:attr/progressBarStyleHorizontal"
         android:max="100"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-
+        
     <TextView
         android:id="@+id/status_text"
         android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="1"
-        android:text="@string/download_instructions"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:layout_height="wrap_content"
+        android:paddingTop="8dip"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Button
         android:id="@+id/update_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="8dip"
         android:text="@string/update" />
 
 </LinearLayout>
