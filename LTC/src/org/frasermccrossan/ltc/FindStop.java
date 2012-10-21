@@ -11,15 +11,19 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.EditText;
@@ -48,6 +52,9 @@ public class FindStop extends Activity {
 	
 	static final long LOCATION_TIME_UPDATE = 30; // seconds between GPS update
 	static final float LOCATION_DISTANCE_UPDATE = 100; // minimum metres between GPS updates
+	
+	// context menu items
+	static final int SHOW_MAP = 0;
 	
 	OnItemClickListener stopListener = new OnItemClickListener() {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -124,6 +131,7 @@ public class FindStop extends Activity {
 		stopList.setAdapter(stopListAdapter);
         searchTypeSpinner = (Spinner)findViewById(R.id.search_type_spinner);
         searchTypeSpinner.setOnItemSelectedListener(searchTypeListener);
+        registerForContextMenu(stopList);
         db = new BusDb(this);
         downloadTry = 0;
     }
@@ -202,6 +210,36 @@ public class FindStop extends Activity {
             return super.onOptionsItemSelected(item);
         }
     }
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+	                                ContextMenuInfo menuInfo) {
+	  super.onCreateContextMenu(menu, v, menuInfo);
+	  AdapterView.AdapterContextMenuInfo listItemInfo = (AdapterView.AdapterContextMenuInfo)menuInfo;
+	  int item = listItemInfo.position;
+	  menu.add(ContextMenu.NONE, SHOW_MAP, 1, R.string.show_map);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+	  AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+	  switch (item.getItemId()) {
+	  case SHOW_MAP:
+		  HashMap<String, String> stop = stops.get(info.position);
+		  String query = Uri.encode(String.format("%s@%s,%s",
+				  stop.get(BusDb.STOP_NAME), 
+				  stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE)
+				  ));
+		  String geoUri = String.format("geo:%s,%s?q=%s",
+				  stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE),
+				  query);
+		  Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
+		  startActivity(mapIntent);
+		  return true;
+	  default:
+	    return super.onContextItemSelected(item);
+	  }
+	}
 
     public void setLocationUpdates()
     {

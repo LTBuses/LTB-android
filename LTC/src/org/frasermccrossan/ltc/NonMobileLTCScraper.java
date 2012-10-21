@@ -5,7 +5,6 @@ import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,7 +13,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import android.annotation.SuppressLint;
@@ -28,7 +26,7 @@ import android.text.format.DateFormat;
 
 // everything required to load the LTC_supplied data into the database
 @SuppressLint("UseSparseArrays")
-public class LTCScraper {
+public class NonMobileLTCScraper {
 
 	BusDb db = null;
 	ScrapingStatus status = null;
@@ -39,35 +37,27 @@ public class LTCScraper {
 //	static final String STOPS_URL = "http://teuchter.lan:8000/direction%sd%d.html";
 //	static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
 	// for production
-	static final String ROUTE_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx";
-	static final String DIRECTION_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx?r=%s";
-	static final String STOPS_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx?r=%s&d=%d";
+	static final String ROUTE_URL = "http://www.ltconline.ca/WebWatch/ada.aspx?mode=d";
+	static final String DIRECTION_URL = "http://www.ltconline.ca/WebWatch/ada.aspx?r=%s";
+	static final String STOPS_URL = "http://www.ltconline.ca/WebWatch/ada.aspx?r=%s&d=%d";
 	static final String MAP_URL = "http://www.ltconline.ca/WebWatch/map.aspx?mode=g&r=%s";
 	static final String PREDICTIONS_URL = "http://teuchter.lan:8000/foo.html";
 	static final Pattern TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{2}) ?([AP])?");
 	// matches arrival text in the MobileAda.aspx prediction
-	static final Pattern ARRIVAL_PATTERN = Pattern.compile("(?i) *(\\d{1,2}:\\d{2} *[\\.apm]*) +(to .+)");
-	// pattern for route number in a[href]
-	static final Pattern ROUTE_NUM_PATTERN = Pattern.compile("\\?r=(\\d{1,2})");
-	// pattern for direction number in a[href]
-	static final Pattern DIRECTION_NUM_PATTERN = Pattern.compile("\\&d=(\\d+)");
-	// pattern for stop number in a[href]
-	static final Pattern STOP_NUM_PATTERN = Pattern.compile("\\&s=(\\d+)");
-	// if no buses are found
-	static final Pattern NO_INFO_PATTERN = Pattern.compile("(?mi)no stop information");
+	static final Pattern ARRIVAL_PATTERN = Pattern.compile("(?mi)^ *(\\d{1,2}):(\\d{2}) *([\\.ap])* +(.*)$");
 	static final Pattern LOCATION_STOP_PATTERN = Pattern.compile("(\\d+)");
 	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything
 	static final int FETCH_TIMEOUT = 30 * 1000;
 	static final int FAILURE_LIMIT = 20;
 	static final String ROUTE_INTERNAL_NUMBER = "route_object"; // for storing route object in prediction entry
 	
-	LTCScraper(Context c, ScrapingStatus s) {
+	NonMobileLTCScraper(Context c, ScrapingStatus s) {
 		context = c;
 		db = new BusDb(context);
 		status = s;
 	}
 	
-	LTCScraper(Context c) {
+	NonMobileLTCScraper(Context c) {
 		/* instantiate this way if you plan only to check bus predictions
 		 */
 		context = c;
@@ -86,7 +76,7 @@ public class LTCScraper {
 	
 	String predictionUrl(LTCRoute route, String stopNumber) {
 //		return PREDICTIONS_URL;
-		return String.format("http://www.ltconline.ca/WebWatch/MobileAda.aspx?r=%s&d=%s&s=%s",
+		return String.format("http://www.ltconline.ca/WebWatch/ada.aspx?r=%s&d=%s&s=%s",
 				route.number, route.direction, stopNumber);
 	}
 	
@@ -120,43 +110,45 @@ public class LTCScraper {
 			Connection conn = Jsoup.connect(predictionUrl(route, stopNumber));
 			conn.timeout(FETCH_TIMEOUT);
 			Document doc = conn.get();
-			Elements divs = doc.select("div");
-			if (divs.size() == 0) {
-				throw new ScrapeException("LTC down?");
+			Elements timeRows = doc.select("table.CrossingTimes tr");
+			if (timeRows.size() == 0) {
+				throw new ScrapeException("no data");
 			}
 			//Log.i("GP", String.format("rows=%d", timeRows.size()));
-			for (Element div: divs) {
-				//Log.i("GP", String.format("cols=%d", cols.size()));
-				List<TextNode> textNodes = div.textNodes();
-				for (TextNode node: textNodes) {
-					String text = node.text();
-					Matcher noStopMatcher = NO_INFO_PATTERN.matcher(text);
-					if (noStopMatcher.find()) {
-						throw new ScrapeException("none");
-					}
-					Matcher arrivalMatcher = ARRIVAL_PATTERN.matcher(text);
-					HashMap<String, String> crossingTime;
-					while (arrivalMatcher.find()) {
-						String textTime = arrivalMatcher.group(1);
-						String destination = arrivalMatcher.group(2);
-						int timeDifference = getTimeDiffAsMinutes(now, TIME_PATTERN, textTime);
-						Calendar absTime = (Calendar)now.clone();
-						absTime.add(Calendar.MINUTE, timeDifference);
-						java.text.DateFormat absFormatter = DateFormat.getTimeFormat(context);
-						absFormatter.setCalendar(absTime);
-						crossingTime = predictionEntry(route, 
-								String.format("%08d", timeDifference),
-								minutesAsText(timeDifference),
-								absFormatter.format(absTime.getTime()),
-								String.format("%s %s",
-										route.directionName,
-										destination));
-						predictions.add(crossingTime);
-					}
+			for (Element timeRow: timeRows) {
+				Elements cols = timeRow.select("td");
+				if (cols.size() == 0) {
+					throw new ScrapeException("no bus");
 				}
-			}
-			if (predictions.size() == 0) {
-				throw new ScrapeException("none");
+				//Log.i("GP", String.format("cols=%d", cols.size()));
+				Element timeLink = cols.get(0).select("a.ada").first();
+				if (timeLink == null) {
+					throw new ScrapeException("missing time");
+				}
+				String textTime = timeLink.attr("title");
+				HashMap<String, String> crossingTime;// = new HashMap<String, String>(3);
+				if (cols.size() >= 2) {
+					int timeDifference = getTimeDiffAsMinutes(now, TIME_PATTERN, textTime);
+					Calendar absTime = (Calendar)now.clone();
+					absTime.add(Calendar.MINUTE, timeDifference);
+					java.text.DateFormat absFormatter = DateFormat.getTimeFormat(context);
+					absFormatter.setCalendar(absTime);
+					crossingTime = predictionEntry(route, 
+							String.format("%08d", timeDifference),
+							minutesAsText(timeDifference),
+							absFormatter.format(absTime.getTime()),
+							String.format("%s %s",
+									route.directionName,
+									cols.get(1).text()));
+					predictions.add(crossingTime);
+				}
+				else if (textTime.matches("^No further.*$")) {
+					crossingTime = predictionEntry(route, 
+							VERY_FAR_AWAY,
+							R.string.times_none,
+							null);
+					predictions.add(crossingTime);
+				}
 			}
 			scrapeStatus.setStatus(ScrapeStatus.OK, null);
 		}
@@ -223,16 +215,20 @@ public class LTCScraper {
 		Connection conn = Jsoup.connect(ROUTE_URL);
 		conn.timeout(FETCH_TIMEOUT);
 		Document doc = conn.get();
-		Elements routeLinks = doc.select("a[href]");
+		Elements routeLinks = doc.select("a.ada");
+		Pattern numFinder = Pattern.compile("r=(\\d{1,2})$");
 		for (Element routeLink : routeLinks) {
-			String name = routeLink.text();
 			Attributes attrs = routeLink.attributes();
+			String name = attrs.get("title");
 			String href = attrs.get("href");
-			Matcher m = ROUTE_NUM_PATTERN.matcher(href);
+			Matcher m = numFinder.matcher(href);
 			if (m.find()) {
 				String number = m.group(1);
 				LTCRoute route = new LTCRoute(number, name/*, href*/);
 				routes.add(route);
+			}
+			else {
+				throw new ScrapeException("unrecognized route URL format");
 			}
 		}
 		return routes;
@@ -244,16 +240,20 @@ public class LTCScraper {
 		Connection conn = Jsoup.connect(url);
 		conn.timeout(FETCH_TIMEOUT);
 		Document doc = conn.get();
-		Elements dirLinks = doc.select("a[href]");
+		Elements dirLinks = doc.select("a.ada");
+		Pattern numFinder = Pattern.compile("d=(\\d{1,2})$");
 		for (Element dirLink : dirLinks) {
-			String name = dirLink.text();
 			Attributes attrs = dirLink.attributes();
+			String name = attrs.get("title");
 			String href = attrs.get("href");
-			Matcher m = DIRECTION_NUM_PATTERN.matcher(href);
+			Matcher m = numFinder.matcher(href);
 			if (m.find()) {
 				Integer number = Integer.valueOf(m.group(1));
 				LTCDirection dir = new LTCDirection(number, name);
 				directions.add(dir);
+			}
+			else {
+				throw new ScrapeException("unrecognized route URL format");
 			}
 		}
 		return directions;
@@ -266,16 +266,20 @@ public class LTCScraper {
 		Connection conn = Jsoup.connect(url);
 		conn.timeout(FETCH_TIMEOUT);
 		Document doc = conn.get();
-		Elements stopLinks = doc.select("a[href]");
+		Elements stopLinks = doc.select("a.ada");
+		Pattern numFinder = Pattern.compile("s=(\\d+)$");
 		for (Element stopLink : stopLinks) {
-			String name = stopLink.text();
 			Attributes attrs = stopLink.attributes();
+			String name = attrs.get("title");
 			String href = attrs.get("href");
-			Matcher m = STOP_NUM_PATTERN.matcher(href);
+			Matcher m = numFinder.matcher(href);
 			if (m.find()) {
 				Integer number = Integer.valueOf(m.group(1));
 				LTCStop stop = new LTCStop(number, name);
 				stops.put(stop.number, stop);
+			}
+			else {
+				throw new ScrapeException("unrecognized route URL format");
 			}
 		}
 		return stops;

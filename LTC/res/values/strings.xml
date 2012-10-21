@@ -169,5 +169,6 @@
     <string name="times_fail">[Failed]</string>
     <string name="times_timeout">[Timeout]</string>
     <string name="finding_routes">Finding routes&#8230;</string>
+    <string name="show_map">Show map&#8230;</string>
 
 </resources>

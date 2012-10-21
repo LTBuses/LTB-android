@@ -321,11 +321,13 @@ public class BusDb {
 		Resources res = context.getResources();
 		String findingRoutes = res.getString(R.string.finding_routes);
 		List<HashMap<String, String>> stops = new ArrayList<HashMap<String, String>>();
-		Cursor c = db.query(STOPS_WITH_USES, new String[] { STOP_NUMBER, STOP_NAME }, whereClause, null, null, null, order, "20");
+		Cursor c = db.query(STOPS_WITH_USES, new String[] { STOP_NUMBER, STOP_NAME, LATITUDE, LONGITUDE }, whereClause, null, null, null, order, "20");
 		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
 			HashMap<String,String> map = new HashMap<String,String>(2);
 			map.put(STOP_NUMBER, c.getString(0));
 			map.put(STOP_NAME, c.getString(1));
+			map.put(LATITUDE, c.getString(2));
+			map.put(LONGITUDE, c.getString(3));
 			map.put(ROUTE_LIST, findingRoutes);
 			//Cursor c2 = db.query
 			stops.add(map);
