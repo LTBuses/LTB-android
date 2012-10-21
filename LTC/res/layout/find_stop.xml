@@ -37,4 +37,13 @@
         android:layout_height="wrap_content" >
     </ListView>
 
+    <TextView
+        android:id="@+id/empty_stop_list"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:gravity="center_horizontal"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:visibility="gone" />
+    
 </LinearLayout>

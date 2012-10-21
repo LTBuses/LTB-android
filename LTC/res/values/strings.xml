@@ -19,7 +19,7 @@
     <![CDATA[<html>
     <body>
     <h1>LTC Buses</h1>
-    <h3>Version 0.2 (alpha) &copy; 2012 Fraser McCrossan</h3>
+    <h3>Version 0.3 (alpha) &copy; 2012 Fraser McCrossan</h3>
     <h2>Notice</h2>
     <p>
     Although this app uses data from the
@@ -170,5 +170,8 @@
     <string name="times_timeout">[Timeout]</string>
     <string name="finding_routes">Finding routes&#8230;</string>
     <string name="show_map">Show map&#8230;</string>
+    <string name="searching_for_buses">Searching for next arrivals...</string>
+    <string name="searching_for_stops">Searching for stops...</string>
+    <string name="no_stops_found">No stops found. Try different search text.</string>
 
 </resources>

@@ -36,6 +36,7 @@ public class FindStop extends Activity {
 	
 	EditText searchField;
 	ListView stopList;
+	TextView emptyStopListText;
 	SimpleAdapter stopListAdapter;
 	List<HashMap<String, String>> stops;
 	Spinner searchTypeSpinner;
@@ -121,6 +122,9 @@ public class FindStop extends Activity {
         });
         myLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         stopList = (ListView)findViewById(R.id.stop_list);
+        emptyStopListText = (TextView)findViewById(R.id.empty_stop_list);
+        emptyStopListText.setText(R.string.searching_for_stops);
+        stopList.setEmptyView(findViewById(R.id.empty_stop_list));
         stopList.setOnItemClickListener(stopListener);
 		stops = new ArrayList<HashMap<String, String>>();
 		stopListAdapter = new SimpleAdapter(FindStop.this,
@@ -269,6 +273,10 @@ public class FindStop extends Activity {
 	
 	class SearchTask extends AsyncTask<CharSequence, List<HashMap<String, String>>, Void> {
 		
+		protected void onPreExecute() {
+	        emptyStopListText.setText(R.string.searching_for_stops);
+		}
+		
 		@SuppressWarnings("unchecked")
 		protected Void doInBackground(CharSequence... strings) {
 			List<HashMap<String, String>> newStops = db.findStops(strings[0], lastLocation);
@@ -292,8 +300,9 @@ public class FindStop extends Activity {
 					}
 				}
 				stopListAdapter.notifyDataSetChanged();
+		        emptyStopListText.setText(R.string.no_stops_found);
 			}
 		}
-
+		
 	}
 }

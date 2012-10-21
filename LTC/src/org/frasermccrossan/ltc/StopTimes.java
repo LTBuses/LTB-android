@@ -69,6 +69,7 @@ public class StopTimes extends Activity {
         }
         
         predictionList = (ListView)findViewById(R.id.prediction_list);
+        predictionList.setEmptyView(findViewById(R.id.empty_prediction_list));
 		predictions = new ArrayList<HashMap<String,String>>(3);
 		adapter = new SimpleAdapter(StopTimes.this,
        		 predictions,

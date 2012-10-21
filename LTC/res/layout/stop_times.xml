@@ -25,6 +25,16 @@
         android:layout_height="0dip" >
     </ListView>
 
+    <TextView
+        android:id="@+id/empty_prediction_list"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:gravity="center_horizontal"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:visibility="gone"
+        android:text="@string/searching_for_buses" />
+
     <Button
         android:id="@+id/refresh"
         android:layout_width="match_parent"
