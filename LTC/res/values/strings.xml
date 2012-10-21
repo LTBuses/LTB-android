@@ -19,7 +19,7 @@
     <![CDATA[<html>
     <body>
     <h1>LTC Buses</h1>
-    <h3>Version 0.3 (alpha) &copy; 2012 Fraser McCrossan</h3>
+    <h3>Version 1.0 &copy; 2012 Fraser McCrossan</h3>
     <h2>Notice</h2>
     <p>
     Although this app uses data from the
@@ -62,24 +62,13 @@
     HTML parsing using <a href="http://jsoup.org/">jsoup</a> by Jonathan Hedley.
     </p>
     <p>
-    Launcher icon adapted from \"Bus\" symbol by Roger Cook and Don Shanosky, AIGA,
-    U.S. Department of Transportation, from <a href="http://thenounproject.com">The Noun Project</a> collection.
-    </p>
-    <p>
     About icon from \"Information\" symbol by Sven Hofmann,
-    from <a href="http://thenounproject.com">The Noun Project</a> collection.
-    </p>
-    <p>
-    Satellite icon from \"Satellite\" symbol by Jose Luis Algara,
-    from <a href="http://thenounproject.com">The Noun Project</a> collection.
-    </p>
-    <p>
-    Antenna icon from \"Antenna\" symbol by Christian Hohenfeld,
     from <a href="http://thenounproject.com">The Noun Project</a> collection.
     </p>
     <p>
     Refresh icon is \"Cloud Refresh\" by Adam Whitfield, from
     <a href="http://thenounproject.com">The Noun Project</a>.
+    </p>
     </body>
     </html>
     ]]>
