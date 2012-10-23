@@ -56,6 +56,7 @@ public class FindStop extends Activity {
 	
 	// context menu items
 	static final int SHOW_MAP = 0;
+	static final int FORGET_FAVOURITE = 1;
 	
 	OnItemClickListener stopListener = new OnItemClickListener() {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -222,6 +223,9 @@ public class FindStop extends Activity {
 	  AdapterView.AdapterContextMenuInfo listItemInfo = (AdapterView.AdapterContextMenuInfo)menuInfo;
 	  int item = listItemInfo.position;
 	  menu.add(ContextMenu.NONE, SHOW_MAP, 1, R.string.show_map);
+	  if (Integer.valueOf(stops.get(item).get(BusDb.STOP_USES_COUNT)) > 0) {
+		  menu.add(ContextMenu.NONE, FORGET_FAVOURITE, 2, R.string.forget_favourite);
+	  }
 	}
 
 	@Override
@@ -239,6 +243,10 @@ public class FindStop extends Activity {
 				  query);
 		  Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
 		  startActivity(mapIntent);
+		  return true;
+	  case FORGET_FAVOURITE:
+		  db.forgetStopUse(Integer.valueOf(stops.get(info.position).get(BusDb.STOP_NUMBER)));
+		  updateStops();
 		  return true;
 	  default:
 	    return super.onContextItemSelected(item);

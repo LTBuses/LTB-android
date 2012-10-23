@@ -69,6 +69,14 @@
     Refresh icon is \"Cloud Refresh\" by Adam Whitfield, from
     <a href="http://thenounproject.com">The Noun Project</a>.
     </p>
+    <p>
+    Thanks to:
+    <ul>
+    <li>everyone on Twitter who reported problems and suggestions</li>
+    <li>everyone on the <a href="http://www.reddit.com/r/londonontario/comments/11kr5w/testers_wanted_for_a_london_transit_android_app/">Reddit thread</a></li>
+    <li>Andrew Lim, for showing me the source code of his app which helped me figure out how some things were done</li>
+    </ul>
+    </p>
     </body>
     </html>
     ]]>
@@ -159,8 +167,9 @@
     <string name="times_timeout">[Timeout]</string>
     <string name="finding_routes">Finding routes&#8230;</string>
     <string name="show_map">Show map&#8230;</string>
-    <string name="searching_for_buses">Searching for next arrivals...</string>
-    <string name="searching_for_stops">Searching for stops...</string>
+    <string name="searching_for_buses">Searching for next arrivals&#8230;</string>
+    <string name="searching_for_stops">Searching for stops&#8230;</string>
     <string name="no_stops_found">No stops found. Try different search text.</string>
+    <string name="forget_favourite">Forget favourite&#8230;</string>
 
 </resources>

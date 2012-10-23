@@ -195,10 +195,10 @@ public class BusDb {
 //		return status != UPDATE_REQUIRED;
 //	}
 	
-	void noteStopUse(LTCStop stop) {
+	void noteStopUse(int stopNumber) {
 		long now = System.currentTimeMillis();
 		ContentValues cv = new ContentValues(2);
-		cv.put(STOP_NUMBER, stop.number);
+		cv.put(STOP_NUMBER, stopNumber);
 		cv.put(STOP_LAST_USE_TIME, now);
 		db.insert(STOP_LAST_USE_TABLE, null, cv);
 		// now delete all but the last STOP_HISTORY_LENGTH
@@ -213,6 +213,12 @@ public class BusDb {
 				STOP_LAST_USE_TIME,
 				STOP_HISTORY_LENGTH - 1);
 		db.execSQL(q);
+	}
+	
+	void forgetStopUse(int stopNumber) {
+		db.delete(STOP_LAST_USE_TABLE,
+				String.format("%s = %d", STOP_NUMBER, stopNumber),
+				null);
 	}
 	
 	LTCStop findStop(String stopNumber) {
@@ -300,7 +306,7 @@ public class BusDb {
 		String whereClause;
 		String[] words = searchText.trim().toLowerCase().split("\\s+");
 		String[] likes = new String[words.length];
-		int i;
+		int i; // note - used multiple places
 		for (i = 0; i < words.length; ++i) {
 			likes[i] = String.format("stop_name like %s", DatabaseUtils.sqlEscapeString("%"+words[i]+"%"));
 		}
@@ -321,15 +327,13 @@ public class BusDb {
 		Resources res = context.getResources();
 		String findingRoutes = res.getString(R.string.finding_routes);
 		List<HashMap<String, String>> stops = new ArrayList<HashMap<String, String>>();
-		Cursor c = db.query(STOPS_WITH_USES, new String[] { STOP_NUMBER, STOP_NAME, LATITUDE, LONGITUDE }, whereClause, null, null, null, order, "20");
+		String[] cols = new String[] { STOP_NUMBER, STOP_NAME, LATITUDE, LONGITUDE, STOP_USES_COUNT };
+		Cursor c = db.query(STOPS_WITH_USES, cols, whereClause, null, null, null, order, "20");
 		for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
 			HashMap<String,String> map = new HashMap<String,String>(2);
-			map.put(STOP_NUMBER, c.getString(0));
-			map.put(STOP_NAME, c.getString(1));
-			map.put(LATITUDE, c.getString(2));
-			map.put(LONGITUDE, c.getString(3));
-			map.put(ROUTE_LIST, findingRoutes);
-			//Cursor c2 = db.query
+			for (i = 0; i < cols.length; ++i) {
+				map.put(cols[i], c.getString(i));
+			}
 			stops.add(map);
 		}
 		c.close();
