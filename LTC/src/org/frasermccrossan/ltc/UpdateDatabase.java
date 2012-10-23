@@ -76,6 +76,12 @@ public class UpdateDatabase extends Activity {
 		});
         
     }
+	
+	@Override
+	protected void onDestroy() {
+		db.close();
+		super.onDestroy();
+	}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
