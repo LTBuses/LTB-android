@@ -3,8 +3,11 @@ package org.frasermccrossan.ltc;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -67,6 +70,8 @@ public class BusDb {
 	static final String DATE_VALUE = "date_value";
 	static final String FAILED = "failed";
 	static final String RAW_TIME = "rawtime";
+	static final String DISTANCE_TEXT = "distance";
+	static final String DISTANCE_ORDER = "distance_order";
 
 	SQLiteDatabase db;
 	Context context;
@@ -306,6 +311,8 @@ public class BusDb {
 		String whereClause;
 		String[] words = searchText.trim().toLowerCase().split("\\s+");
 		String[] likes = new String[words.length];
+		float results[] = new float[1];
+		double lat = 0, lon = 0; // cache of contents of location
 		int i; // note - used multiple places
 		for (i = 0; i < words.length; ++i) {
 			likes[i] = String.format("stop_name like %s", DatabaseUtils.sqlEscapeString("%"+words[i]+"%"));
@@ -319,8 +326,12 @@ public class BusDb {
 			order = String.format("%s desc, %s", STOP_USES_COUNT, STOP_NAME);
 		}
 		else {
-			double lat = location.getLatitude();
-			double lon = location.getLongitude();
+			/* this pretends that the coordinates are Cartesian for quick fetching from
+			 * the database, note that we still need to re-sort them again later when
+			 * we compute their actual distance from each other
+			 */
+			lat = location.getLatitude();
+			lon = location.getLongitude();
 			order = String.format("(latitude-(%f))*(latitude-(%f)) + (longitude-(%f))*(longitude-(%f))",
 					lat, lat, lon, lon);
 		}
@@ -332,10 +343,50 @@ public class BusDb {
 			for (i = 0; i < cols.length; ++i) {
 				map.put(cols[i], c.getString(i));
 			}
+			if (location != null) {
+				Location.distanceBetween(lat, lon,
+						Double.valueOf(map.get(LATITUDE)), Double.valueOf(map.get(LONGITUDE)),
+						results);
+				
+				map.put(DISTANCE_TEXT, niceDistance(results[0]));
+				String distorder = String.format("%09.0f", results[0]);
+				map.put(DISTANCE_ORDER, distorder);
+			}
 			stops.add(map);
 		}
 		c.close();
+		if (location != null) {
+			Collections.sort(stops, new StopComparator());
+		}
 		return stops;
+	}
+	
+	class StopComparator implements Comparator<Map<String, String>> {
+		
+	    public int compare(Map<String, String> first, Map<String, String> second) {
+	    	String firstValue = first.get(DISTANCE_ORDER);
+	    	String secondValue = second.get(DISTANCE_ORDER);
+	    	return firstValue.compareTo(secondValue);
+	    }
+
+	}
+
+	
+	// format a distance nicely
+	private String niceDistance(float val) {
+		
+		if (val < 20) {
+			return String.format("%.0fm", val);
+		}
+		else if (val < 250) {
+			return String.format("%.0fm", Math.rint(val/5) * 5);
+		}
+		else if (val < 1000) {
+			return String.format("%.0fm", Math.rint(val/10) * 10);
+		}
+		else {
+			return String.format("%.1fkm", val/1000);
+		}
 	}
 	
 	void addRoutesToStopList(List<HashMap<String, String>> stops)
