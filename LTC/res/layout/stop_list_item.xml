@@ -8,14 +8,17 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:orientation="vertical" >
+            
         <TextView
             android:id="@+id/stop_number"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="3dp"
+            android:paddingTop="4dip"
             android:minEms="3"
+            android:gravity="center_vertical"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textStyle="italic" />
 
@@ -24,25 +27,28 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="3dp"
+            android:paddingTop="4dip"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dip"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="vertical" >
             
         <TextView
             android:id="@+id/stop_name"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge" />
  
         <TextView
             android:id="@+id/route_list"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:paddingLeft="12dip"
             android:textAppearance="?android:attr/textAppearanceSmall" />
         
         </LinearLayout>
