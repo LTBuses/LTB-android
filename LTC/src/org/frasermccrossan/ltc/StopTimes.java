@@ -5,22 +5,28 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 public class StopTimes extends Activity {
 
+	// how long before popping up an Toast about how long the LTC site is taking
+	static final long WEBSITE_DELAY = 5000;
+	
 	BusDb db;
 	String stopNumber;
 	LinearLayout routeViewLayout;
@@ -118,8 +124,22 @@ public class StopTimes extends Activity {
 	 */
 	class PredictionTask extends AsyncTask<RouteDirTextView, RouteDirTextView, Void> {
 		
+		Toast toast;
+		Timer timer;
+		
+		class ToastTask extends TimerTask {
+			public void run() {
+				toast.show();
+			}
+		}
+		
+		@SuppressLint("ShowToast")
+		protected void onPreExecute() {
+			toast = Toast.makeText(StopTimes.this, R.string.website_slow, Toast.LENGTH_SHORT);
+			scheduleTimer();
+		}
+		
 		protected Void doInBackground(RouteDirTextView... routeViews) {
-			Resources res = getResources();
 			LTCScraper scraper = new LTCScraper(StopTimes.this);
 			for (RouteDirTextView routeView: routeViews) {
 				routeView.setStatus(RouteDirTextView.QUERYING, null);
@@ -144,6 +164,8 @@ public class StopTimes extends Activity {
 //			if (isCancelled()) {
 //				return;
 //			}
+			cancelTimer();
+			scheduleTimer();
 			for (RouteDirTextView routeView: routeViews) {
 				if (routeView.isOkToPost()) {
 					removeRouteFromPredictions(routeView.route);
@@ -156,6 +178,27 @@ public class StopTimes extends Activity {
 				adapter.notifyDataSetChanged();
 				routeView.updateDisplay();
 			}
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			cancelTimer();
+		}
+		
+		@Override
+		protected void onCancelled() {
+			cancelTimer();
+		}
+		
+		void scheduleTimer() {
+			timer = new Timer();
+			ToastTask task = new ToastTask();
+			timer.schedule(task, WEBSITE_DELAY);
+		}
+		
+		void cancelTimer() {
+			timer.cancel();
+			toast.cancel();
 		}
 		
 		// removes all references to a particular route from the prediction list
@@ -180,14 +223,26 @@ public class StopTimes extends Activity {
 			String str = res.getString(strRes);
 			String routeNumber = route.getRouteNumber();
 			int i = 0;
+			int updated = 0;
 			while (i < predictions.size()) {
 				HashMap<String, String> entry = predictions.get(i);
 				if (entry.get(BusDb.ROUTE_NUMBER).equals(routeNumber) &&
 						entry.get(BusDb.DIRECTION_NAME).equals(route.directionName)) {
 					entry.put(BusDb.CROSSING_TIME, str);
+					++updated;
 				}
 				++i;
 			}
+			// not really sure if I want to do this
+//			if (updated == 0){
+//				// there were none, let's make one
+//				HashMap<String, String> entry = LTCScraper.predictionEntry(StopTimes.this,
+//						route,
+//						LTCScraper.VERY_CLOSE,
+//						R.string.msg_querying,
+//						route.directionName);
+//				predictions.add(entry);
+//			}
 		}
 		
 	}

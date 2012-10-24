@@ -145,10 +145,10 @@
     <string name="help">Help</string>
     <string name="location_status">location status</string>
     <string name="refresh">Refresh</string>
-    <string name="msg_idle">Wait</string>
-    <string name="msg_querying">(Wait)</string>
-    <string name="msg_fail">Fail</string>
-    <string name="msg_bug">Bug</string>
+    <string name="msg_idle">wait</string>
+    <string name="msg_querying">fetch</string>
+    <string name="msg_fail">fail</string>
+    <string name="msg_bug">bug!</string>
     <string name="weekday">weekday</string>
     <string name="saturday">Saturday</string>
     <string name="sunday">Sunday</string>
@@ -171,5 +171,6 @@
     <string name="searching_for_stops">Searching for stops&#8230;</string>
     <string name="no_stops_found">No stops found. Try different search text.</string>
     <string name="forget_favourite">Forget favourite&#8230;</string>
+    <string name="website_slow">Sorry, the LTC website is taking a while to respond</string>
 
 </resources>

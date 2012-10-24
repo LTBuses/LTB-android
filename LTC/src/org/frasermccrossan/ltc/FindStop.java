@@ -3,6 +3,7 @@ package org.frasermccrossan.ltc;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.app.Activity;
 import android.content.Context;
@@ -27,6 +28,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
@@ -140,6 +142,26 @@ public class FindStop extends Activity {
         db = new BusDb(this);
         downloadTry = 0;
     }
+	
+//	public class StopListAdapter extends SimpleAdapter {
+//		public StopListAdapter(Context context, List<? extends Map<String, ?>> data, int resource, String[] from, int[] to) {
+//			super(context, data, resource, from, to);
+//		}
+//		
+//		@Override
+//		public void setViewImage(ImageView v, String value) {
+//			/* we only have one imageview to the incoming value is a numeric string
+//			 * containing STOP_USES_COUNT
+//			 */
+//			if (Integer.valueOf(value) > 0) {
+//				// has been clicked at least once, show as a favourite
+//				v.setImageResource(R.drawable.ic_stat_favourite);
+//			}
+//			else {
+//				v.setImageDrawable(null);
+//			}
+//		}
+//	}
 	
 	@Override
 	protected void onStart() {

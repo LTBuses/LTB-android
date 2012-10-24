@@ -324,8 +324,6 @@ public class BusDb {
 			order = String.format("(latitude-(%f))*(latitude-(%f)) + (longitude-(%f))*(longitude-(%f))",
 					lat, lat, lon, lon);
 		}
-		Resources res = context.getResources();
-		String findingRoutes = res.getString(R.string.finding_routes);
 		List<HashMap<String, String>> stops = new ArrayList<HashMap<String, String>>();
 		String[] cols = new String[] { STOP_NUMBER, STOP_NAME, LATITUDE, LONGITUDE, STOP_USES_COUNT };
 		Cursor c = db.query(STOPS_WITH_USES, cols, whereClause, null, null, null, order, "20");

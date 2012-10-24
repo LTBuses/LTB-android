@@ -56,6 +56,7 @@ public class LTCScraper {
 	// if no buses are found
 	static final Pattern NO_INFO_PATTERN = Pattern.compile("(?mi)no stop information");
 	static final Pattern LOCATION_STOP_PATTERN = Pattern.compile("(\\d+)");
+	static final String VERY_CLOSE = "000000000000000"; // something guaranteed to sort befire everything
 	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything
 	static final int FETCH_TIMEOUT = 30 * 1000;
 	static final int FAILURE_LIMIT = 20;
@@ -171,7 +172,8 @@ public class LTCScraper {
 
 		}
 		catch (SocketTimeoutException e) {
-			HashMap<String, String> failReport = predictionEntry(route,
+			HashMap<String, String> failReport = predictionEntry(context,
+					route,
 					VERY_FAR_AWAY,
 					R.string.times_timeout,
 					null
@@ -209,12 +211,12 @@ public class LTCScraper {
 		return p;
 	}
 	
-	HashMap<String, String> predictionEntry(LTCRoute route,
+	static HashMap<String, String> predictionEntry(Context c, LTCRoute route,
 			String dateValue,
 			int errorMsgRes, // look up this string resource to get displayed dateValue
 			String destination)
 	{
-		Resources res = context.getResources();
+		Resources res = c.getResources();
 		return predictionEntry(route, dateValue, res.getString(errorMsgRes), null, destination);
 	}
 	
