@@ -36,6 +36,10 @@ public class LTCRoute {
 		return String.format("%d%s", Integer.valueOf(number), directionName == null ? "" : directionName.substring(0,1));
 	}
 	
+	String getShortDirection() {
+		return directionName.substring(0,1);
+	}
+	
 	@Override
 	public String toString() {
 		return getShortRouteDirection(); // ew, dirty hack

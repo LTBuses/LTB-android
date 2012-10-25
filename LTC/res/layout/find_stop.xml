@@ -13,7 +13,9 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" ><EditText
+        android:layout_height="wrap_content" >
+        
+        <EditText
             android:id="@+id/search"
             style="@android:style/TextAppearance.DeviceDefault.Large"
             android:layout_width="wrap_content"

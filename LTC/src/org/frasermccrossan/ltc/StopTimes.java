@@ -80,8 +80,8 @@ public class StopTimes extends Activity {
 		adapter = new SimpleAdapter(StopTimes.this,
        		 predictions,
        		 R.layout.prediction_item,
-       		 new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.DESTINATION, BusDb.RAW_TIME },
-       		 new int[] { R.id.crossing_time, R.id.route_number, R.id.destination, R.id.raw_crossing_time });
+       		 new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.SHORT_DIRECTION_NAME, BusDb.DESTINATION, BusDb.RAW_TIME },
+       		 new int[] { R.id.crossing_time, R.id.route_number, R.id.direction, R.id.destination, R.id.raw_crossing_time });
         predictionList.setAdapter(adapter);
 	}
 	
@@ -223,26 +223,14 @@ public class StopTimes extends Activity {
 			String str = res.getString(strRes);
 			String routeNumber = route.getRouteNumber();
 			int i = 0;
-			int updated = 0;
 			while (i < predictions.size()) {
 				HashMap<String, String> entry = predictions.get(i);
 				if (entry.get(BusDb.ROUTE_NUMBER).equals(routeNumber) &&
 						entry.get(BusDb.DIRECTION_NAME).equals(route.directionName)) {
 					entry.put(BusDb.CROSSING_TIME, str);
-					++updated;
 				}
 				++i;
 			}
-			// not really sure if I want to do this
-//			if (updated == 0){
-//				// there were none, let's make one
-//				HashMap<String, String> entry = LTCScraper.predictionEntry(StopTimes.this,
-//						route,
-//						LTCScraper.VERY_CLOSE,
-//						R.string.msg_querying,
-//						route.directionName);
-//				predictions.add(entry);
-//			}
 		}
 		
 	}

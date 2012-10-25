@@ -38,6 +38,7 @@ public class BusDb {
 	static final String DIRECTION_TABLE = "directions";
 	static final String DIRECTION_NUMBER = "direction_number";
 	static final String DIRECTION_NAME = "direction_name";
+	static final String SHORT_DIRECTION_NAME = "short_direction_name";
 	
 	static final String STOP_LAST_USE_TABLE = "stop_uses";
 	static final String STOP_LAST_USE_TIME = "stop_last_use_time";
@@ -108,18 +109,6 @@ public class BusDb {
 		}
 	}
 	
-//	public int freshnessStrRes() {
-//		Calendar now = Calendar.getInstance();
-//		switch(getCurrentFreshnessDayType(now)) {
-//		case SATURDAY_FRESHNESS:
-//			return R.string.saturday;
-//		case SUNDAY_FRESHNESS:
-//			return R.string.sunday;
-//		default:
-//			return R.string.weekday;
-//		}
-//	}
-
 	public int updateStrRes(int updateStatus) {
 		switch(updateStatus) {
 		case UPDATE_NOT_REQUIRED:
@@ -133,17 +122,6 @@ public class BusDb {
 		}
 	}
 
-//	public int updateStrRes() {
-//		switch(updateStatus()) {
-//		case UPDATE_REQUIRED:
-//			return R.string.update_required;
-//		case UPDATE_RECOMMENDED:
-//			return R.string.update_recommended;
-//		default:
-//			return R.string.update_not_required;
-//		}
-//	}
-	
 	HashMap<Integer, Long> getFreshnesses(long nowMillis) {
 		Cursor c = db.rawQuery(String.format("select %s, %s, %s from %s",
 				WEEKDAY_FRESHNESS_COLUMN, SATURDAY_FRESHNESS_COLUMN, SUNDAY_FRESHNESS_COLUMN, FRESHNESS_TABLE), null);
@@ -194,11 +172,6 @@ public class BusDb {
 		HashMap<Integer, Long> freshnesses = getFreshnesses(now.getTimeInMillis());
 		return updateStatus(freshnesses, now);
 	}
-	
-//	public boolean isValid() {
-//		int status = updateStatus();
-//		return status != UPDATE_REQUIRED;
-//	}
 	
 	void noteStopUse(int stopNumber) {
 		long now = System.currentTimeMillis();

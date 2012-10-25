@@ -149,24 +149,26 @@ public class LTCScraper {
 								String.format("%08d", timeDifference),
 								minutesAsText(timeDifference),
 								absFormatter.format(absTime.getTime()),
-								String.format("%s %s",
+								destination
+								/*String.format("%s %s",
 										route.directionName,
-										destination));
+										destination)*/);
 						predictions.add(crossingTime);
 					}
 				}
 			}
 			if (predictions.size() == 0) {
-				throw new ScrapeException("none");
+				Resources res = context.getResources();
+				throw new ScrapeException(res.getString(R.string.no_bus));
 			}
 			scrapeStatus.setStatus(ScrapeStatus.OK, null);
 		}
 		catch (ScrapeException e) {
 			HashMap<String, String> scrapeReport = predictionEntry(route,
 					VERY_FAR_AWAY,
-					"[" + e.getMessage() + "]",
 					null,
-					null);
+					null,
+					e.getMessage());
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
 			predictions.add(scrapeReport);
 
@@ -204,6 +206,7 @@ public class LTCScraper {
 		p.put(ROUTE_INTERNAL_NUMBER, route.number); // useful to look up route later
 		p.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());
 		p.put(BusDb.DIRECTION_NAME, route.directionName);
+		p.put(BusDb.SHORT_DIRECTION_NAME, route.getShortDirection());
 		p.put(BusDb.DATE_VALUE, dateValue);
 		p.put(BusDb.CROSSING_TIME, crossingTime);
 		p.put(BusDb.RAW_TIME, rawCrossingTime);
