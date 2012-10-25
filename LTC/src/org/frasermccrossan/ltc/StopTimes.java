@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -135,7 +136,8 @@ public class StopTimes extends Activity {
 		
 		@SuppressLint("ShowToast")
 		protected void onPreExecute() {
-			toast = Toast.makeText(StopTimes.this, R.string.website_slow, Toast.LENGTH_SHORT);
+			toast = Toast.makeText(StopTimes.this, R.string.website_slow, Toast.LENGTH_LONG);
+			toast.setGravity(Gravity.CENTER, 0, 0);
 			scheduleTimer();
 		}
 		
