@@ -37,7 +37,7 @@ public class LTCRoute {
 	}
 	
 	String getShortDirection() {
-		return directionName.substring(0,1);
+		return directionName.substring(0,1) + "B";
 	}
 	
 	@Override

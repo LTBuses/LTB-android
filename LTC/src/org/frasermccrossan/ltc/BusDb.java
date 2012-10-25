@@ -73,6 +73,7 @@ public class BusDb {
 	static final String RAW_TIME = "rawtime";
 	static final String DISTANCE_TEXT = "distance";
 	static final String DISTANCE_ORDER = "distance_order";
+	static final String ROUTE_INTERNAL_NUMBER = "route_object"; // for storing route object in prediction entry
 
 	SQLiteDatabase db;
 	Context context;

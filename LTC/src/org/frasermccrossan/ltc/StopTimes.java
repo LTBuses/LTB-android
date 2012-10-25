@@ -205,11 +205,10 @@ public class StopTimes extends Activity {
 		
 		// removes all references to a particular route from the prediction list
 		private void removeRouteFromPredictions(LTCRoute route) {
-			String routeNumber = route.getRouteNumber();
 			int i = 0;
 			while (i < predictions.size()) {
 				HashMap<String, String> entry = predictions.get(i);
-				if (entry.get(BusDb.ROUTE_NUMBER).equals(routeNumber) &&
+				if (entry.get(BusDb.ROUTE_INTERNAL_NUMBER).equals(route.number) &&
 						entry.get(BusDb.DIRECTION_NAME).equals(route.directionName)) {
 					predictions.remove(i);
 				}
@@ -223,11 +222,10 @@ public class StopTimes extends Activity {
 		private void updatePredictionsWithMessageRes(LTCRoute route, int strRes) {
 			Resources res = getResources();
 			String str = res.getString(strRes);
-			String routeNumber = route.getRouteNumber();
 			int i = 0;
 			while (i < predictions.size()) {
 				HashMap<String, String> entry = predictions.get(i);
-				if (entry.get(BusDb.ROUTE_NUMBER).equals(routeNumber) &&
+				if (entry.get(BusDb.ROUTE_INTERNAL_NUMBER).equals(route.number) &&
 						entry.get(BusDb.DIRECTION_NAME).equals(route.directionName)) {
 					entry.put(BusDb.CROSSING_TIME, str);
 				}

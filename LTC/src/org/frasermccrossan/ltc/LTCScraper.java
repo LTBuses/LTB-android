@@ -55,12 +55,12 @@ public class LTCScraper {
 	static final Pattern STOP_NUM_PATTERN = Pattern.compile("\\&s=(\\d+)");
 	// if no buses are found
 	static final Pattern NO_INFO_PATTERN = Pattern.compile("(?mi)no stop information");
+	static final Pattern DESTINATION_PATTERN = Pattern.compile("(?i) *to +((\\d+[a-z]) +)?(.*)");
 	static final Pattern LOCATION_STOP_PATTERN = Pattern.compile("(\\d+)");
-	static final String VERY_CLOSE = "000000000000000"; // something guaranteed to sort befire everything
+	static final String VERY_CLOSE = "000000000000000"; // something guaranteed to sort before everything
 	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything
 	static final int FETCH_TIMEOUT = 30 * 1000;
 	static final int FAILURE_LIMIT = 20;
-	static final String ROUTE_INTERNAL_NUMBER = "route_object"; // for storing route object in prediction entry
 	
 	LTCScraper(Context c, ScrapingStatus s) {
 		context = c;
@@ -203,14 +203,29 @@ public class LTCScraper {
 			String destination)
 	{
 		HashMap<String, String> p = new HashMap<String, String>(5);
-		p.put(ROUTE_INTERNAL_NUMBER, route.number); // useful to look up route later
-		p.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());
+		p.put(BusDb.ROUTE_INTERNAL_NUMBER, route.number); // useful to look up route later
+		Matcher destMatcher = DESTINATION_PATTERN.matcher(destination);
+		p.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());		
+		if (destination == null) {
+			// just use the direction for the destination for sugar entries
+			p.put(BusDb.DESTINATION, route.directionName);
+		}
+		else if (destMatcher.find()) {
+			// a heuristic to convert "2 TO 2A Bla bla Street" into "2A Bla Bla Street"
+			p.put(BusDb.DESTINATION, destMatcher.group(3));
+			if (destMatcher.group(2) == null) {
+				p.put(BusDb.ROUTE_NUMBER, destMatcher.group(2));
+			}
+		}
+		else {
+			// well, worth a try, just use whatever they gave us
+			p.put(BusDb.DESTINATION, destination == null ? route.directionName : destination);
+		}
 		p.put(BusDb.DIRECTION_NAME, route.directionName);
 		p.put(BusDb.SHORT_DIRECTION_NAME, route.getShortDirection());
 		p.put(BusDb.DATE_VALUE, dateValue);
 		p.put(BusDb.CROSSING_TIME, crossingTime);
 		p.put(BusDb.RAW_TIME, rawCrossingTime);
-		p.put(BusDb.DESTINATION, destination == null ? route.directionName : destination);
 		return p;
 	}
 	

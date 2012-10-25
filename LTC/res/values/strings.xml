@@ -171,7 +171,7 @@
     <string name="searching_for_stops">Searching for stops&#8230;</string>
     <string name="no_stops_found">No stops found. Try different search text.</string>
     <string name="forget_favourite">Forget favourite&#8230;</string>
-    <string name="website_slow">Sorry, the LTC website is taking a while to respond</string>
+    <string name="website_slow">Sorry, still waiting for the website...</string>
     <string name="no_bus">No Service</string>
     <string name="failed">Network error</string>
 
