@@ -173,5 +173,6 @@
     <string name="forget_favourite">Forget favourite&#8230;</string>
     <string name="website_slow">Sorry, the LTC website is taking a while to respond</string>
     <string name="no_bus">No Service</string>
+    <string name="failed">Network error</string>
 
 </resources>

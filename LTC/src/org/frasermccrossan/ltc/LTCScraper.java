@@ -184,10 +184,10 @@ public class LTCScraper {
 			predictions.add(failReport);
 		}
 		catch (IOException e) {
-			HashMap<String, String> failReport = predictionEntry(route,
+			HashMap<String, String> failReport = predictionEntry(context,
+					route,
 					VERY_FAR_AWAY,
-					"Fail",
-					null,
+					R.string.failed,
 					null
 					);
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
@@ -220,7 +220,7 @@ public class LTCScraper {
 			String destination)
 	{
 		Resources res = c.getResources();
-		return predictionEntry(route, dateValue, res.getString(errorMsgRes), null, destination);
+		return predictionEntry(route, dateValue, null, null, res.getString(errorMsgRes));
 	}
 	
 	public ArrayList<LTCRoute> loadRoutes() throws ScrapeException, IOException {
