@@ -19,7 +19,7 @@
     <![CDATA[<html>
     <body>
     <h1>LTC Buses</h1>
-    <h3>Version 1.01 &copy; 2012 Fraser McCrossan</h3>
+    <h3>Version 1.02 &copy; 2012 Fraser McCrossan</h3>
     <h2>Notice</h2>
     <p>
     Although this app uses data from the
@@ -60,6 +60,10 @@
     <h2>Acknowledgments</h2>
     <p>
     HTML parsing using <a href="http://jsoup.org/">jsoup</a> by Jonathan Hedley.
+    </p>
+    <p>
+    Bus stop bus icon from \"Bus\" symbol by Roger Cook & Don Shanosky,
+    from <a href="http://thenounproject.com">The Noun Project</a> collection.
     </p>
     <p>
     About icon from \"Information\" symbol by Sven Hofmann,
@@ -172,7 +176,7 @@
     <string name="no_stops_found">No stops found. Try different search text.</string>
     <string name="forget_favourite">Forget favourite&#8230;</string>
     <string name="website_slow">Sorry, still waiting for the website...</string>
-    <string name="no_bus">No Service</string>
+    <string name="no_bus">(No Bus)</string>
     <string name="failed">Network error</string>
 
 </resources>

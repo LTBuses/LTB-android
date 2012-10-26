@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.frasermccrossan.ltc"
     android:versionCode="3"
-    android:versionName="1.01" >
+    android:versionName="1.02" >
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15" />
     <uses-permission android:name="android.permission.INTERNET" />

@@ -55,7 +55,7 @@ public class LTCScraper {
 	static final Pattern STOP_NUM_PATTERN = Pattern.compile("\\&s=(\\d+)");
 	// if no buses are found
 	static final Pattern NO_INFO_PATTERN = Pattern.compile("(?mi)no stop information");
-	static final Pattern DESTINATION_PATTERN = Pattern.compile("(?i) *to +((\\d+[a-z]) +)?(.*)");
+	static final Pattern DESTINATION_PATTERN = Pattern.compile("(?i) *to +((\\d+[a-z]?) +)?(.*)");
 	static final Pattern LOCATION_STOP_PATTERN = Pattern.compile("(\\d+)");
 	static final String VERY_CLOSE = "000000000000000"; // something guaranteed to sort before everything
 	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything
@@ -213,7 +213,7 @@ public class LTCScraper {
 		else if (destMatcher.find()) {
 			// a heuristic to convert "2 TO 2A Bla bla Street" into "2A Bla Bla Street"
 			p.put(BusDb.DESTINATION, destMatcher.group(3));
-			if (destMatcher.group(2) == null) {
+			if (destMatcher.group(2) != null) {
 				p.put(BusDb.ROUTE_NUMBER, destMatcher.group(2));
 			}
 		}
@@ -222,6 +222,7 @@ public class LTCScraper {
 			p.put(BusDb.DESTINATION, destination == null ? route.directionName : destination);
 		}
 		p.put(BusDb.DIRECTION_NAME, route.directionName);
+		p.put(BusDb.ROUTE_DIRECTION_NAME, route.getRouteDirection());
 		p.put(BusDb.SHORT_DIRECTION_NAME, route.getShortDirection());
 		p.put(BusDb.DATE_VALUE, dateValue);
 		p.put(BusDb.CROSSING_TIME, crossingTime);

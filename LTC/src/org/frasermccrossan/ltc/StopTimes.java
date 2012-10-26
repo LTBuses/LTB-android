@@ -81,8 +81,8 @@ public class StopTimes extends Activity {
 		adapter = new SimpleAdapter(StopTimes.this,
        		 predictions,
        		 R.layout.prediction_item,
-       		 new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.SHORT_DIRECTION_NAME, BusDb.DESTINATION, BusDb.RAW_TIME },
-       		 new int[] { R.id.crossing_time, R.id.route_number, R.id.direction, R.id.destination, R.id.raw_crossing_time });
+       		 new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.ROUTE_DIRECTION_NAME, BusDb.DESTINATION, BusDb.RAW_TIME },
+       		 new int[] { R.id.crossing_time, R.id.route_number, R.id.route_long_name, R.id.destination, R.id.raw_crossing_time });
         predictionList.setAdapter(adapter);
 	}
 	
