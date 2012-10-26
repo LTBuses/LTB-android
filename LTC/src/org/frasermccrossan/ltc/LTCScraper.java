@@ -31,6 +31,7 @@ import android.text.format.DateFormat;
 public class LTCScraper {
 
 	BusDb db = null;
+	LoadTask task = null;
 	ScrapingStatus status = null;
 	Context context;
 	// for development only
@@ -78,10 +79,13 @@ public class LTCScraper {
 		if (db != null) {
 			db.close();
 		}
+		if (task != null) {
+			task.cancel(true);
+		}
 	}
 	
 	public void loadAll() {
-		LoadTask task = new LoadTask();
+		task = new LoadTask();
 		task.execute();
 	}
 	
@@ -424,7 +428,9 @@ public class LTCScraper {
         }
 
         protected void onProgressUpdate(LoadProgress... progress) {
-            status.update(progress[0]);
+        	if (!isCancelled()) {
+        		status.update(progress[0]);
+        	}
         }
 
     }

@@ -37,7 +37,7 @@
             android:textColor="#ffd000"
             android:singleLine="true"
             android:gravity="center_horizontal"
-            android:textSize="11sp" />
+            android:textSize="10sp" />
         
         <TextView
             android:id="@+id/destination"

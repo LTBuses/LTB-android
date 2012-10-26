@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 public class UpdateDatabase extends Activity {
 	
+	LTCScraper scraper = null;
 	ProgressBar progressBar;
 	TextView freshnessText;
 	TextView weekdayStatus;
@@ -70,7 +71,7 @@ public class UpdateDatabase extends Activity {
 			public void onClick(View v) {
 				updateButton.setVisibility(ProgressBar.INVISIBLE);
 				progressBar.setVisibility(ProgressBar.VISIBLE);
-				LTCScraper scraper = new LTCScraper(UpdateDatabase.this, new UpdateStatus());
+				scraper = new LTCScraper(UpdateDatabase.this, new UpdateStatus());
 				scraper.loadAll();
 			}
 		});
@@ -79,6 +80,9 @@ public class UpdateDatabase extends Activity {
 	
 	@Override
 	protected void onDestroy() {
+		if (scraper != null) {
+			scraper.close();
+		}
 		db.close();
 		super.onDestroy();
 	}
