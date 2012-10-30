@@ -40,8 +40,12 @@ public class LTCRoute {
 		return String.format("%s %s", name, directionName == null ? "" : directionName);
 	}
 	
-	String getShortDirection() {
-		return directionName.substring(0,1) + "B";
+	String getOneLetterDirection() {
+		return directionName.substring(0,1);
+	}
+	
+	String getTwoLetterDirection() {
+		return getOneLetterDirection() + "B";
 	}
 	
 	@Override

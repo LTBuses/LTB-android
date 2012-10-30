@@ -226,8 +226,8 @@ public class LTCScraper {
 			p.put(BusDb.DESTINATION, destination == null ? route.directionName : destination);
 		}
 		p.put(BusDb.DIRECTION_NAME, route.directionName);
-		p.put(BusDb.ROUTE_DIRECTION_NAME, route.getRouteDirection());
-		p.put(BusDb.SHORT_DIRECTION_NAME, route.getShortDirection());
+		p.put(BusDb.ROUTE_NAME, route.name);
+		p.put(BusDb.SHORT_DIRECTION_NAME, route.getOneLetterDirection());
 		p.put(BusDb.DATE_VALUE, dateValue);
 		p.put(BusDb.CROSSING_TIME, crossingTime);
 		p.put(BusDb.RAW_TIME, rawCrossingTime);
