@@ -14,7 +14,7 @@
             android:minHeight="?android:attr/listPreferredItemHeight" >
         
         <LinearLayout
-            android:layout_width="40dip"
+            android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:gravity="center"
             android:paddingRight="2dip"
