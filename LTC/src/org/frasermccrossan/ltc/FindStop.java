@@ -170,7 +170,7 @@ public class FindStop extends Activity {
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		locProvider = myLocationManager.GPS_PROVIDER;
 		if (locProvider != null) {
-			if (myLocationManager.isProviderEnabled(locProvider)) {
+			if (myLocationManager.isProviderEnabled(locProvider) && db.getLocationUpdateStatus() != BusDb.UPDATE_REQUIRED) {
 				searchTypeSpinner.setEnabled(true);
 				//myLocationManager.requestSingleUpdate(locProvider, locationListener, null);
 			}

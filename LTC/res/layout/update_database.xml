@@ -18,19 +18,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall" />
-
+    <TextView
+        android:id="@+id/weekday_location_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+    
     <TextView
         android:id="@+id/saturday_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall" />
-        
+    <TextView
+        android:id="@+id/saturday_location_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+    
     <TextView
         android:id="@+id/sunday_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall" />
-
+    <TextView
+        android:id="@+id/sunday_location_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+    
     <TextView
         android:id="@+id/age_limit"
         android:layout_width="match_parent"
@@ -52,6 +67,12 @@
         android:layout_height="wrap_content"
         android:paddingTop="8dip"
         android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <CheckBox
+        android:id="@+id/fetch_positions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/fetch_positions" />
 
     <Button
         android:id="@+id/update_button"

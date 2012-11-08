@@ -84,9 +84,9 @@ public class LTCScraper {
 		}
 	}
 	
-	public void loadAll() {
+	public void loadAll(Boolean fetchLocations) {
 		task = new LoadTask();
-		task.execute();
+		task.execute(fetchLocations);
 	}
 	
 	String predictionUrl(LTCRoute route, String stopNumber) {
@@ -349,9 +349,9 @@ public class LTCScraper {
 		}
 	}
 	
-    private class LoadTask extends AsyncTask<Void, LoadProgress, Void> {
+    private class LoadTask extends AsyncTask<Boolean, LoadProgress, Void> {
 
-    	protected Void doInBackground(Void... thing) {
+    	protected Void doInBackground(Boolean... fetchLocations) {
     		ArrayList<LTCRoute> routesToDo;
     		ArrayList<LTCRoute> routesDone;
     		// all distinct directions (should only end up with four)
@@ -388,7 +388,9 @@ public class LTCScraper {
         							publishProgress(new LoadProgress(tryStr + dir.name + " " + routesToDo.get(i).name, pct));
     								HashMap<Integer, LTCStop> stops = loadStops(routesToDo.get(i).number, dir.number);
     								//            				Log.d("loadtask", String.format("route %s has %d directions", routes.get(i).number, routeDirections.size()));
-    								loadStopLocations(routesToDo.get(i).number, stops);
+    								if (fetchLocations[0]) {
+    									loadStopLocations(routesToDo.get(i).number, stops);
+    								}
     								for (int stopNumber: stops.keySet()) {
     									if (!allStops.containsKey(stopNumber)) {
     										allStops.put(stopNumber, stops.get(stopNumber));
@@ -410,7 +412,7 @@ public class LTCScraper {
     					tries++;
     				}
     				publishProgress(new LoadProgress("Saving database...", 95));
-    				db.saveBusData(routesDone, allDirections.values(), allStops.values(), links);
+    				db.saveBusData(routesDone, allDirections.values(), allStops.values(), links, fetchLocations[0]);
     				publishProgress(new LoadProgress("", 100));
     			}
     		}

@@ -35,6 +35,9 @@ public class BusDb {
 	static final String LATITUDE = "latitude";
 	static final String LONGITUDE = "longitude";
 	
+	// latitude must be this big for latitude data to be valid
+	static final double MIN_LATITUDE = 0.1;
+	
 	static final String DIRECTION_TABLE = "directions";
 	static final String DIRECTION_NUMBER = "direction_number";
 	static final String DIRECTION_NAME = "direction_name";
@@ -54,14 +57,20 @@ public class BusDb {
 	static final int WEEKDAY_FRESHNESS = 0;
 	static final int SATURDAY_FRESHNESS = 1;
 	static final int SUNDAY_FRESHNESS = 2;
+	static final int WEEKDAY_LOCATION_FRESHNESS = 3;
+	static final int SATURDAY_LOCATION_FRESHNESS = 4;
+	static final int SUNDAY_LOCATION_FRESHNESS = 5;
 	static final String WEEKDAY_FRESHNESS_COLUMN = "weekday_freshness";
 	static final String SATURDAY_FRESHNESS_COLUMN = "saturday_freshness";
 	static final String SUNDAY_FRESHNESS_COLUMN = "sunday_freshness";
+	static final String WEEKDAY_LOCATION_FRESHNESS_COLUMN = "weekday_location_freshness";
+	static final String SATURDAY_LOCATION_FRESHNESS_COLUMN = "saturday_location_freshness";
+	static final String SUNDAY_LOCATION_FRESHNESS_COLUMN = "sunday_location_freshness";
 	
 	static final int UPDATE_NOT_REQUIRED = 0;
 	static final int UPDATE_RECOMMENDED = 1;
 	static final int UPDATE_REQUIRED = 2;
-	static final long UPDATE_DATABASE_AGE_LIMIT = 1000L * 60L * 60L * 24L * 60L; // 60 days
+	static final long UPDATE_DATABASE_AGE_LIMIT = 1000L * 60L * 60L * 24L * 90L; // 90 days
 	
 	static final String LINK_TABLE = "route_stops";
 	
@@ -100,6 +109,17 @@ public class BusDb {
 		}
 	}
 	
+	public int getCurrentLocationFreshnessDayType(Calendar time) {
+		switch(time.get(Calendar.DAY_OF_WEEK)) {
+		case Calendar.SATURDAY:
+			return SATURDAY_LOCATION_FRESHNESS;
+		case Calendar.SUNDAY:
+			return SUNDAY_LOCATION_FRESHNESS;
+		default:
+			return WEEKDAY_LOCATION_FRESHNESS;
+		}
+	}
+	
 	private String currentFreshnessColumn(Calendar time) {
 		switch(getCurrentFreshnessDayType(time)) {
 		case SATURDAY_FRESHNESS:
@@ -108,6 +128,17 @@ public class BusDb {
 			return SUNDAY_FRESHNESS_COLUMN;
 		default:
 			return WEEKDAY_FRESHNESS_COLUMN;
+		}
+	}
+	
+	private String currentLocationFreshnessColumn(Calendar time) {
+		switch(getCurrentFreshnessDayType(time)) {
+		case SATURDAY_FRESHNESS:
+			return SATURDAY_LOCATION_FRESHNESS_COLUMN;
+		case SUNDAY_FRESHNESS:
+			return SUNDAY_LOCATION_FRESHNESS_COLUMN;
+		default:
+			return WEEKDAY_LOCATION_FRESHNESS_COLUMN;
 		}
 	}
 	
@@ -125,13 +156,18 @@ public class BusDb {
 	}
 
 	HashMap<Integer, Long> getFreshnesses(long nowMillis) {
-		Cursor c = db.rawQuery(String.format("select %s, %s, %s from %s",
-				WEEKDAY_FRESHNESS_COLUMN, SATURDAY_FRESHNESS_COLUMN, SUNDAY_FRESHNESS_COLUMN, FRESHNESS_TABLE), null);
+		Cursor c = db.rawQuery(String.format("select %s, %s, %s, %s, %s, %s from %s",
+				WEEKDAY_FRESHNESS_COLUMN, SATURDAY_FRESHNESS_COLUMN, SUNDAY_FRESHNESS_COLUMN,
+				WEEKDAY_LOCATION_FRESHNESS_COLUMN, SATURDAY_LOCATION_FRESHNESS_COLUMN, SUNDAY_LOCATION_FRESHNESS_COLUMN,
+				FRESHNESS_TABLE), null);
 		if (c.moveToFirst()) {
 			 HashMap<Integer, Long> f = new HashMap<Integer, Long>(3);
 			 f.put(WEEKDAY_FRESHNESS, nowMillis - c.getLong(0));
 			 f.put(SATURDAY_FRESHNESS, nowMillis - c.getLong(1));
 			 f.put(SUNDAY_FRESHNESS, nowMillis - c.getLong(2));
+			 f.put(WEEKDAY_LOCATION_FRESHNESS, nowMillis - c.getLong(3));
+			 f.put(SATURDAY_LOCATION_FRESHNESS, nowMillis - c.getLong(4));
+			 f.put(SUNDAY_LOCATION_FRESHNESS, nowMillis - c.getLong(5));
 			 c.close();
 			 return f;
 		}
@@ -141,10 +177,10 @@ public class BusDb {
 	
 	// determines if an update is recommended or required
 	public int updateStatus(HashMap<Integer, Long> freshnesses, Calendar now) {
-		int currentFreshnessDayType = getCurrentFreshnessDayType(now);
 		if (freshnesses == null) {
 			return UPDATE_NOT_REQUIRED; // shouldn't happen
 		}
+		int currentFreshnessDayType = getCurrentFreshnessDayType(now);
 		long currentFreshness = freshnesses.get(currentFreshnessDayType);
 		if (currentFreshness < UPDATE_DATABASE_AGE_LIMIT) {
 			// freshness for today's day type is younger than the threshold, we can bail out now
@@ -168,11 +204,36 @@ public class BusDb {
 		return UPDATE_REQUIRED;
 	}
 	
+	public int locationUpdateStatus(HashMap<Integer, Long> freshnesses, Calendar now) {
+		if (freshnesses == null) {
+			return UPDATE_REQUIRED; // shouldn't happen
+		}
+		int currentFreshnessDayType = getCurrentFreshnessDayType(now);
+		int currentLocationFreshnessDayType = getCurrentLocationFreshnessDayType(now);
+		if (freshnesses.get(currentLocationFreshnessDayType) ==
+				freshnesses.get(currentFreshnessDayType)) {
+			// location freshness and stop freshness are the same, all up to date!
+			return UPDATE_NOT_REQUIRED;
+		}
+		if (freshnesses.get(currentLocationFreshnessDayType) - freshnesses.get(currentFreshnessDayType) > UPDATE_DATABASE_AGE_LIMIT) {
+			return UPDATE_REQUIRED; // means no locations, disable the menu
+		}
+		// means locations are fairly new, but show warning
+		return UPDATE_RECOMMENDED;
+	}
+	
 	// this gets called from the main stop list screen so it does everything itself
 	public int getUpdateStatus() {
 		Calendar now = Calendar.getInstance();
 		HashMap<Integer, Long> freshnesses = getFreshnesses(now.getTimeInMillis());
 		return updateStatus(freshnesses, now);
+	}
+
+	// this gets called from the main stop list screen so it does everything itself
+	public int getLocationUpdateStatus() {
+		Calendar now = Calendar.getInstance();
+		HashMap<Integer, Long> freshnesses = getFreshnesses(now.getTimeInMillis());
+		return locationUpdateStatus(freshnesses, now);
 	}
 	
 	void noteStopUse(int stopNumber) {
@@ -375,7 +436,8 @@ public class BusDb {
 	public void saveBusData(Collection<LTCRoute> routes,
 			Collection<LTCDirection> directions,
 			Collection<LTCStop> stops,
-			Collection<RouteStopLink> links) throws SQLException {
+			Collection<RouteStopLink> links,
+			Boolean locationsIncluded) throws SQLException {
 		db.beginTransaction();
 		/* we use insert for everything below because all tables have an appropriate UNIQUE constraint with
 		 * ON CONFLICT REPLACE
@@ -398,14 +460,19 @@ public class BusDb {
 				cv.put(FRESHNESS, nowMillis);
 				db.insertWithOnConflict (DIRECTION_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
 			}
-			for (LTCStop dir : stops) {
+			for (LTCStop stop : stops) {
 				cv.clear();
-				cv.put(STOP_NUMBER, dir.number);
-				cv.put(STOP_NAME, dir.name);
-				cv.put(LATITUDE, dir.latitude);
-				cv.put(LONGITUDE, dir.longitude);
+				cv.put(STOP_NUMBER, stop.number);
+				cv.put(STOP_NAME, stop.name);
+				if (stop.latitude > MIN_LATITUDE) {
+					// latitude should be zero if it wasn't fetched
+					cv.put(LATITUDE, stop.latitude);
+					cv.put(LONGITUDE, stop.longitude);
+				}
 				cv.put(FRESHNESS, nowMillis);
-				db.insertWithOnConflict (STOP_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
+				if (db.update(STOP_TABLE, cv, String.format("%s = %d", STOP_NUMBER, stop.number), null) == 0) {
+					db.insertWithOnConflict (STOP_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+				}
 			}
 			for (RouteStopLink link : links) {
 				cv.clear();
@@ -417,6 +484,9 @@ public class BusDb {
 			}
 			cv.clear();
 			cv.put(currentFreshnessColumn(now), nowMillis);
+			if (locationsIncluded) {
+				cv.put(currentLocationFreshnessColumn(now), nowMillis);
+			}
 			db.update(FRESHNESS_TABLE, cv, null, null);
 			db.setTransactionSuccessful();
 		} finally {

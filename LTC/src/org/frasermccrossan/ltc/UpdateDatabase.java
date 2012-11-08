@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -24,9 +25,13 @@ public class UpdateDatabase extends Activity {
 	TextView weekdayStatus;
 	TextView saturdayStatus;
 	TextView sundayStatus;
+	TextView weekdayLocationStatus;
+	TextView saturdayLocationStatus;
+	TextView sundayLocationStatus;
 	TextView ageLimit;
 	TextView status;
 	Button updateButton;
+	CheckBox fetchPositions;
 	BusDb db;
 	
 	@Override
@@ -43,6 +48,9 @@ public class UpdateDatabase extends Activity {
         weekdayStatus = (TextView)findViewById(R.id.weekday_status);
         saturdayStatus = (TextView)findViewById(R.id.saturday_status);
         sundayStatus = (TextView)findViewById(R.id.sunday_status);
+        weekdayLocationStatus = (TextView)findViewById(R.id.weekday_location_status);
+        saturdayLocationStatus = (TextView)findViewById(R.id.saturday_location_status);
+        sundayLocationStatus = (TextView)findViewById(R.id.sunday_location_status);
         ageLimit = (TextView)findViewById(R.id.age_limit);
         status = (TextView)findViewById(R.id.status_text);
 
@@ -60,9 +68,21 @@ public class UpdateDatabase extends Activity {
         sundayStatus.setText(String.format(statusFormat,
         		res.getString(R.string.sunday),
         		freshnessDays(freshnesses.get(BusDb.SUNDAY_FRESHNESS), res)));
+        String statusLocationFormat = res.getString(R.string.status_location_format);
+        weekdayLocationStatus.setText(String.format(statusLocationFormat,
+        		res.getString(R.string.weekday),
+        		freshnessDays(freshnesses.get(BusDb.WEEKDAY_LOCATION_FRESHNESS), res)));
+        saturdayLocationStatus.setText(String.format(statusLocationFormat,
+        		res.getString(R.string.saturday),
+        		freshnessDays(freshnesses.get(BusDb.SATURDAY_LOCATION_FRESHNESS), res)));
+        sundayLocationStatus.setText(String.format(statusLocationFormat,
+        		res.getString(R.string.sunday),
+        		freshnessDays(freshnesses.get(BusDb.SUNDAY_LOCATION_FRESHNESS), res)));
         ageLimit.setText(String.format(res.getString(R.string.age_limit),
         		freshnessDays(BusDb.UPDATE_DATABASE_AGE_LIMIT, res)));
         status.setText(res.getString(db.updateStrRes(updateStatus)));
+        
+        fetchPositions = (CheckBox)findViewById(R.id.fetch_positions);
         
         updateButton = (Button)findViewById(R.id.update_button);
         updateButton.setOnClickListener(new OnClickListener() {
@@ -70,9 +90,10 @@ public class UpdateDatabase extends Activity {
 			@Override
 			public void onClick(View v) {
 				updateButton.setVisibility(ProgressBar.INVISIBLE);
+				fetchPositions.setVisibility(CheckBox.INVISIBLE);
 				progressBar.setVisibility(ProgressBar.VISIBLE);
 				scraper = new LTCScraper(UpdateDatabase.this, new UpdateStatus());
-				scraper.loadAll();
+				scraper.loadAll(fetchPositions.isChecked());
 			}
 		});
         

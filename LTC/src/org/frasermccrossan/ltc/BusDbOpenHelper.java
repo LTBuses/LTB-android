@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class BusDbOpenHelper extends SQLiteOpenHelper {
 
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 5;
 	private static final String DATABASE_NAME = "ltcdb";
 	
 
@@ -83,29 +83,26 @@ public class BusDbOpenHelper extends SQLiteOpenHelper {
 					BusDb.STOP_TABLE, BusDb.STOP_NUMBER, BusDb.STOP_LAST_USE_TABLE, BusDb.STOP_NUMBER);
 			db.execSQL(s);
 			break;
-//		case 4:
-//			/*
-//			 * select stops.stop_name,
-//			 * group_concat(route_stops.route_number||substr(directions.direction_name,1,1),
-//			 * ' ') as routes from stops, route_stops,directions where
-//			 * stops.stop_number = route_stops.stop_number and
-//			 * route_stops.direction_number = directions.direction_number group by 1
-//			 * limit 10;
-//			 */
-//			s = String.format("CREATE VIEW %s as " +
-//					"select %s.%s, %s.%s, " +
-//					"group_concat(%s.%s||substr(%s.%s, 1, 1), ' ') as %s " +
-//					"from %s, %s, %s " +
-//					"where %s.%s = %s.%s and " +
-//					"%s.%s = %s.%s group by 1, 2",
-//					BusDb.STOPS_WITH_ROUTES,
-//					BusDb.STOP_TABLE, BusDb.STOP_NUMBER, BusDb.STOP_TABLE, BusDb.STOP_NAME,
-//					BusDb.LINK_TABLE, BusDb.ROUTE_NUMBER, BusDb.DIRECTION_TABLE, BusDb.DIRECTION_NAME, BusDb.ROUTE_LIST,
-//					BusDb.STOP_TABLE, BusDb.LINK_TABLE, BusDb.DIRECTION_TABLE,
-//					BusDb.STOP_TABLE, BusDb.STOP_NUMBER, BusDb.LINK_TABLE, BusDb.STOP_NUMBER,
-//					BusDb.LINK_TABLE, BusDb.DIRECTION_NUMBER, BusDb.DIRECTION_TABLE, BusDb.DIRECTION_NUMBER);
-//			db.execSQL(s);
-//			break;
+		case 4:
+			for (String col : new String[] {
+					BusDb.WEEKDAY_LOCATION_FRESHNESS_COLUMN,
+					BusDb.SATURDAY_LOCATION_FRESHNESS_COLUMN,
+					BusDb.SUNDAY_LOCATION_FRESHNESS_COLUMN
+					}) {
+				s = String.format("alter table %s add column %s NUMBER NOT NULL default 0",
+						BusDb.FRESHNESS_TABLE,
+						col);
+				db.execSQL(s);
+			}
+			break;
+		case 5:
+			s = String.format("update %s set %s = %s, %s = %s, %s = %s",
+						BusDb.FRESHNESS_TABLE,
+						BusDb.WEEKDAY_LOCATION_FRESHNESS_COLUMN, BusDb.WEEKDAY_FRESHNESS_COLUMN,
+						BusDb.SATURDAY_LOCATION_FRESHNESS_COLUMN, BusDb.SATURDAY_FRESHNESS_COLUMN,
+						BusDb.SUNDAY_LOCATION_FRESHNESS_COLUMN, BusDb.SUNDAY_FRESHNESS_COLUMN);
+				db.execSQL(s);
+			break;
 		default:
 			// nothing yet
 			break;
