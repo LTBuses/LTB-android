@@ -42,6 +42,7 @@ public class BusDb {
 	static final String DIRECTION_NUMBER = "direction_number";
 	static final String DIRECTION_NAME = "direction_name";
 	static final String SHORT_DIRECTION_NAME = "short_direction_name";
+	static final String DIRECTION_IMG_RES = "direction_img_res";
 	
 	static final String STOP_LAST_USE_TABLE = "stop_uses";
 	static final String STOP_LAST_USE_TIME = "stop_last_use_time";

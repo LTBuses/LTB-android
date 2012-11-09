@@ -74,6 +74,11 @@
     <a href="http://thenounproject.com">The Noun Project</a>.
     </p>
     <p>
+    Arrow in designed by Naomi Atkinson from
+    <a href="http://thenounproject.com">The Noun Project</a>
+    (used in route directions).
+    </p>
+    <p>
     Thanks to:
     <ul>
     <li>everyone on Twitter who reported problems and suggestions</li>
@@ -186,5 +191,6 @@
     <string name="failed">Network error</string>
     <string name="fetch_positions">Fetch stop locations (slow)</string>
     <string name="status_location_format">Last %1$s stop location download: %2$s</string>
+    <string name="direction">Direction</string>
 
 </resources>

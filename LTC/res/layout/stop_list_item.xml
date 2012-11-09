@@ -19,7 +19,7 @@
             android:layout_height="60dip"
             android:paddingTop="22dip"
             android:minEms="3"
-            android:gravity="top|center"
+            android:gravity="center"
             android:background="@drawable/bus_stop"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="#ffffff"

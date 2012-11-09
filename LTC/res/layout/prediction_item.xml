@@ -25,19 +25,27 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textColor="#ffd000"
-            android:minWidth="20dip"
-            android:gravity="center_vertical"
+            android:minWidth="40dip"
+            android:gravity="center"
             android:textStyle="bold"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textSize="25dip" />
 
-        <TextView
-            android:id="@+id/route_short_direction"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#ffd000"
-            android:minWidth="20dip"
-            android:gravity="center_vertical"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+<!--         <TextView -->
+<!--             android:id="@+id/route_short_direction" -->
+<!--             android:layout_width="fill_parent" -->
+<!--             android:layout_height="wrap_content" -->
+<!--             android:textColor="#ffd000" -->
+<!--             android:minWidth="20dip" -->
+<!--             android:gravity="center" -->
+<!--             android:textAppearance="?android:attr/textAppearanceSmall" /> -->
+
+		<ImageView 
+		    android:id="@+id/route_direction_img"
+		    android:contentDescription="@string/direction"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:minWidth="20dip"
+		    />
         
         </LinearLayout>
 
@@ -85,7 +93,7 @@
              android:layout_height="wrap_content"
              android:paddingRight="3dp"
              android:minEms="3"
-             android:gravity="right"
+             android:gravity="center"
              android:singleLine="true"
              android:textAppearance="?android:attr/textAppearanceLarge" />
         
@@ -95,7 +103,7 @@
              android:layout_height="wrap_content"
              android:paddingRight="3dp"
              android:minEms="5"
-             android:gravity="right"
+             android:gravity="center"
              android:singleLine="true"
              android:textAppearance="?android:attr/textAppearanceSmall"
              android:textStyle="italic" />

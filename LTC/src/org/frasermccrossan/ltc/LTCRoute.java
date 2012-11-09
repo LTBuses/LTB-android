@@ -7,6 +7,11 @@ public class LTCRoute {
 	public int direction; // not part of the table, but here for convenience
 	public String directionName; // cache of the direction letter
 	
+	public String NORTHBOUND_IMG = String.valueOf(R.drawable.northbound);
+	public String SOUTHBOUND_IMG = String.valueOf(R.drawable.southbound);
+	public String EASTBOUND_IMG = String.valueOf(R.drawable.eastbound);
+	public String WESTBOUND_IMG = String.valueOf(R.drawable.westbound);
+	
 	//public String url;
 	
 	LTCRoute(String number, String name/*, String url*/) {
@@ -46,6 +51,25 @@ public class LTCRoute {
 	
 	String getTwoLetterDirection() {
 		return getOneLetterDirection() + "B";
+	}
+	
+	String getDirectionDrawableRes() {
+		char dir = directionName.charAt(0);
+		switch (dir) {
+		case 'N':
+		case 'n':
+			return NORTHBOUND_IMG;
+		case 'S':
+		case 's':
+			return SOUTHBOUND_IMG;
+		case 'E':
+		case 'e':
+			return EASTBOUND_IMG;
+		case 'W':
+		case 'w':
+			return WESTBOUND_IMG;
+		}
+		return null;
 	}
 	
 	@Override
