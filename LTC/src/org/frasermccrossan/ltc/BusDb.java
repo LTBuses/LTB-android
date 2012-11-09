@@ -380,8 +380,11 @@ public class BusDb {
 				map.put(cols[i], c.getString(i));
 			}
 			if (location != null) {
+				String stopLat = map.get(LATITUDE);
+				String stopLon = map.get(LONGITUDE);
 				Location.distanceBetween(lat, lon,
-						Double.valueOf(map.get(LATITUDE)), Double.valueOf(map.get(LONGITUDE)),
+						(stopLat == null ? 0.0 : Double.valueOf(stopLat)),
+						(stopLon == null ? 0.0 : Double.valueOf(stopLon)),
 						results);
 				
 				map.put(DISTANCE_TEXT, niceDistance(results[0]));
