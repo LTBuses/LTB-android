@@ -67,6 +67,10 @@ public class RouteDirTextView extends TextView implements ScrapeStatus {
 		}
 	}
 
+	public boolean failed() {
+		return state == FAILED;
+	}
+	
 	public void setStatus(int newState, String newMessage) {
 		state = newState;
 		errorMessage = newMessage;

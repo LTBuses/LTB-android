@@ -35,10 +35,34 @@
         android:visibility="gone"
         android:text="@string/searching_for_buses" />
 
-    <Button
-        android:id="@+id/refresh"
-        android:layout_width="match_parent"
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/refresh" />
+        android:measureWithLargestChild="true"
+        android:orientation="horizontal"
+        android:paddingLeft="2dip"
+        android:paddingRight="2dip"
+        android:paddingTop="0dip" >
+        
+        <Button
+            android:id="@+id/refresh"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dip"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/refresh" />
+
+        <Button
+            android:id="@+id/not_working"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="0dip"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="@string/not_working" />
+        
+    </LinearLayout>
+    
 
 </LinearLayout>

@@ -192,5 +192,6 @@
     <string name="fetch_positions">Fetch stop locations (slow)</string>
     <string name="status_location_format">Last %1$s stop location download: %2$s</string>
     <string name="direction">Direction</string>
+    <string name="not_working">Not working?</string>
 
 </resources>

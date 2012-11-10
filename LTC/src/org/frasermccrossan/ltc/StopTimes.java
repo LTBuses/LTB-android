@@ -32,6 +32,7 @@ public class StopTimes extends Activity {
 	String stopNumber;
 	LinearLayout routeViewLayout;
 	Button refreshButton;
+	Button notWorkingButton;
 	LTCRoute[] routeList;
 	RouteDirTextView[] routeViews;
 	SimpleAdapter adapter;
@@ -39,14 +40,20 @@ public class StopTimes extends Activity {
 	PredictionTask task = null;
 	ArrayList<HashMap<String, String>> predictions;
 	
-	OnClickListener refreshListener = new OnClickListener() {
+	OnClickListener buttonListener = new OnClickListener() {
 		public void onClick(View v) {
-			if (v.getId() == R.id.refresh) {
+			switch (v.getId()) {
+			case R.id.refresh:
 				getPredictions();
+				break;
+			case R.id.not_working:
+				// go to the problem activity
+				break;
+				// no default
 			}
 		}
 	};
-	
+		
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,7 +70,9 @@ public class StopTimes extends Activity {
         }
         
         refreshButton = (Button)findViewById(R.id.refresh);
-        refreshButton.setOnClickListener(refreshListener);
+        refreshButton.setOnClickListener(buttonListener);
+        notWorkingButton = (Button)findViewById(R.id.not_working);
+        notWorkingButton.setOnClickListener(buttonListener);
         
         routeViewLayout = (LinearLayout)findViewById(R.id.route_list);        
         routeList = db.findStopRoutes(stopNumber);
@@ -115,6 +124,7 @@ public class StopTimes extends Activity {
 	
 	void getPredictions() {
 		cancelTask();
+		notWorkingButton.setVisibility(Button.GONE);
 		task = new PredictionTask();
 		task.execute(routeViews);
 	}
@@ -175,6 +185,9 @@ public class StopTimes extends Activity {
 				}
 				else {
 					updatePredictionsWithMessageRes(routeView.route, routeView.msgResource());
+				}
+				if (routeView.failed()) {
+					notWorkingButton.setVisibility(Button.VISIBLE);
 				}
 				Collections.sort(predictions, new PredictionComparator());
 				adapter.notifyDataSetChanged();
