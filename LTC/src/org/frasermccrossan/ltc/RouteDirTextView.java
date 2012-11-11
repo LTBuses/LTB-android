@@ -19,6 +19,7 @@ public class RouteDirTextView extends TextView implements ScrapeStatus {
 	ArrayList<HashMap<String, String>> predictions = null;
 	int defaultFlags;
 	int state;
+	int problemType;
 	String errorMessage;
 	static final String VERY_CLOSE = ""; // something guaranteed to sort before everything
 	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything
@@ -72,8 +73,21 @@ public class RouteDirTextView extends TextView implements ScrapeStatus {
 	}
 	
 	public void setStatus(int newState, String newMessage) {
+		setStatus(newState, NOT_PROBLEM, newMessage);
+	}
+	
+	public void setStatus(int newState, int newProbType, String newMessage) {
 		state = newState;
+		problemType = newProbType;
 		errorMessage = newMessage;
+	}
+	
+	public boolean isImmediateProblem() {
+		return problemType == PROBLEM_IMMEDIATELY;
+	}
+	
+	public boolean isProbIfAll() {
+		return problemType == PROBLEM_IF_ALL;		
 	}
 	
 	public boolean isOkToPost() {

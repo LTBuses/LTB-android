@@ -12,6 +12,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -26,7 +27,8 @@ import android.widget.Toast;
 public class StopTimes extends Activity {
 
 	// how long before popping up an Toast about how long the LTC site is taking
-	static final long WEBSITE_DELAY = 5000;
+	static final long WARNING_DELAY = 5000;
+	static final long BUTTON_DELAY = 100;
 	
 	BusDb db;
 	String stopNumber;
@@ -136,7 +138,8 @@ public class StopTimes extends Activity {
 	class PredictionTask extends AsyncTask<RouteDirTextView, RouteDirTextView, Void> {
 		
 		Toast toast;
-		Timer timer;
+		Timer toastTimer;
+		int probCount = 0;
 		
 		class ToastTask extends TimerTask {
 			public void run() {
@@ -186,8 +189,13 @@ public class StopTimes extends Activity {
 				else {
 					updatePredictionsWithMessageRes(routeView.route, routeView.msgResource());
 				}
-				if (routeView.failed()) {
+				switch (routeView.problemType) {
+				case ScrapeStatus.PROBLEM_IMMEDIATELY:
 					notWorkingButton.setVisibility(Button.VISIBLE);
+					break;
+				case ScrapeStatus.PROBLEM_IF_ALL:
+					++probCount;
+					break;
 				}
 				Collections.sort(predictions, new PredictionComparator());
 				adapter.notifyDataSetChanged();
@@ -197,6 +205,9 @@ public class StopTimes extends Activity {
 		
 		@Override
 		protected void onPostExecute(Void result) {
+			if (probCount == routeViews.length) {
+				notWorkingButton.setVisibility(Button.VISIBLE);
+			}
 			cancelTimer();
 		}
 		
@@ -206,13 +217,13 @@ public class StopTimes extends Activity {
 		}
 		
 		void scheduleTimer() {
-			timer = new Timer();
-			ToastTask task = new ToastTask();
-			timer.schedule(task, WEBSITE_DELAY);
+			toastTimer = new Timer();
+			ToastTask toastTask = new ToastTask();
+			toastTimer.schedule(toastTask, WARNING_DELAY);
 		}
 		
 		void cancelTimer() {
-			timer.cancel();
+			toastTimer.cancel();
 			toast.cancel();
 		}
 		

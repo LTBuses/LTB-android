@@ -186,7 +186,7 @@
     <string name="searching_for_stops">Searching for stops&#8230;</string>
     <string name="no_stops_found">No stops found. Try different search text.</string>
     <string name="forget_favourite">Forget favourite&#8230;</string>
-    <string name="website_slow">Sorry, still waiting for the website...</string>
+    <string name="website_slow">Sorry, still waiting for the LTC website...</string>
     <string name="no_bus">(No Bus)</string>
     <string name="failed">Network error</string>
     <string name="fetch_positions">Fetch stop locations (slow)</string>

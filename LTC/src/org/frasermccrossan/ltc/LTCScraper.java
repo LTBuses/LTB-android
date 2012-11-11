@@ -127,7 +127,7 @@ public class LTCScraper {
 			Document doc = conn.get();
 			Elements divs = doc.select("div");
 			if (divs.size() == 0) {
-				throw new ScrapeException("LTC down?");
+				throw new ScrapeException("LTC down?", ScrapeStatus.PROBLEM_IMMEDIATELY);
 			}
 			//Log.i("GP", String.format("rows=%d", timeRows.size()));
 			for (Element div: divs) {
@@ -137,7 +137,7 @@ public class LTCScraper {
 					String text = node.text();
 					Matcher noStopMatcher = NO_INFO_PATTERN.matcher(text);
 					if (noStopMatcher.find()) {
-						throw new ScrapeException("none");
+						throw new ScrapeException("none", ScrapeStatus.PROBLEM_IF_ALL);
 					}
 					Matcher arrivalMatcher = ARRIVAL_PATTERN.matcher(text);
 					HashMap<String, String> crossingTime;
@@ -163,9 +163,9 @@ public class LTCScraper {
 			}
 			if (predictions.size() == 0) {
 				Resources res = context.getResources();
-				throw new ScrapeException(res.getString(R.string.no_bus));
+				throw new ScrapeException(res.getString(R.string.no_bus), ScrapeStatus.PROBLEM_IF_ALL);
 			}
-			scrapeStatus.setStatus(ScrapeStatus.OK, null);
+			scrapeStatus.setStatus(ScrapeStatus.OK, ScrapeStatus.NOT_PROBLEM, null);
 		}
 		catch (ScrapeException e) {
 			HashMap<String, String> scrapeReport = predictionEntry(route,
@@ -173,7 +173,7 @@ public class LTCScraper {
 					null,
 					null,
 					e.getMessage());
-			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
+			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.problemType, e.getMessage());
 			predictions.add(scrapeReport);
 
 		}
@@ -184,7 +184,7 @@ public class LTCScraper {
 					R.string.times_timeout,
 					null
 					);
-			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
+			scrapeStatus.setStatus(ScrapeStatus.FAILED, ScrapeStatus.PROBLEM_IMMEDIATELY, e.getMessage());
 			predictions.add(failReport);
 		}
 		catch (IOException e) {
@@ -194,7 +194,7 @@ public class LTCScraper {
 					R.string.failed,
 					null
 					);
-			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.getMessage());
+			scrapeStatus.setStatus(ScrapeStatus.FAILED, ScrapeStatus.PROBLEM_IMMEDIATELY, e.getMessage());
 			predictions.add(failReport);
 		}
 		return predictions;
