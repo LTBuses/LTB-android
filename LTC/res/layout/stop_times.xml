@@ -36,7 +36,6 @@
         android:text="@string/searching_for_buses" />
 
     <LinearLayout
-        style="?android:attr/buttonBarStyle"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:measureWithLargestChild="true"
@@ -47,7 +46,6 @@
         
         <Button
             android:id="@+id/refresh"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dip"
             android:layout_weight="1"
             android:layout_height="wrap_content"
@@ -55,7 +53,6 @@
 
         <Button
             android:id="@+id/not_working"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dip"
             android:layout_weight="1"
             android:layout_height="wrap_content"

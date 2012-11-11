@@ -29,6 +29,9 @@
             android:name=".About"
             android:label="@string/about" />
         <activity
+            android:name=".DiagnoseProblems"
+            android:label="@string/about" />
+        <activity
             android:name=".FindStopHelp"
             android:label="@string/help" />
         <activity

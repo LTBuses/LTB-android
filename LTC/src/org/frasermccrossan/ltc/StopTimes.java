@@ -49,8 +49,10 @@ public class StopTimes extends Activity {
 				getPredictions();
 				break;
 			case R.id.not_working:
-				// go to the problem activity
-				break;
+		    	Intent diagnoseIntent = new Intent(StopTimes.this, DiagnoseProblems.class);
+		    	//diagnoseIntent.putExtra(BusDb.STOP_NUMBER, stopNumber);
+		    	startActivity(diagnoseIntent);
+		    	break;
 				// no default
 			}
 		}
