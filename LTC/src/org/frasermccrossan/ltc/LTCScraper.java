@@ -40,7 +40,7 @@ public class LTCScraper {
 //	static final String STOPS_URL = "http://teuchter.lan:8000/direction%sd%d.html";
 //	static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
 	// for production
-	static final String ROUTE_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx";
+	public static final String ROUTE_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx";
 	static final String DIRECTION_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx?r=%s";
 	static final String STOPS_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx?r=%s&d=%d";
 	static final String MAP_URL = "http://www.ltconline.ca/WebWatch/map.aspx?mode=g&r=%s";
@@ -410,7 +410,7 @@ public class LTCScraper {
     						catch (IOException e) {
     							failures++; // note that one failed
     							if (failures > FAILURE_LIMIT) {
-    			    				throw(new ScrapeException("Too many failures, try again later."));
+    			    				throw(new ScrapeException("Too many failures, try again later.", ScrapeStatus.PROBLEM_IMMEDIATELY));
     							}
     							i++; // go to the next one
     						}

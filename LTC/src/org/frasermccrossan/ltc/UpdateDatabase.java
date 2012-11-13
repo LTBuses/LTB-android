@@ -31,6 +31,7 @@ public class UpdateDatabase extends Activity {
 	TextView ageLimit;
 	TextView status;
 	Button updateButton;
+	Button notWorkingButton;
 	CheckBox fetchPositions;
 	BusDb db;
 	
@@ -86,7 +87,6 @@ public class UpdateDatabase extends Activity {
         
         updateButton = (Button)findViewById(R.id.update_button);
         updateButton.setOnClickListener(new OnClickListener() {
-			
 			@Override
 			public void onClick(View v) {
 				updateButton.setVisibility(ProgressBar.INVISIBLE);
@@ -96,6 +96,17 @@ public class UpdateDatabase extends Activity {
 				scraper.loadAll(fetchPositions.isChecked());
 			}
 		});
+
+        notWorkingButton = (Button)findViewById(R.id.not_working_button);
+        notWorkingButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+		    	Intent diagnoseIntent = new Intent(UpdateDatabase.this, DiagnoseProblems.class);
+		    	LTCScraper scraper = new LTCScraper(UpdateDatabase.this);
+		    	diagnoseIntent.putExtra("testurl", scraper.ROUTE_URL);
+		    	startActivity(diagnoseIntent);
+			}
+        });
         
     }
 	
@@ -145,6 +156,9 @@ public class UpdateDatabase extends Activity {
 			progressBar.setProgress(progress.percent);
 			if (progress.percent >= 100) {
 				finish();
+			}
+			if (progress.percent < 0) {
+				notWorkingButton.setVisibility(Button.VISIBLE);
 			}
 		}
 	}

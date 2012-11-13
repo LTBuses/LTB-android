@@ -88,5 +88,11 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:text="@string/update" />
-	</LinearLayout>
+	    <Button
+	        android:id="@+id/not_working_button"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:visibility="gone"
+	        android:text="@string/not_working" />
+	    	</LinearLayout>
 </ScrollView>
