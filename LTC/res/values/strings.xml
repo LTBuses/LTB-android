@@ -11,7 +11,7 @@
     <string name="at_this_stop">At this stop: %1$s</string>
     <string name="stop_times">Stop Times</string>
     <string name="download_instructions">Downloading bus route and stop data takes about 20 seconds. Downloading stop locations adds several minutes. Total download uses between 1M and 2M of data. WiFi is recommended but not required.</string>
-    <string name="update">Download</string>
+    <string name="update">Start update</string>
     <string name="using_provider">Location provider: %1$s</string>
     <string name="no_provider">Location not available</string>
     <string name="about">About</string>
