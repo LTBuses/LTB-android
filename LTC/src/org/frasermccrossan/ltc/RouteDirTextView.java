@@ -98,6 +98,10 @@ public class RouteDirTextView extends TextView implements ScrapeStatus {
 		return state == QUERYING;
 	}
 	
+	public String getPredictionUrl(LTCScraper scraper, String stopNumber) {
+		return scraper.predictionUrl(route, stopNumber);
+	}
+	
 	public void scrapePredictions(LTCScraper scraper, String stopNumber) {
 		predictions = null;
 		predictions = scraper.getPredictions(route, stopNumber, this);

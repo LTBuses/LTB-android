@@ -50,7 +50,8 @@ public class StopTimes extends Activity {
 				break;
 			case R.id.not_working:
 		    	Intent diagnoseIntent = new Intent(StopTimes.this, DiagnoseProblems.class);
-		    	//diagnoseIntent.putExtra(BusDb.STOP_NUMBER, stopNumber);
+		    	LTCScraper scraper = new LTCScraper(StopTimes.this);
+		    	diagnoseIntent.putExtra("testurl", routeViews[0].getPredictionUrl(scraper, stopNumber));
 		    	startActivity(diagnoseIntent);
 		    	break;
 				// no default

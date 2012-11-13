@@ -193,11 +193,13 @@
     <string name="status_location_format">Last %1$s stop location download: %2$s</string>
     <string name="direction">Direction</string>
     <string name="not_working">Not working?</string>
-    <string name="no_network">Network service is needed to query the LTC WebWatch service, but is not available.</string>
+    <string name="no_network">A network is needed to query the LTC WebWatch service, but none is available.</string>
     <string name="wifi_settings">WiFi settings&#8230;</string>
-    <string name="data_settings">Data settings&#8230;</string>
-    <string name="website_problems">The LTC WebWatch service may be down or slow. Check it on the LTC website. If it isn\'t working, wait and try later, otherwise please report a bug.</string>
+    <string name="wireless_settings">Wireless data settings&#8230;</string>
+    <string name="website_problems">The LTC WebWatch service may be down or slow. Tap button below to check. If it isn\'t working, wait and try later, otherwise please report a bug.</string>
     <string name="goto_website">Test WebWatch&#8230;</string>
     <string name="sorry">Sorry you\'re having a problem.</string>
+    <string name="no_service">No Service</string>
+    <string name="no_further">No More Buses</string>
 
 </resources>

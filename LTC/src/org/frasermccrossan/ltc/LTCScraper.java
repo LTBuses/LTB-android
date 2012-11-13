@@ -56,6 +56,7 @@ public class LTCScraper {
 	static final Pattern STOP_NUM_PATTERN = Pattern.compile("\\&s=(\\d+)");
 	// if no buses are found
 	static final Pattern NO_INFO_PATTERN = Pattern.compile("(?mi)no stop information");
+	static final Pattern NO_BUS_PATTERN = Pattern.compile("(?mi)no further buses");
 	static final Pattern DESTINATION_PATTERN = Pattern.compile("(?i) *to +((\\d+[a-z]?) +)?(.*)");
 	static final Pattern LOCATION_STOP_PATTERN = Pattern.compile("(\\d+)");
 	static final String VERY_CLOSE = "000000000000000"; // something guaranteed to sort before everything
@@ -89,7 +90,7 @@ public class LTCScraper {
 		task.execute(fetchLocations);
 	}
 	
-	String predictionUrl(LTCRoute route, String stopNumber) {
+	public String predictionUrl(LTCRoute route, String stopNumber) {
 //		return PREDICTIONS_URL;
 		return String.format("http://www.ltconline.ca/WebWatch/MobileAda.aspx?r=%s&d=%s&s=%s",
 				route.number, route.direction, stopNumber);
@@ -118,6 +119,7 @@ public class LTCScraper {
 			
 	public ArrayList<HashMap<String, String>> getPredictions(LTCRoute route, String stopNumber, ScrapeStatus scrapeStatus) {
 		ArrayList<HashMap<String, String>> predictions = new ArrayList<HashMap<String, String>>(3); // usually get 3 of them
+		Resources res = context.getResources();
 		try {
 			Calendar now = Calendar.getInstance();
 			now.set(Calendar.SECOND, 0);
@@ -135,9 +137,13 @@ public class LTCScraper {
 				List<TextNode> textNodes = div.textNodes();
 				for (TextNode node: textNodes) {
 					String text = node.text();
+					Matcher noBusMatcher = NO_BUS_PATTERN.matcher(text);
+					if (noBusMatcher.find()) {
+						throw new ScrapeException(res.getString(R.string.no_further), ScrapeStatus.PROBLEM_IF_ALL);
+					}
 					Matcher noStopMatcher = NO_INFO_PATTERN.matcher(text);
 					if (noStopMatcher.find()) {
-						throw new ScrapeException("none", ScrapeStatus.PROBLEM_IF_ALL);
+						throw new ScrapeException(res.getString(R.string.no_service), ScrapeStatus.PROBLEM_IF_ALL);
 					}
 					Matcher arrivalMatcher = ARRIVAL_PATTERN.matcher(text);
 					HashMap<String, String> crossingTime;
@@ -162,7 +168,6 @@ public class LTCScraper {
 				}
 			}
 			if (predictions.size() == 0) {
-				Resources res = context.getResources();
 				throw new ScrapeException(res.getString(R.string.no_bus), ScrapeStatus.PROBLEM_IF_ALL);
 			}
 			scrapeStatus.setStatus(ScrapeStatus.OK, ScrapeStatus.NOT_PROBLEM, null);

@@ -32,17 +32,17 @@
                 <Button
                     android:id="@+id/wifi_settings"
                     android:layout_width="0dip"
-                    android:layout_height="wrap_content"
+                    android:layout_height="fill_parent"
                     android:layout_weight="1"
                     android:text="@string/wifi_settings" />
-                
-                <Button
-                    android:id="@+id/data_settings"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/data_settings" />
 
+                <Button
+                    android:id="@+id/wireless_settings"
+                    android:layout_width="0dip"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:text="@string/wireless_settings" />
+                
             </LinearLayout>
             
         </LinearLayout>
