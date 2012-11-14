@@ -201,5 +201,7 @@
     <string name="sorry">Sorry you\'re having a problem.</string>
     <string name="no_service">No Service</string>
     <string name="no_further">No More Buses</string>
+    <string name="all_routes_short">Any</string>
+    <string name="all_routes_long">Stops serviced by any route</string>
 
 </resources>

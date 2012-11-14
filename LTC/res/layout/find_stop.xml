@@ -31,7 +31,14 @@
             android:layout_weight="0"
             android:spinnerMode="dropdown" />
 
-    </LinearLayout>
+        <Spinner
+            android:id="@+id/route_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:spinnerMode="dropdown" />
+
+        </LinearLayout>
     
     <ListView
         android:id="@+id/stop_list"

@@ -37,6 +37,10 @@ public class LTCRoute {
 		return number.replaceFirst("^0+", "");
 	}
 	
+	String getNameWithNumber() {
+		return String.format("%d %s", Integer.valueOf(number), name);
+	}
+	
 	String getShortRouteDirection() {
 		return String.format("%d%s", Integer.valueOf(number), directionName == null ? "" : directionName.substring(0,1));
 	}

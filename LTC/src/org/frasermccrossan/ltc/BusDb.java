@@ -263,6 +263,29 @@ public class BusDb {
 				null);
 	}
 	
+	LTCRoute[] getAllRoutes(boolean withNull) {
+		LTCRoute[] routes = null;
+		Cursor c = db.query(ROUTE_TABLE,
+				new String[] { ROUTE_NUMBER, ROUTE_NAME },
+				null, null, null, null, ROUTE_NUMBER);
+		if (c.moveToFirst()) {
+			int size = c.getCount();
+			int i = 0;
+			if (withNull) {
+				++size;
+			}
+			routes = new LTCRoute[size];
+			if (withNull) {
+				routes[i++] = null;
+			}
+			for (; !c.isAfterLast(); c.moveToNext()) {
+				routes[i++] = new LTCRoute(c.getString(0), c.getString(1));
+			}
+			c.close();
+		}
+		return routes;
+	}
+	
 	LTCStop findStop(String stopNumber) {
 		LTCStop stop = null;
 		Cursor c = db.query(STOP_TABLE,
