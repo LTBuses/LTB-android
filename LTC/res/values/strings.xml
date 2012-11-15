@@ -19,7 +19,7 @@
     <![CDATA[<html>
     <body>
     <h1>LTC Buses</h1>
-    <h3>Version 1.10 &copy; 2012 Fraser McCrossan</h3>
+    <h3>Version 1.20 &copy; 2012 Fraser McCrossan</h3>
     <h2>Notice</h2>
     <p>
     Although this app uses data from the
@@ -94,30 +94,27 @@
     <![CDATA[
     <html>
     <body>
-    <h2>List of Stops</h2>
-    <p>
-    If GPS is enabled and you downloaded stop locations, you can choose between \"Favourites\"
-    (stops you\'ve checked recently) and \"Nearby\" (stops close to you).
-    Otherwise, you just get \"Favourites\".
-    </p>
+    <h3>Search Box</h3>
+    <dl>
+    <dt>\"123\"</dt>
+    <dd>Stop names containing \"123\", or stop numbers starting with \"123\" (the numbers on the blue signs)</dd>
+    <dt>\"dun rich\"</dt>
+    <dd>Stop names containing all words, e.g. \"Dundas at Richmond St EB\"<dd>
+    </dl>
+    <h3>Menus</h3>
+    <dl>
+    <dt>Favourites</dt>
+    <dd>Stops you\'ve checked most often, otherwise alphabetical</dd>
+    <dt>Nearby</dt>
+    <dd>Stops closest to you (available if GPS enabled and stop data downloaded)</dd>
+    <dt>Any</dt>
+    <dd>Stops serviced by any route</dd>
+    <dt>Route Number</dt>
+    <dd>Only stops serviced by that route</dd>
+    </dl>
     <p>
     Be patient with GPS - it may take a few seconds to find your position.
     Only GPS is supported - Google\'s location service is not accurate enough, especially in areas with lots of stops like downtown.
-    </p>
-    <p>
-    Each stop also shows which route numbers stop in which directions.
-    Tap a stop to show the next arrivals for all routes.
-    </p>
-    <h2>Searching</h2>
-    <p>
-    Enter text or numbers to narrow down which stop you want (still listed Favourites-first or Nearby-first, as above).
-    If the search is only digits, it matches both stop numbers (on the blue signs)
-    and stops containing numbers (e.g. \"1102 Jalna NB\"). If there are any non-digits,
-    it just matches stop names.
-    </p>
-    <p>
-    Case is ignored, and multiple, partial words work. For example to find stops at Dundas and Richmond, try
-    \"dun rich\".
     </p>
     </body>
     </html>
