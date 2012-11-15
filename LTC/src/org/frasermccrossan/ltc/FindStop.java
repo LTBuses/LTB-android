@@ -88,6 +88,20 @@ public class FindStop extends Activity {
 		}
 	};
 
+	OnItemSelectedListener routeListener = new OnItemSelectedListener() {
+
+		@Override
+		public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+			updateStops();
+		}
+
+		@Override
+		public void onNothingSelected(AdapterView<?> parent) {
+			// nothing
+
+		}
+	};
+
 	public class RouteAdapter extends ArrayAdapter<LTCRoute> {
 
 		Context c;
@@ -170,6 +184,7 @@ public class FindStop extends Activity {
 		routeSpinner = (Spinner)findViewById(R.id.route_spinner);
 		RouteAdapter routeAdapter = new RouteAdapter(this, R.layout.route_view, routes);
 		routeSpinner.setAdapter(routeAdapter);
+		routeSpinner.setOnItemSelectedListener(routeListener);
 		registerForContextMenu(stopList);
 		downloadTry = 0;
 	}
@@ -320,7 +335,7 @@ public class FindStop extends Activity {
 
 		@SuppressWarnings("unchecked")
 		protected Void doInBackground(CharSequence... strings) {
-			List<HashMap<String, String>> newStops = db.findStops(strings[0], lastLocation);
+			List<HashMap<String, String>> newStops = db.findStops(strings[0], lastLocation, (LTCRoute)routeSpinner.getSelectedItem());
 			if (!isCancelled()) {
 				publishProgress(newStops);
 			}

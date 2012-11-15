@@ -366,7 +366,7 @@ public class BusDb {
 		}
 	}
 	
-	List<HashMap<String, String>> findStops(CharSequence text, Location location) {
+	List<HashMap<String, String>> findStops(CharSequence text, Location location, LTCRoute mustServiceRoute) {
 		String searchText = text.toString();
 		String whereClause;
 		String[] words = searchText.trim().toLowerCase().split("\\s+");
@@ -380,6 +380,10 @@ public class BusDb {
 		whereClause = "(" + TextUtils.join(" and ", likes) + ")";
 		if (searchText.matches("^\\d+$")) {
 			whereClause += String.format(" or (%s like %s)", STOP_NUMBER, DatabaseUtils.sqlEscapeString(text + "%"));
+		}
+		if (mustServiceRoute != null) {
+			whereClause = String.format("(%s) and stop_number in (select %s from %s where %s = '%s')",
+					whereClause, STOP_NUMBER, LINK_TABLE, ROUTE_NUMBER, mustServiceRoute.number);
 		}
 		String order;
 		if (location == null) {
