@@ -58,9 +58,8 @@ public class FindStop extends Activity {
 
 	static final long LOCATION_TIME_UPDATE = 30; // seconds between GPS update
 	static final float LOCATION_DISTANCE_UPDATE = 100; // minimum metres between GPS updates
-
-	// context menu items
-	static final int FORGET_FAVOURITE = 1;
+	
+	static final int FORGET_FAVOURITE = 1; // id for context menu item lacking an intent
 
 	OnItemClickListener stopListener = new OnItemClickListener() {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -274,7 +273,7 @@ public class FindStop extends Activity {
 		 * that fall through to the superclass
 		 */
 		if (Integer.valueOf(stop.get(BusDb.STOP_USES_COUNT)) > 0) {
-			menu.add(ContextMenu.NONE, FORGET_FAVOURITE, 1, R.string.forget_favourite);
+			menu.add(ContextMenu.NONE, FORGET_FAVOURITE, 2, R.string.forget_favourite);
 		}
 		String query = Uri.encode(String.format("%s@%s,%s",
 				stop.get(BusDb.STOP_NAME), 
@@ -284,7 +283,7 @@ public class FindStop extends Activity {
 				stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE),
 				query);
 		Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
-		MenuItem map = menu.add(R.string.show_map);
+		MenuItem map = menu.add(ContextMenu.NONE, Menu.NONE, 1, R.string.show_map);
 		map.setIntent(mapIntent);
 		ArrayList<LTCRoute> stopRoutes = db.findStopRoutes(stop.get(BusDb.STOP_NUMBER), null, 0);
 		for (LTCRoute stopRoute : stopRoutes) {
@@ -292,7 +291,7 @@ public class FindStop extends Activity {
 			stopTimeIntent.putExtra(BusDb.STOP_NUMBER, stop.get(BusDb.STOP_NUMBER));
 			stopTimeIntent.putExtra(BusDb.ROUTE_NUMBER, stopRoute.number);
 			stopTimeIntent.putExtra(BusDb.DIRECTION_NUMBER, stopRoute.direction);
-			MenuItem check = menu.add(String.format(getString(R.string.only_check_route), stopRoute.getShortRouteDirection()));
+			MenuItem check = menu.add(ContextMenu.NONE, Menu.NONE, 3, String.format(getString(R.string.only_check_route), stopRoute.getShortRouteDirection()));
 			check.setIntent(stopTimeIntent);
 		}
 	}
