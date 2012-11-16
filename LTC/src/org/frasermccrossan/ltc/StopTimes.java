@@ -35,8 +35,8 @@ public class StopTimes extends Activity {
 	LinearLayout routeViewLayout;
 	Button refreshButton;
 	Button notWorkingButton;
-	LTCRoute[] routeList;
-	RouteDirTextView[] routeViews;
+	ArrayList<LTCRoute> routeList;
+	ArrayList<RouteDirTextView> routeViews;
 	SimpleAdapter adapter;
 	ListView predictionList;
 	PredictionTask task = null;
@@ -51,7 +51,7 @@ public class StopTimes extends Activity {
 			case R.id.not_working:
 		    	Intent diagnoseIntent = new Intent(StopTimes.this, DiagnoseProblems.class);
 		    	LTCScraper scraper = new LTCScraper(StopTimes.this);
-		    	diagnoseIntent.putExtra("testurl", routeViews[0].getPredictionUrl(scraper, stopNumber));
+		    	diagnoseIntent.putExtra("testurl", routeViews.get(0).getPredictionUrl(scraper, stopNumber));
 		    	startActivity(diagnoseIntent);
 		    	break;
 				// no default
@@ -80,13 +80,17 @@ public class StopTimes extends Activity {
         notWorkingButton.setOnClickListener(buttonListener);
         
         routeViewLayout = (LinearLayout)findViewById(R.id.route_list);        
-        routeList = db.findStopRoutes(stopNumber);
+
+        String routeNumberOnly = intent.getStringExtra(BusDb.ROUTE_NUMBER);
+        int routeDirectionOnly = intent.getIntExtra(BusDb.DIRECTION_NUMBER, 0);
+        routeList = db.findStopRoutes(stopNumber, routeNumberOnly, routeDirectionOnly);
+        
         /* now create a list of route views based on that routeList */
-        routeViews = new RouteDirTextView[routeList.length];
-        int i;
-        for (i = 0; i < routeList.length; ++i) {
-        	routeViews[i] = new RouteDirTextView(this, routeList[i]);
-        	routeViewLayout.addView(routeViews[i]);
+        routeViews = new ArrayList<RouteDirTextView>(routeList.size());
+        for (LTCRoute route : routeList) {
+        	RouteDirTextView routeView = new RouteDirTextView(this, route);
+        	routeViews.add(routeView);
+        	routeViewLayout.addView(routeView);
         }
         
         predictionList = (ListView)findViewById(R.id.prediction_list);
@@ -131,7 +135,8 @@ public class StopTimes extends Activity {
 		cancelTask();
 		notWorkingButton.setVisibility(Button.GONE);
 		task = new PredictionTask();
-		task.execute(routeViews);
+		RouteDirTextView[] routeViewAry = new RouteDirTextView[routeViews.size()];
+		task.execute((RouteDirTextView[])(routeViews.toArray(routeViewAry)));
 	}
 	
 	/* this takes one or more LTCRoute objects and fetches the predictions for each
@@ -208,7 +213,7 @@ public class StopTimes extends Activity {
 		
 		@Override
 		protected void onPostExecute(Void result) {
-			if (probCount == routeViews.length) {
+			if (probCount == routeViews.size()) {
 				notWorkingButton.setVisibility(Button.VISIBLE);
 			}
 			cancelTimer();

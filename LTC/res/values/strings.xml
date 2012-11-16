@@ -178,11 +178,11 @@
     <string name="times_fail">[Failed]</string>
     <string name="times_timeout">[Timeout]</string>
     <string name="finding_routes">Finding routes&#8230;</string>
-    <string name="show_map">Show map&#8230;</string>
+    <string name="show_map">Show map</string>
     <string name="searching_for_buses">Searching for next arrivals&#8230;</string>
     <string name="searching_for_stops">Searching for stops&#8230;</string>
     <string name="no_stops_found">No stops found. Try different search text.</string>
-    <string name="forget_favourite">Forget favourite&#8230;</string>
+    <string name="forget_favourite">Forget favourite</string>
     <string name="website_slow">Sorry, still waiting for the LTC website&#8230;</string>
     <string name="no_bus">(No Bus)</string>
     <string name="failed">Network error</string>
@@ -194,11 +194,12 @@
     <string name="wifi_settings">WiFi settings&#8230;</string>
     <string name="wireless_settings">Wireless data settings&#8230;</string>
     <string name="website_problems">The LTC WebWatch service may be down or slow. Tap button below to check. If it isn\'t working, wait and try later, otherwise please report a bug.</string>
-    <string name="goto_website">Test WebWatch&#8230;</string>
+    <string name="goto_website">Test WebWatch</string>
     <string name="sorry">Sorry you\'re having a problem.</string>
     <string name="no_service">No Service</string>
     <string name="no_further">No More Buses</string>
     <string name="all_routes_short">Any</string>
     <string name="all_routes_long">Stops serviced by any route</string>
+    <string name="only_check_route">Check %1$s only</string>
 
 </resources>

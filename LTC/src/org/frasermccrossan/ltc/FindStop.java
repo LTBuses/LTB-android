@@ -60,7 +60,6 @@ public class FindStop extends Activity {
 	static final float LOCATION_DISTANCE_UPDATE = 100; // minimum metres between GPS updates
 
 	// context menu items
-	static final int SHOW_MAP = 0;
 	static final int FORGET_FAVOURITE = 1;
 
 	OnItemClickListener stopListener = new OnItemClickListener() {
@@ -270,9 +269,31 @@ public class FindStop extends Activity {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		AdapterView.AdapterContextMenuInfo listItemInfo = (AdapterView.AdapterContextMenuInfo)menuInfo;
 		int item = listItemInfo.position;
-		menu.add(ContextMenu.NONE, SHOW_MAP, 1, R.string.show_map);
-		if (Integer.valueOf(stops.get(item).get(BusDb.STOP_USES_COUNT)) > 0) {
-			menu.add(ContextMenu.NONE, FORGET_FAVOURITE, 2, R.string.forget_favourite);
+		HashMap<String, String> stop = stops.get(item);
+		/* this one handled right here by the handler, the rest get intents
+		 * that fall through to the superclass
+		 */
+		if (Integer.valueOf(stop.get(BusDb.STOP_USES_COUNT)) > 0) {
+			menu.add(ContextMenu.NONE, FORGET_FAVOURITE, 1, R.string.forget_favourite);
+		}
+		String query = Uri.encode(String.format("%s@%s,%s",
+				stop.get(BusDb.STOP_NAME), 
+				stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE)
+				));
+		String geoUri = String.format("geo:%s,%s?q=%s",
+				stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE),
+				query);
+		Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
+		MenuItem map = menu.add(R.string.show_map);
+		map.setIntent(mapIntent);
+		ArrayList<LTCRoute> stopRoutes = db.findStopRoutes(stop.get(BusDb.STOP_NUMBER), null, 0);
+		for (LTCRoute stopRoute : stopRoutes) {
+			Intent stopTimeIntent = new Intent(FindStop.this, StopTimes.class);
+			stopTimeIntent.putExtra(BusDb.STOP_NUMBER, stop.get(BusDb.STOP_NUMBER));
+			stopTimeIntent.putExtra(BusDb.ROUTE_NUMBER, stopRoute.number);
+			stopTimeIntent.putExtra(BusDb.DIRECTION_NUMBER, stopRoute.direction);
+			MenuItem check = menu.add(String.format(getString(R.string.only_check_route), stopRoute.getShortRouteDirection()));
+			check.setIntent(stopTimeIntent);
 		}
 	}
 
@@ -280,18 +301,18 @@ public class FindStop extends Activity {
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
-		case SHOW_MAP:
-			HashMap<String, String> stop = stops.get(info.position);
-			String query = Uri.encode(String.format("%s@%s,%s",
-					stop.get(BusDb.STOP_NAME), 
-					stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE)
-					));
-			String geoUri = String.format("geo:%s,%s?q=%s",
-					stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE),
-					query);
-			Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
-			startActivity(mapIntent);
-			return true;
+//		case SHOW_MAP:
+//			HashMap<String, String> stop = stops.get(info.position);
+//			String query = Uri.encode(String.format("%s@%s,%s",
+//					stop.get(BusDb.STOP_NAME), 
+//					stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE)
+//					));
+//			String geoUri = String.format("geo:%s,%s?q=%s",
+//					stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE),
+//					query);
+//			Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
+//			startActivity(mapIntent);
+//			return true;
 		case FORGET_FAVOURITE:
 			db.forgetStopUse(Integer.valueOf(stops.get(info.position).get(BusDb.STOP_NUMBER)));
 			updateStops();

@@ -285,6 +285,19 @@ public class BusDb {
 		}
 		return routes;
 	}
+
+	LTCRoute findRoute(String routeNumber, int directionNumber) {
+		LTCRoute route = null;
+		Cursor c = db.query(ROUTE_TABLE,
+				new String[] { ROUTE_NUMBER, ROUTE_NAME, DIRECTION_NUMBER, DIRECTION_NAME },
+				String.format("%s = ?", ROUTE_NUMBER), new String[] { routeNumber },
+				null, null, null);
+		if (c.moveToFirst()) {
+			route = new LTCRoute(c.getString(0), c.getString(1), c.getInt(2), c.getString(3));
+		}
+		c.close();
+		return route;		
+	}
 	
 	LTCStop findStop(String stopNumber) {
 		LTCStop stop = null;
@@ -300,7 +313,7 @@ public class BusDb {
 	}
 	
 	/* this fetches routes, but it also adds the direction and direction initial letter */
-	LTCRoute[] findStopRoutes(String stopNumber) {
+	ArrayList<LTCRoute> findStopRoutes(String stopNumber, String routeNumber, int directionNumber) {
 		Cursor c = db.rawQuery(String.format("select %s.%s, %s.%s, %s.%s, %s.%s from %s, %s, %s where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ?",
 											 ROUTE_TABLE, ROUTE_NUMBER,
 											 ROUTE_TABLE, ROUTE_NAME,
@@ -311,18 +324,17 @@ public class BusDb {
 											 LINK_TABLE, DIRECTION_NUMBER, DIRECTION_TABLE, DIRECTION_NUMBER,
 											 LINK_TABLE, STOP_NUMBER),
 				new String[] { stopNumber });
+		ArrayList<LTCRoute> routes = new ArrayList<LTCRoute>();
 		if (c.moveToFirst()) {
-			LTCRoute[] routes = new LTCRoute[c.getCount()];
-			int i;
-			for (i = 0; !c.isAfterLast(); i++, c.moveToNext()) {
-				routes[i] = new LTCRoute(c.getString(0), c.getString(1), c.getInt(2), c.getString(3));
+			for (; !c.isAfterLast(); c.moveToNext()) {
+				LTCRoute route = new LTCRoute(c.getString(0), c.getString(1), c.getInt(2), c.getString(3));
+				if ((routeNumber == null || (routeNumber.equals(route.number) && directionNumber == route.direction))) {
+					routes.add(route);
+				}
 			}
 			c.close();
-			return routes;
 		}
-		else {
-			return new LTCRoute[0];
-		}
+		return routes;
 	}
 	
 	/* this fetches routes, but it also adds the direction and direction initial letter */
