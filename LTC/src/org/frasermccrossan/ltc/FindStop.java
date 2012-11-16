@@ -175,8 +175,8 @@ public class FindStop extends Activity {
 		stopListAdapter = new SimpleAdapter(FindStop.this,
 				stops,
 				R.layout.stop_list_item,
-				new String[] { BusDb.STOP_NUMBER, BusDb.STOP_NAME, BusDb.ROUTE_LIST/*, BusDb.DISTANCE_TEXT */},
-				new int[] { R.id.stop_number, R.id.stop_name, R.id.route_list/*, R.id.distance */});
+				new String[] { BusDb.STOP_NUMBER, BusDb.STOP_NAME, BusDb.ROUTE_LIST, BusDb.DISTANCE_TEXT },
+				new int[] { R.id.stop_number, R.id.stop_name, R.id.route_list, R.id.distance });
 		stopList.setAdapter(stopListAdapter);
 		searchTypeSpinner = (Spinner)findViewById(R.id.search_type_spinner);
 		searchTypeSpinner.setOnItemSelectedListener(searchTypeListener);
