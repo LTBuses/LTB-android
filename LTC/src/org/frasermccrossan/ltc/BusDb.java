@@ -72,6 +72,7 @@ public class BusDb {
 	static final int UPDATE_RECOMMENDED = 1;
 	static final int UPDATE_REQUIRED = 2;
 	static final long UPDATE_DATABASE_AGE_LIMIT = 1000L * 60L * 60L * 24L * 90L; // 90 days
+	static final long DELETE_ROWS_AFTER = 1000L * 60L * 60L * 24L * 180L;
 	
 	static final String LINK_TABLE = "route_stops";
 	
@@ -488,6 +489,9 @@ public class BusDb {
 		try {
 			Calendar now = Calendar.getInstance();
 			long nowMillis = now.getTimeInMillis();
+			long deleteAge = nowMillis - DELETE_ROWS_AFTER;
+			String deleteCond = "freshness < ?";
+			String deleteArgs[] = new String[] { String.valueOf(deleteAge) };
 			ContentValues cv = new ContentValues(5); // 5 should deal with everything
 			for (LTCRoute route : routes) {
 				cv.clear();
@@ -496,6 +500,7 @@ public class BusDb {
 				cv.put(FRESHNESS, nowMillis);
 				db.insertWithOnConflict(ROUTE_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 			}
+			db.delete(ROUTE_TABLE, deleteCond, deleteArgs);
 			for (LTCDirection dir : directions) {
 				cv.clear();
 				cv.put(DIRECTION_NUMBER, dir.number);
@@ -503,6 +508,7 @@ public class BusDb {
 				cv.put(FRESHNESS, nowMillis);
 				db.insertWithOnConflict (DIRECTION_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
 			}
+			db.delete(DIRECTION_TABLE, deleteCond, deleteArgs);
 			for (LTCStop stop : stops) {
 				cv.clear();
 				cv.put(STOP_NUMBER, stop.number);
@@ -517,6 +523,7 @@ public class BusDb {
 					db.insertWithOnConflict (STOP_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 				}
 			}
+			db.delete(STOP_TABLE, deleteCond, deleteArgs);
 			for (RouteStopLink link : links) {
 				cv.clear();
 				cv.put(ROUTE_NUMBER, link.routeNumber);
@@ -525,6 +532,7 @@ public class BusDb {
 				cv.put(FRESHNESS, nowMillis);
 				db.insertWithOnConflict (LINK_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
 			}
+			db.delete(LINK_TABLE, deleteCond, deleteArgs);
 			cv.clear();
 			cv.put(currentFreshnessColumn(now), nowMillis);
 			if (locationsIncluded) {

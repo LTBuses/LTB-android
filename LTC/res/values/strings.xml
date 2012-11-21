@@ -94,6 +94,8 @@
     <![CDATA[
     <html>
     <body>
+    <h3>Stop List</h3>
+    Press to check all buses at the stop, long-press for more options.
     <h3>Search Box</h3>
     <dl>
     <dt>\"123\"</dt>
@@ -178,7 +180,7 @@
     <string name="times_fail">[Failed]</string>
     <string name="times_timeout">[Timeout]</string>
     <string name="finding_routes">Finding routes&#8230;</string>
-    <string name="show_map">Show map</string>
+    <string name="show_map">Show in Maps</string>
     <string name="searching_for_buses">Searching for next arrivals&#8230;</string>
     <string name="searching_for_stops">Searching for stops&#8230;</string>
     <string name="no_stops_found">No stops found. Try different search text.</string>
