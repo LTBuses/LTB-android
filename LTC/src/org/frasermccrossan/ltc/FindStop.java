@@ -178,10 +178,7 @@ public class FindStop extends Activity {
 		stopList.setAdapter(stopListAdapter);
 		searchTypeSpinner = (Spinner)findViewById(R.id.search_type_spinner);
 		searchTypeSpinner.setOnItemSelectedListener(searchTypeListener);
-		routes = db.getAllRoutes(true);
 		routeSpinner = (Spinner)findViewById(R.id.route_spinner);
-		RouteAdapter routeAdapter = new RouteAdapter(this, R.layout.route_view, routes);
-		routeSpinner.setAdapter(routeAdapter);
 		routeSpinner.setOnItemSelectedListener(routeListener);
 		registerForContextMenu(stopList);
 		downloadTry = 0;
@@ -202,6 +199,11 @@ public class FindStop extends Activity {
 				searchTypeSpinner.setSelection(RECENT_STOPS);
 				searchTypeSpinner.setEnabled(false);
 			}
+		}
+		routes = db.getAllRoutes(true);
+		if (routes != null) {
+			RouteAdapter routeAdapter = new RouteAdapter(this, R.layout.route_view, routes);
+			routeSpinner.setAdapter(routeAdapter);
 		}
 		setLocationUpdates();
 		int updateStatus = db.getUpdateStatus();
