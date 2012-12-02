@@ -1,13 +1,17 @@
 package org.frasermccrossan.ltc;
 
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import org.frasermccrossan.ltc.DownloadService.DownloadBinder;
+
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -34,7 +38,31 @@ public class UpdateDatabase extends Activity {
 	Button updateButton;
 	Button notWorkingButton;
 	CheckBox fetchPositions;
+	UpdateScrapingStatus scrapingStatus = null;
+	
+	boolean bound = false;
 	BusDb db;
+
+    private ServiceConnection connection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                IBinder service) {
+            DownloadBinder binder = (DownloadBinder) service;
+            DownloadService svc = binder.getService();
+            scrapingStatus = new UpdateScrapingStatus();
+            svc.setRemoteScrapeStatus(scrapingStatus);
+            bound = true;
+            disableUI();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            bound = false;
+            enableUI();
+        }
+    };
+
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,9 +118,6 @@ public class UpdateDatabase extends Activity {
         updateButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				updateButton.setVisibility(ProgressBar.INVISIBLE);
-				fetchPositions.setVisibility(CheckBox.INVISIBLE);
-				progressBar.setVisibility(ProgressBar.VISIBLE);
 				Intent serviceIntent = new Intent(UpdateDatabase.this, DownloadService.class);
 				serviceIntent.putExtra(DownloadService.FETCH_POSITIONS, fetchPositions.isChecked());
 				startService(serviceIntent);
@@ -107,10 +132,28 @@ public class UpdateDatabase extends Activity {
 		    	//LTCScraper scraper = new LTCScraper(UpdateDatabase.this, false);
 		    	diagnoseIntent.putExtra("testurl", LTCScraper.ROUTE_URL);
 		    	startActivity(diagnoseIntent);
+		        Intent intent = new Intent(UpdateDatabase.this, DownloadService.class);
+		        bindService(intent, connection, 0);
 			}
         });
         
     }
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+        Intent intent = new Intent(this, DownloadService.class);
+        bindService(intent, connection, 0);
+	}
+	
+	@Override
+	protected void onPause() {
+		if (bound) {
+			unbindService(connection);
+			bound = false;
+		}
+		super.onPause();
+	}
 	
 	@Override
 	protected void onDestroy() {
@@ -151,8 +194,20 @@ public class UpdateDatabase extends Activity {
 		}
 		return String.format(res.getString(R.string.days_ago), days);
 	}
+	
+	void disableUI() {
+		updateButton.setVisibility(ProgressBar.INVISIBLE);
+		fetchPositions.setVisibility(CheckBox.INVISIBLE);
+		progressBar.setVisibility(ProgressBar.VISIBLE);
+	}
+	
+	void enableUI() {
+		updateButton.setVisibility(ProgressBar.VISIBLE);
+		fetchPositions.setVisibility(CheckBox.VISIBLE);
+		progressBar.setVisibility(ProgressBar.INVISIBLE);
+	}
 
-	class UpdateStatus implements ScrapingStatus {
+	class UpdateScrapingStatus implements ScrapingStatus {
 		
 		public void update(LoadProgress progress) {
 			status.setText(progress.message);
@@ -164,5 +219,6 @@ public class UpdateDatabase extends Activity {
 				notWorkingButton.setVisibility(Button.VISIBLE);
 			}
 		}
+		
 	}
 }

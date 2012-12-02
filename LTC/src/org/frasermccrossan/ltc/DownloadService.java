@@ -1,10 +1,10 @@
 package org.frasermccrossan.ltc;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Binder;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
@@ -17,6 +17,9 @@ public class DownloadService extends Service {
 	NotificationCompat.Builder notifBuilder = null;
 	String notifTitle = null;
 	NotificationManager notifManager = null;
+	ScrapingStatus remoteScrapingStatus = null;
+
+	private final IBinder mBinder = new DownloadBinder();
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
@@ -48,7 +51,9 @@ public class DownloadService extends Service {
 				notifBuilder.setProgress(100, progress.percent, false);
 				notifManager.notify(NOTIF_ID, notifBuilder.build());
 				//startForeground(NOTIF_ID, notifBuilder.build());
-				// if someone is bound, update that info too
+				if (remoteScrapingStatus != null) {
+					remoteScrapingStatus.update(progress);
+				}
 				if (progress.isComplete()) {
 					//stopForeground(true);
 					notifBuilder.setTicker("Done");
@@ -68,10 +73,19 @@ public class DownloadService extends Service {
 		}
 	}
 
+	public void setRemoteScrapeStatus(ScrapingStatus r) {
+		remoteScrapingStatus = r;
+	}
+	
+	public class DownloadBinder extends Binder {
+        DownloadService getService() {
+            return DownloadService.this;
+        }
+    }
+	
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
-		return null;
+		return mBinder;
 	}
 	
 	@Override

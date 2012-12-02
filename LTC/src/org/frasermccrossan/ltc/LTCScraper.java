@@ -367,11 +367,13 @@ public class LTCScraper {
     		// all stops that each route stops at in each direction
     		ArrayList<RouteStopLink> links = new ArrayList<RouteStopLink>();
     		//Resources res = getApplicationContext().getResources();
-    		publishProgress(new LoadProgress("Downloading routes", 0));
+    		LoadProgress progress = new LoadProgress("Downloading routes");
+    		publishProgress(progress);
     		try {
     			routesToDo = loadRoutes();
     			if (routesToDo.size() == 0) {
-    				publishProgress(new LoadProgress("No routes found", 100));
+    				progress.setFailed("No routes found");
+    				publishProgress(progress);
     			}
     			else {
     				int totalToDo = routesToDo.size();
@@ -384,14 +386,16 @@ public class LTCScraper {
     						try {
     							int pct = 5 + 90 * routesDone.size() / totalToDo;
     							String tryStr = tries > 0 ? "Retrying route " : "Loading route ";
-    							publishProgress(new LoadProgress(tryStr + "directions " + routesToDo.get(i).name, pct));
+    							progress.setProgress(tryStr + "directions " + routesToDo.get(i).name, pct);
+    							publishProgress(progress);
     							ArrayList<LTCDirection> routeDirections = loadDirections(routesToDo.get(i).number);
     							//        				Log.d("loadtask", String.format("route %s has %d directions", routes.get(i).number, routeDirections.size()));
     							for (LTCDirection dir: routeDirections) {
     								if (!allDirections.containsKey(dir.number)) {
     									allDirections.put(dir.number, dir);
     								}
-        							publishProgress(new LoadProgress(tryStr + dir.name + " " + routesToDo.get(i).name, pct));
+        							progress.setProgress(tryStr + dir.name + " " + routesToDo.get(i).name, pct);
+        							publishProgress(progress);
     								HashMap<Integer, LTCStop> stops = loadStops(routesToDo.get(i).number, dir.number);
     								//            				Log.d("loadtask", String.format("route %s has %d directions", routes.get(i).number, routeDirections.size()));
     								if (fetchLocations[0]) {
@@ -423,13 +427,16 @@ public class LTCScraper {
     			}
     		}
     		catch (IOException e) {
-    			publishProgress(new LoadProgress("Unable to load routes", -1));
+    			progress.setFailed("Unable to load routes");
+    			publishProgress(progress);
     		}
     		catch (ScrapeException e) {
-    			publishProgress(new LoadProgress(e.getMessage(), -1));
+    			progress.setFailed(e.getMessage());
+    			publishProgress(progress);
     		}
     		catch (SQLiteException e) {
-    			publishProgress(new LoadProgress(e.getMessage(), -1));
+    			progress.setFailed(e.getMessage());
+    			publishProgress(progress);
     		}
 
     		return null;
