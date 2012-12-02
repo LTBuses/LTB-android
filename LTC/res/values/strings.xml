@@ -203,5 +203,11 @@
     <string name="all_routes_short">Any</string>
     <string name="all_routes_long">Stops serviced by any route</string>
     <string name="only_check_route">Check %1$s only</string>
+    <string name="download_complete">LTC download complete</string>
+    <string name="database_ready">Database is ready to use</string>
+    <string name="download_failed">LTC download failed</string>
+    <string name="database_try_again">The LTC site may be down. Please try again later.</string>
+    <string name="notification_progress_format">%1$d%%: %2$s</string>
+    <string name="downloading">Downloading LTC route data</string>
 
 </resources>
