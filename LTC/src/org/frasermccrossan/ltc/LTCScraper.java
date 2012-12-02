@@ -69,7 +69,7 @@ public class LTCScraper {
 		db = new BusDb(context);
 		status = s;
 	}
-	
+		
 	LTCScraper(Context c) {
 		/* instantiate this way if you plan only to check bus predictions
 		 */
@@ -436,7 +436,7 @@ public class LTCScraper {
         }
 
         protected void onProgressUpdate(LoadProgress... progress) {
-        	if (!isCancelled()) {
+        	if (!isCancelled() && status != null) {
         		status.update(progress[0]);
         	}
         }

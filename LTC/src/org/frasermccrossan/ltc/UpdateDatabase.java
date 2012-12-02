@@ -1,5 +1,6 @@
 package org.frasermccrossan.ltc;
 
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.HashMap;
 
@@ -92,8 +93,9 @@ public class UpdateDatabase extends Activity {
 				updateButton.setVisibility(ProgressBar.INVISIBLE);
 				fetchPositions.setVisibility(CheckBox.INVISIBLE);
 				progressBar.setVisibility(ProgressBar.VISIBLE);
-				scraper = new LTCScraper(UpdateDatabase.this, new UpdateStatus());
-				scraper.loadAll(fetchPositions.isChecked());
+				Intent serviceIntent = new Intent(UpdateDatabase.this, DownloadService.class);
+				serviceIntent.putExtra(DownloadService.FETCH_POSITIONS, fetchPositions.isChecked());
+				startService(serviceIntent);
 			}
 		});
 
@@ -102,8 +104,8 @@ public class UpdateDatabase extends Activity {
 			@Override
 			public void onClick(View v) {
 		    	Intent diagnoseIntent = new Intent(UpdateDatabase.this, DiagnoseProblems.class);
-		    	LTCScraper scraper = new LTCScraper(UpdateDatabase.this);
-		    	diagnoseIntent.putExtra("testurl", scraper.ROUTE_URL);
+		    	//LTCScraper scraper = new LTCScraper(UpdateDatabase.this, false);
+		    	diagnoseIntent.putExtra("testurl", LTCScraper.ROUTE_URL);
 		    	startActivity(diagnoseIntent);
 			}
         });
@@ -151,6 +153,7 @@ public class UpdateDatabase extends Activity {
 	}
 
 	class UpdateStatus implements ScrapingStatus {
+		
 		public void update(LoadProgress progress) {
 			status.setText(progress.message);
 			progressBar.setProgress(progress.percent);

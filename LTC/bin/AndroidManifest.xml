@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.frasermccrossan.ltc"
-    android:versionCode="9"
-    android:versionName="1.21" >
+    android:versionCode="10"
+    android:versionName="1.22" >
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -41,6 +41,9 @@
         <activity
             android:name=".UpdateDatabaseHelp"
             android:label="@string/help" />
+        <service
+             android:name=".DownloadService"
+             android:exported="false" />
         </application>
 
 </manifest>

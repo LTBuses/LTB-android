@@ -9,5 +9,6 @@
 			<attribute name="javadoc_location" value="jar:file:/home/fraser/Downloads/jsoup-1.6.3-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="libs/android-support-v4.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
