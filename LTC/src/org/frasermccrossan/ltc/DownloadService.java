@@ -22,6 +22,7 @@ public class DownloadService extends Service {
 	NotificationManager notifManager = null;
 	ScrapingStatus remoteScrapingStatus = null;
 	Resources resources;
+	Boolean manuallyStopped;
 
 	private final IBinder mBinder = new DownloadBinder();
 
@@ -45,7 +46,13 @@ public class DownloadService extends Service {
 		UpdateStatus updateStatus = new UpdateStatus();
 		scraper = new LTCScraper(DownloadService.this, updateStatus);
 		scraper.loadAll(fetchLocations);
+		manuallyStopped = false;
 		return START_NOT_STICKY;
+	}
+	
+	public void cancel() {
+		manuallyStopped = true;
+		stopSelf();
 	}
 	
 	class UpdateStatus implements ScrapingStatus {
@@ -65,22 +72,27 @@ public class DownloadService extends Service {
 					if (progress.failed()) {
 						notifBuilder.setTicker(resources.getText(R.string.download_failed));
 						notifBuilder.setContentTitle(resources.getText(R.string.download_failed));
-						notifBuilder.setContentText(resources.getText(R.string.database_try_again));
+						notifBuilder.setContentText(resources.getText(R.string.tap_to_diagnose));
+						Intent notifIntent = new Intent(DownloadService.this, DiagnoseProblems.class);
+				    	notifIntent.putExtra("testurl", LTCScraper.ROUTE_URL);
+						PendingIntent notifPendingIntent = PendingIntent.getActivity(DownloadService.this, 0,
+								notifIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+						notifBuilder.setContentIntent(notifPendingIntent);
 					}
 					else {
 						notifBuilder.setTicker(resources.getText(R.string.download_complete));
 						notifBuilder.setContentTitle(resources.getText(R.string.download_complete));
 						notifBuilder.setContentText(resources.getText(R.string.database_ready));
+						Intent notifIntent = new Intent(DownloadService.this, FindStop.class);
+						notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						PendingIntent notifPendingIntent = PendingIntent.getActivity(DownloadService.this, 0,
+								notifIntent, PendingIntent.FLAG_CANCEL_CURRENT);
+						notifBuilder.setContentIntent(notifPendingIntent);
 					}
 					notifBuilder.setOngoing(false);
 					notifBuilder.setAutoCancel(true);
 					Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION); 
 					notifBuilder.setSound(alert);
-					Intent notifIntent = new Intent(DownloadService.this, FindStop.class);
-					notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					PendingIntent notifPendingIntent = PendingIntent.getActivity(DownloadService.this, 0,
-							notifIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-					notifBuilder.setContentIntent(notifPendingIntent);
 					notifManager.notify(NOTIF_ID, notifBuilder.build());
 					stopSelf();
 				}
@@ -109,7 +121,7 @@ public class DownloadService extends Service {
 			scraper.cancelLoadAll();
 			scraper.close();
 		}
-		if (notifManager != null) {
+		if (notifManager != null && manuallyStopped) {
 			notifManager.cancelAll();
 		}
 	}

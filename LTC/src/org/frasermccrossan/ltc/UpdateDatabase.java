@@ -40,25 +40,26 @@ public class UpdateDatabase extends Activity {
 	Button notWorkingButton;
 	CheckBox fetchPositions;
 	UpdateScrapingStatus scrapingStatus = null;
+	DownloadService boundService = null;
 	
-	boolean bound = false;
-
     private ServiceConnection connection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
                 IBinder service) {
             DownloadBinder binder = (DownloadBinder) service;
-            DownloadService svc = binder.getService();
+            boundService = binder.getService();
             scrapingStatus = new UpdateScrapingStatus();
-            svc.setRemoteScrapeStatus(scrapingStatus);
-            bound = true;
+            boundService.setRemoteScrapeStatus(scrapingStatus);
             disableUI();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            bound = false;
+            boundService = null;
+            if (scrapingStatus != null) {
+            	scrapingStatus.update(null);
+            }
             enableUI();
         }
     };
@@ -128,8 +129,11 @@ public class UpdateDatabase extends Activity {
         cancelButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent serviceIntent = new Intent(UpdateDatabase.this, DownloadService.class);
-				stopService(serviceIntent);
+				if (boundService != null) {
+					boundService.cancel();
+				}
+//				Intent serviceIntent = new Intent(UpdateDatabase.this, DownloadService.class);
+//				stopService(serviceIntent);
 			}
 		});
 
@@ -141,8 +145,6 @@ public class UpdateDatabase extends Activity {
 		    	//LTCScraper scraper = new LTCScraper(UpdateDatabase.this, false);
 		    	diagnoseIntent.putExtra("testurl", LTCScraper.ROUTE_URL);
 		    	startActivity(diagnoseIntent);
-		        Intent intent = new Intent(UpdateDatabase.this, DownloadService.class);
-		        bindService(intent, connection, 0);
 			}
         });
         
@@ -159,9 +161,9 @@ public class UpdateDatabase extends Activity {
 	
 	@Override
 	protected void onPause() {
-		if (bound) {
+		if (boundService != null) {
 			unbindService(connection);
-			bound = false;
+			boundService = null;
 		}
 		super.onPause();
 	}
@@ -223,15 +225,21 @@ public class UpdateDatabase extends Activity {
 	class UpdateScrapingStatus implements ScrapingStatus {
 		
 		public void update(LoadProgress progress) {
-			status.setText(progress.message);
-			progressBar.setProgress(progress.percent);
-			if (progress.percent >= 100) {
-				finish();
+			if (progress == null) {
+				status.setText("");
+				progressBar.setProgress(0);
 			}
-			if (progress.percent < 0) {
-				notWorkingButton.setVisibility(Button.VISIBLE);
+			else {
+				status.setText(progress.message);
+				progressBar.setProgress(progress.percent);
+				if (progress.percent >= 100) {
+					finish();
+				}
+				if (progress.percent < 0) {
+					notWorkingButton.setVisibility(Button.VISIBLE);
+				}
 			}
 		}
-		
+				
 	}
 }

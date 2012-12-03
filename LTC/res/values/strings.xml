@@ -10,7 +10,7 @@
     <string name="last_updated">Last updated</string>
     <string name="at_this_stop">At this stop: %1$s</string>
     <string name="stop_times">Stop Times</string>
-    <string name="download_instructions">Downloading bus route and stop data takes about 20 seconds. Downloading stop locations adds several minutes. Total download uses between 1M and 2M of data. WiFi is recommended but not required.</string>
+    <string name="download_instructions">Updating bus route and stop data takes about 20 seconds. Updating stop locations adds several minutes. Updating uses between 1M and 2M of data. WiFi is recommended but not required.</string>
     <string name="update">Start update</string>
     <string name="using_provider">Location provider: %1$s</string>
     <string name="no_provider">Location not available</string>
@@ -126,14 +126,14 @@
     <![CDATA[
     <html>
     <body>
-    <h2>Update Database</h2>
+    <h2>Update Bus Data</h2>
     <p>
     LTC routes vary between weekdays, Saturdays and Sundays (that is, some buses call at different stops or in different
     directions). Therefore the app works best if it can update the database on each type of day. If you only
     ever take the bus on a weekday, you can safely ignore Saturdays and Sundays.
     </p>
     <p>
-    Downloading routes takes around 20 seconds. Adding stop locations takes several minutes, which is
+    Updating routes takes around 20 seconds. Adding stop locations takes several minutes, which is
     why it\'s optional. If you do not
     download locations then you cannot find nearby stops.
     </p>
@@ -143,13 +143,13 @@
     update the database before you can check bus times.
     </li>
     <li>
-    If today\'s download is older than the age limit, but another download is younger,
+    If today\'s update is older than the age limit, but another update is younger,
     an update is <em>recommended</em>. You should probably update the database, but
     you may press the back key and check bus times. The app will keep annoying you
     about it, though.
     </li>
     <li>
-    If today\'s download is younger than the age limit, an update is <em>not required</em>.
+    If today\'s update is younger than the age limit, an update is <em>not required</em>.
     </li>
     </ul>
     </body>
@@ -174,7 +174,7 @@
     <string name="update_recommended">An update is recommended.</string>
     <string name="update_required">An update is required.</string>
     <string name="update_not_required">An update is not required.</string>
-    <string name="update_database">Update Database</string>
+    <string name="update_database">Update Bus Data</string>
     <string name="retrying">Connection took too long, retrying&#8230;</string>
     <string name="times_none">None</string>
     <string name="times_fail">[Failed]</string>
@@ -203,12 +203,19 @@
     <string name="all_routes_short">Any</string>
     <string name="all_routes_long">Stops serviced by any route</string>
     <string name="only_check_route">Check %1$s only</string>
-    <string name="download_complete">LTC download complete</string>
-    <string name="database_ready">Database is ready to use</string>
+    <string name="download_complete">Update complete</string>
+    <string name="database_ready">Bus data is ready</string>
     <string name="download_failed">LTC download failed</string>
-    <string name="database_try_again">The LTC site may be down. Please try again later.</string>
+    <string name="tap_to_diagnose">Tap to diagnose.</string>
     <string name="notification_progress_format">%1$d%%: %2$s</string>
     <string name="downloading">Downloading LTC route data</string>
     <string name="cancel">Cancel</string>
+    <string name="no_routes_found">No routes found</string>
+    <string name="downloading_routes">Downloading routes</string>
+    <string name="loading_route_nodir">Loading %1$s</string>
+    <string name="loading_route_dir">Loading %2$s %1$s</string>
+    <string name="too_many_failures">Too many failures, try again later.</string>
+    <string name="unable_to_load_routes">Unable to load routes</string>
+    <string name="saving_database">Saving data&#8230;</string>
 
 </resources>
