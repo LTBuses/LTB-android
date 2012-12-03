@@ -47,7 +47,7 @@ public class DownloadService extends Service {
 		scraper.loadAll(fetchLocations);
 		return START_NOT_STICKY;
 	}
-
+	
 	class UpdateStatus implements ScrapingStatus {
 		
 		public void update(LoadProgress progress) {
@@ -86,7 +86,7 @@ public class DownloadService extends Service {
 				}
 			}
 		}
-	}
+	}	
 
 	public void setRemoteScrapeStatus(ScrapingStatus r) {
 		remoteScrapingStatus = r;
@@ -106,7 +106,11 @@ public class DownloadService extends Service {
 	@Override
 	public void onDestroy() {
 		if (scraper != null) {
+			scraper.cancelLoadAll();
 			scraper.close();
+		}
+		if (notifManager != null) {
+			notifManager.cancelAll();
 		}
 	}
 

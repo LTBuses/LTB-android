@@ -209,5 +209,6 @@
     <string name="database_try_again">The LTC site may be down. Please try again later.</string>
     <string name="notification_progress_format">%1$d%%: %2$s</string>
     <string name="downloading">Downloading LTC route data</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

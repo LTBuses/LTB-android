@@ -49,7 +49,7 @@ public class FindStop extends Activity {
 	String locProvider = null;
 	Location lastLocation;
 	SearchTask mySearchTask = null;
-	BusDb db;
+	//BusDb db;
 	int downloadTry;
 
 	// entries in R.array.search_types
@@ -152,7 +152,7 @@ public class FindStop extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.find_stop);
-		db = new BusDb(this);
+		//db = new BusDb(this);
 		searchField = (EditText)findViewById(R.id.search);
 		searchField.addTextChangedListener(new TextWatcher() {
 			public void afterTextChanged(Editable s) {
@@ -189,6 +189,7 @@ public class FindStop extends Activity {
 		super.onStart();
 		Criteria criteria = new Criteria();
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		BusDb db = new BusDb(this);
 		locProvider = LocationManager.GPS_PROVIDER;
 		if (locProvider != null) {
 			if (myLocationManager.isProviderEnabled(locProvider) && db.getLocationUpdateStatus() != BusDb.UPDATE_REQUIRED) {
@@ -221,6 +222,7 @@ public class FindStop extends Activity {
 		else {
 			updateStops();
 		}
+		db.close();
 	}
 
 	@Override
@@ -234,7 +236,7 @@ public class FindStop extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		db.close();
+		//db.close();
 		super.onDestroy();
 	}
 
@@ -287,7 +289,9 @@ public class FindStop extends Activity {
 		Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
 		MenuItem map = menu.add(ContextMenu.NONE, Menu.NONE, 1, R.string.show_map);
 		map.setIntent(mapIntent);
+		BusDb db = new BusDb(this);
 		ArrayList<LTCRoute> stopRoutes = db.findStopRoutes(stop.get(BusDb.STOP_NUMBER), null, 0);
+		db.close();
 		for (LTCRoute stopRoute : stopRoutes) {
 			Intent stopTimeIntent = new Intent(FindStop.this, StopTimes.class);
 			stopTimeIntent.putExtra(BusDb.STOP_NUMBER, stop.get(BusDb.STOP_NUMBER));
@@ -315,7 +319,9 @@ public class FindStop extends Activity {
 //			startActivity(mapIntent);
 //			return true;
 		case FORGET_FAVOURITE:
+			BusDb db = new BusDb(this);
 			db.forgetStopUse(Integer.valueOf(stops.get(info.position).get(BusDb.STOP_NUMBER)));
+			db.close();
 			updateStops();
 			return true;
 		default:
@@ -357,6 +363,7 @@ public class FindStop extends Activity {
 
 		@SuppressWarnings("unchecked")
 		protected Void doInBackground(CharSequence... strings) {
+			BusDb db = new BusDb(FindStop.this);
 			List<HashMap<String, String>> newStops = db.findStops(strings[0], lastLocation, (LTCRoute)routeSpinner.getSelectedItem());
 			if (!isCancelled()) {
 				publishProgress(newStops);
@@ -366,6 +373,7 @@ public class FindStop extends Activity {
 				// can publish a null since the above update updates all the same objects
 				publishProgress((List<HashMap<String, String>>) null);
 			}
+			db.close();
 			return null;
 		}
 

@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteException;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.text.TextUtils.StringSplitter;
 import android.text.format.DateFormat;
@@ -30,7 +31,7 @@ import android.text.format.DateFormat;
 @SuppressLint("UseSparseArrays")
 public class LTCScraper {
 
-	BusDb db = null;
+	//BusDb db = null;
 	LoadTask task = null;
 	ScrapingStatus status = null;
 	Context context;
@@ -66,7 +67,7 @@ public class LTCScraper {
 	
 	LTCScraper(Context c, ScrapingStatus s) {
 		context = c;
-		db = new BusDb(context);
+		//db = new BusDb(context);
 		status = s;
 	}
 		
@@ -77,17 +78,33 @@ public class LTCScraper {
 	}
 	
 	public void close() {
-		if (db != null) {
-			db.close();
-		}
+//		if (db != null) {
+//			db.close();
+//		}
 		if (task != null) {
 			task.cancel(true);
 		}
 	}
 	
+	@SuppressLint("NewApi")
 	public void loadAll(Boolean fetchLocations) {
 		task = new LoadTask();
-		task.execute(fetchLocations);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			/* on Honeycomb and later, ASyncTasks run on a serial executor, and since
+			 * we might have another asynctask running in an activity (e.g. fetching stop lists),
+			 * we don't really want them all to block
+			 */
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, fetchLocations);
+		}
+		else {
+			task.execute(fetchLocations);
+		}
+	}
+	
+	public void cancelLoadAll() {
+		if (task != null) {
+			task.cancel(true);
+		}
 	}
 	
 	public String predictionUrl(LTCRoute route, String stopNumber) {
@@ -125,6 +142,7 @@ public class LTCScraper {
 			now.set(Calendar.SECOND, 0);
 			now.set(Calendar.MILLISECOND, 0); // now we have 'now' set to the current time
 			Connection conn = Jsoup.connect(predictionUrl(route, stopNumber));
+			//conn.header("Connection", "close");
 			conn.timeout(FETCH_TIMEOUT);
 			Document doc = conn.get();
 			Elements divs = doc.select("div");
@@ -422,7 +440,9 @@ public class LTCScraper {
     					tries++;
     				}
     				publishProgress(new LoadProgress("Saving database...", 95));
+    				BusDb db = new BusDb(context);
     				db.saveBusData(routesDone, allDirections.values(), allStops.values(), links, fetchLocations[0]);
+    				db.close();
     				publishProgress(new LoadProgress("", 100));
     			}
     		}

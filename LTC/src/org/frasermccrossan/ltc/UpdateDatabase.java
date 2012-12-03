@@ -36,12 +36,12 @@ public class UpdateDatabase extends Activity {
 	TextView ageLimit;
 	TextView status;
 	Button updateButton;
+	Button cancelButton;
 	Button notWorkingButton;
 	CheckBox fetchPositions;
 	UpdateScrapingStatus scrapingStatus = null;
 	
 	boolean bound = false;
-	BusDb db;
 
     private ServiceConnection connection = new ServiceConnection() {
 
@@ -71,7 +71,7 @@ public class UpdateDatabase extends Activity {
 
         Resources res = getResources();
 
-        db = new BusDb(this);
+        BusDb db = new BusDb(this);
 
         progressBar = (ProgressBar)findViewById(R.id.progress);
         
@@ -124,6 +124,15 @@ public class UpdateDatabase extends Activity {
 			}
 		});
 
+        cancelButton = (Button)findViewById(R.id.cancel_button);
+        cancelButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent serviceIntent = new Intent(UpdateDatabase.this, DownloadService.class);
+				stopService(serviceIntent);
+			}
+		});
+
         notWorkingButton = (Button)findViewById(R.id.not_working_button);
         notWorkingButton.setOnClickListener(new OnClickListener() {
 			@Override
@@ -136,6 +145,8 @@ public class UpdateDatabase extends Activity {
 		        bindService(intent, connection, 0);
 			}
         });
+        
+        db.close();
         
     }
 	
@@ -160,7 +171,7 @@ public class UpdateDatabase extends Activity {
 		if (scraper != null) {
 			scraper.close();
 		}
-		db.close();
+		connection = null;
 		super.onDestroy();
 	}
 
@@ -196,15 +207,17 @@ public class UpdateDatabase extends Activity {
 	}
 	
 	void disableUI() {
-		updateButton.setVisibility(ProgressBar.INVISIBLE);
-		fetchPositions.setVisibility(CheckBox.INVISIBLE);
+		updateButton.setVisibility(ProgressBar.GONE);
+		fetchPositions.setVisibility(CheckBox.GONE);
+		cancelButton.setVisibility(ProgressBar.VISIBLE);
 		progressBar.setVisibility(ProgressBar.VISIBLE);
 	}
 	
 	void enableUI() {
 		updateButton.setVisibility(ProgressBar.VISIBLE);
 		fetchPositions.setVisibility(CheckBox.VISIBLE);
-		progressBar.setVisibility(ProgressBar.INVISIBLE);
+		cancelButton.setVisibility(ProgressBar.GONE);
+		progressBar.setVisibility(ProgressBar.GONE);
 	}
 
 	class UpdateScrapingStatus implements ScrapingStatus {

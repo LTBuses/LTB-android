@@ -89,6 +89,12 @@
 	        android:layout_height="wrap_content"
 	        android:text="@string/update" />
 	    <Button
+	        android:id="@+id/cancel_button"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:visibility="gone"
+	        android:text="@string/cancel" />
+	    <Button
 	        android:id="@+id/not_working_button"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
