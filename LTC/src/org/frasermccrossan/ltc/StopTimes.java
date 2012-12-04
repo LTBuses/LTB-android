@@ -30,7 +30,6 @@ public class StopTimes extends Activity {
 	static final long WARNING_DELAY = 5000;
 	static final long BUTTON_DELAY = 100;
 	
-	BusDb db;
 	String stopNumber;
 	LinearLayout routeViewLayout;
 	Button refreshButton;
@@ -63,7 +62,7 @@ public class StopTimes extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.stop_times);
-        db = new BusDb(this);
+        BusDb db = new BusDb(this);
                 
         Intent intent = getIntent();
         stopNumber = intent.getStringExtra(BusDb.STOP_NUMBER);
@@ -102,6 +101,7 @@ public class StopTimes extends Activity {
        		 new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.DIRECTION_IMG_RES, BusDb.ROUTE_NAME, BusDb.DESTINATION, BusDb.RAW_TIME },
        		 new int[] { R.id.crossing_time, R.id.route_number, R.id.route_direction_img, R.id.route_long_name, R.id.destination, R.id.raw_crossing_time });
         predictionList.setAdapter(adapter);
+        db.close();
 	}
 	
 	@Override
@@ -120,7 +120,6 @@ public class StopTimes extends Activity {
 	protected void onDestroy() {
 		adapter = null;
 		predictions = null;
-		db.close();
 		super.onDestroy();
 	}
 	
@@ -171,12 +170,6 @@ public class StopTimes extends Activity {
 				if (isCancelled()) {
 					break;
 				}
-//				if (routeView.isOkToPost()) {
-//					routeView.setState(RouteDirTextView.OK);
-//				}
-//				else {
-//					routeView.setState(RouteDirTextView.FAILED);
-//				}
 				publishProgress(routeView);
 			}
 			return null;
@@ -184,9 +177,6 @@ public class StopTimes extends Activity {
 		
 		protected void onProgressUpdate(RouteDirTextView... routeViews) {
 			// update predictions and ping the listview
-//			if (isCancelled()) {
-//				return;
-//			}
 			cancelTimer();
 			scheduleTimer();
 			for (RouteDirTextView routeView: routeViews) {

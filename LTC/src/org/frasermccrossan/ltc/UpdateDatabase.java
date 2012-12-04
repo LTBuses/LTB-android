@@ -55,7 +55,7 @@ public class UpdateDatabase extends Activity {
         }
 
         @Override
-        public void onServiceDisconnected(ComponentName arg0) {
+        public void onServiceDisconnected(ComponentName className) {
             boundService = null;
             if (scrapingStatus != null) {
             	scrapingStatus.update(null);
@@ -122,6 +122,7 @@ public class UpdateDatabase extends Activity {
 				Intent serviceIntent = new Intent(UpdateDatabase.this, DownloadService.class);
 				serviceIntent.putExtra(DownloadService.FETCH_POSITIONS, fetchPositions.isChecked());
 				startService(serviceIntent);
+		        bindService(serviceIntent, connection, 0);
 			}
 		});
 
@@ -132,8 +133,6 @@ public class UpdateDatabase extends Activity {
 				if (boundService != null) {
 					boundService.cancel();
 				}
-//				Intent serviceIntent = new Intent(UpdateDatabase.this, DownloadService.class);
-//				stopService(serviceIntent);
 			}
 		});
 

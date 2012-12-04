@@ -49,7 +49,6 @@ public class FindStop extends Activity {
 	String locProvider = null;
 	Location lastLocation;
 	SearchTask mySearchTask = null;
-	//BusDb db;
 	int downloadTry;
 
 	// entries in R.array.search_types
@@ -208,6 +207,7 @@ public class FindStop extends Activity {
 		}
 		setLocationUpdates();
 		int updateStatus = db.getUpdateStatus();
+		db.close();
 		if (updateStatus != BusDb.UPDATE_NOT_REQUIRED) {
 			++downloadTry;
 			if (downloadTry <= 1) {
@@ -222,7 +222,6 @@ public class FindStop extends Activity {
 		else {
 			updateStops();
 		}
-		db.close();
 	}
 
 	@Override

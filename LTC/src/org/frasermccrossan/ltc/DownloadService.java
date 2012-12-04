@@ -84,7 +84,7 @@ public class DownloadService extends Service {
 						notifBuilder.setContentTitle(resources.getText(R.string.download_complete));
 						notifBuilder.setContentText(resources.getText(R.string.database_ready));
 						Intent notifIntent = new Intent(DownloadService.this, FindStop.class);
-						notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+						notifIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
 						PendingIntent notifPendingIntent = PendingIntent.getActivity(DownloadService.this, 0,
 								notifIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 						notifBuilder.setContentIntent(notifPendingIntent);

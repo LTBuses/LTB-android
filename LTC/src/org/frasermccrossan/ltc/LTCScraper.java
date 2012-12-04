@@ -67,7 +67,6 @@ public class LTCScraper {
 	
 	LTCScraper(Context c, ScrapingStatus s) {
 		context = c;
-		//db = new BusDb(context);
 		status = s;
 	}
 		

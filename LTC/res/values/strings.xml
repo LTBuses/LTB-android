@@ -212,8 +212,8 @@
     <string name="cancel">Cancel</string>
     <string name="no_routes_found">No routes found</string>
     <string name="downloading_routes">Downloading routes</string>
-    <string name="loading_route_nodir">Loading %1$s</string>
-    <string name="loading_route_dir">Loading %2$s %1$s</string>
+    <string name="loading_route_nodir">%1$s</string>
+    <string name="loading_route_dir">%2$s %1$s</string>
     <string name="too_many_failures">Too many failures, try again later.</string>
     <string name="unable_to_load_routes">Unable to load routes</string>
     <string name="saving_database">Saving data&#8230;</string>

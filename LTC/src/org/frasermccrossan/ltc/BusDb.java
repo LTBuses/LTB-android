@@ -8,16 +8,17 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.text.TextUtils;
+import android.util.Log;
 
 /* although called BusDb, this is actually a helper class to abstract all the
  * database stuff into method calls
@@ -86,18 +87,25 @@ public class BusDb {
 	static final String DISTANCE_ORDER = "distance_order";
 	static final String ROUTE_INTERNAL_NUMBER = "route_object"; // for storing route object in prediction entry
 	static final String ROUTE_DIRECTION_NAME = "route_name";
-
+	
+	static final private ReentrantLock blocker = new ReentrantLock();
+	
 	SQLiteDatabase db;
 	Context context;
 	
 	BusDb(Context c) {
 		context = c;
+		Log.i("BusDb", String.format("%d:%s %s", Thread.currentThread().getId(), "waiting to lock", blocker.toString()));
+		blocker.lock();
+		Log.i("BusDb", String.format("%d:%s %s", Thread.currentThread().getId(), "just locked", blocker.toString()));
 		BusDbOpenHelper helper = new BusDbOpenHelper(context);
 		db = helper.getWritableDatabase();
 	}
 	
 	public void close() {
 		db.close();
+		blocker.unlock();
+		Log.i("BusDb", String.format("%d:%s %s", Thread.currentThread().getId(), "just unlocked", blocker.toString()));
 	}
 	
 	public int getCurrentFreshnessDayType(Calendar time) {
