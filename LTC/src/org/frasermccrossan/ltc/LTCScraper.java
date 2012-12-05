@@ -3,6 +3,7 @@ package org.frasermccrossan.ltc;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -32,14 +33,14 @@ import android.text.format.DateFormat;
 public class LTCScraper {
 
 	//BusDb db = null;
-	LoadTask task = null;
+	LoadDataTask task = null;
 	ScrapingStatus status = null;
 	Context context;
 	// for development only
-//	static final String ROUTE_URL = "http://teuchter.lan:8000/routes.html";
-//	static final String DIRECTION_URL = "http://teuchter.lan:8000/direction%s.html";
-//	static final String STOPS_URL = "http://teuchter.lan:8000/direction%sd%d.html";
-//	static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
+	//	static final String ROUTE_URL = "http://teuchter.lan:8000/routes.html";
+	//	static final String DIRECTION_URL = "http://teuchter.lan:8000/direction%s.html";
+	//	static final String STOPS_URL = "http://teuchter.lan:8000/direction%sd%d.html";
+	//	static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
 	// for production
 	public static final String ROUTE_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx";
 	static final String DIRECTION_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx?r=%s";
@@ -64,30 +65,30 @@ public class LTCScraper {
 	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything
 	static final int FETCH_TIMEOUT = 30 * 1000;
 	static final int FAILURE_LIMIT = 20;
-	
+
 	LTCScraper(Context c, ScrapingStatus s) {
 		context = c;
 		status = s;
 	}
-		
+
 	LTCScraper(Context c) {
 		/* instantiate this way if you plan only to check bus predictions
 		 */
 		context = c;
 	}
-	
+
 	public void close() {
-//		if (db != null) {
-//			db.close();
-//		}
+		//		if (db != null) {
+		//			db.close();
+		//		}
 		if (task != null) {
 			task.cancel(true);
 		}
 	}
-	
+
 	@SuppressLint("NewApi")
 	public void loadAll(Boolean fetchLocations) {
-		task = new LoadTask();
+		task = new LoadDataTask();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			/* on Honeycomb and later, ASyncTasks run on a serial executor, and since
 			 * we might have another asynctask running in an activity (e.g. fetching stop lists),
@@ -99,19 +100,19 @@ public class LTCScraper {
 			task.execute(fetchLocations);
 		}
 	}
-	
+
 	public void cancelLoadAll() {
 		if (task != null) {
 			task.cancel(true);
 		}
 	}
-	
+
 	public String predictionUrl(LTCRoute route, String stopNumber) {
-//		return PREDICTIONS_URL;
+		//		return PREDICTIONS_URL;
 		return String.format("http://www.ltconline.ca/WebWatch/MobileAda.aspx?r=%s&d=%s&s=%s",
 				route.number, route.direction, stopNumber);
 	}
-	
+
 	/* given a time in text scraped from the website, get the best guess of the time it
 	 * represents; we do this all manually rather than use Calendar because the AM/PM
 	 * behaviour of Calendar is broken
@@ -120,7 +121,7 @@ public class LTCScraper {
 		HourMinute time = new HourMinute(textTime);
 		return time.timeDiff(reference);
 	}
-	
+
 	String minutesAsText(long minutes) {
 		if (minutes < 0) {
 			return "?";
@@ -132,7 +133,7 @@ public class LTCScraper {
 			return String.format("%dh%dm", minutes / 60, minutes % 60);
 		}
 	}
-			
+
 	public ArrayList<HashMap<String, String>> getPredictions(LTCRoute route, String stopNumber, ScrapeStatus scrapeStatus) {
 		ArrayList<HashMap<String, String>> predictions = new ArrayList<HashMap<String, String>>(3); // usually get 3 of them
 		Resources res = context.getResources();
@@ -221,13 +222,13 @@ public class LTCScraper {
 		}
 		return predictions;
 	}
-	
+
 	static HashMap<String, String> predictionEntry(LTCRoute route,
 			String dateValue,
 			String crossingTime,
 			String rawCrossingTime, // the actual text from the website
 			String destination)
-	{
+			{
 		HashMap<String, String> p = new HashMap<String, String>(5);
 		p.put(BusDb.ROUTE_INTERNAL_NUMBER, route.number); // useful to look up route later
 		Matcher destMatcher = DESTINATION_PATTERN.matcher(destination);
@@ -255,17 +256,17 @@ public class LTCScraper {
 		p.put(BusDb.CROSSING_TIME, crossingTime);
 		p.put(BusDb.RAW_TIME, rawCrossingTime);
 		return p;
-	}
-	
+			}
+
 	static HashMap<String, String> predictionEntry(Context c, LTCRoute route,
 			String dateValue,
 			int errorMsgRes, // look up this string resource to get displayed dateValue
 			String destination)
-	{
+			{
 		Resources res = c.getResources();
 		return predictionEntry(route, dateValue, null, null, res.getString(errorMsgRes));
-	}
-	
+			}
+
 	public ArrayList<LTCRoute> loadRoutes() throws ScrapeException, IOException {
 		ArrayList<LTCRoute> routes = new ArrayList<LTCRoute>();
 		Connection conn = Jsoup.connect(ROUTE_URL);
@@ -285,7 +286,7 @@ public class LTCScraper {
 		}
 		return routes;
 	}
-	
+
 	ArrayList<LTCDirection> loadDirections(String routeNum) throws ScrapeException, IOException {
 		ArrayList<LTCDirection> directions = new ArrayList<LTCDirection>(2); // probably 2
 		String url = String.format(DIRECTION_URL, routeNum);
@@ -307,7 +308,7 @@ public class LTCScraper {
 		return directions;
 
 	}
-	
+
 	HashMap<Integer, LTCStop> loadStops(String routeNum, int direction) throws ScrapeException, IOException {
 		HashMap<Integer, LTCStop> stops = new HashMap<Integer, LTCStop>();
 		String url = String.format(STOPS_URL, routeNum, direction);
@@ -329,7 +330,7 @@ public class LTCScraper {
 		return stops;
 
 	}
-	
+
 	/* this just updates existing stops with any locations found from the google map URL */
 	void loadStopLocations(String routeNum, HashMap<Integer, LTCStop> stops) throws ScrapeException, IOException {
 		String url = String.format(MAP_URL, routeNum);
@@ -371,102 +372,138 @@ public class LTCScraper {
 			}
 		}
 	}
-	
-    private class LoadTask extends AsyncTask<Boolean, LoadProgress, Void> {
 
-    	protected Void doInBackground(Boolean... fetchLocations) {
-    		ArrayList<LTCRoute> routesToDo;
-    		ArrayList<LTCRoute> routesDone;
-    		// all distinct directions (should only end up with four)
-    		HashMap<Integer, LTCDirection> allDirections = new HashMap<Integer, LTCDirection>(4);
-    		// all distinct stops
-    		HashMap<Integer, LTCStop> allStops = new HashMap<Integer, LTCStop>();
-    		// all stops that each route stops at in each direction
-    		ArrayList<RouteStopLink> links = new ArrayList<RouteStopLink>();
-    		//Resources res = getApplicationContext().getResources();
-    		Resources res = context.getResources();
-    		LoadProgress progress = new LoadProgress(res.getString(R.string.downloading_routes));
-    		publishProgress(progress);
-    		try {
-    			routesToDo = loadRoutes();
-    			if (routesToDo.size() == 0) {
-    				progress.setFailed(res.getString(R.string.no_routes_found));
-    				publishProgress(progress);
-    			}
-    			else {
-    				int totalToDo = routesToDo.size();
-    				routesDone = new ArrayList<LTCRoute>(totalToDo);
-    				int tries = 0;
-    				ALLROUTEFETCH: while (routesToDo.size() > 0) {
-    					int failures = 0;
-    					int i = 0;
-    					while (i < routesToDo.size()) {
-    						try {
-    							int pct = 5 + 90 * routesDone.size() / totalToDo;
-    							//String tryStr = tries > 0 ? "Retrying route " : "Loading route ";
-    							progress.setProgress(String.format(res.getString(R.string.loading_route_nodir), routesToDo.get(i).name), pct);
-    							publishProgress(progress);
-    							ArrayList<LTCDirection> routeDirections = loadDirections(routesToDo.get(i).number);
-    							//        				Log.d("loadtask", String.format("route %s has %d directions", routes.get(i).number, routeDirections.size()));
-    							for (LTCDirection dir: routeDirections) {
-    								if (!allDirections.containsKey(dir.number)) {
-    									allDirections.put(dir.number, dir);
-    								}
-        							progress.setProgress(String.format(res.getString(R.string.loading_route_dir), routesToDo.get(i).name, dir.name), pct);
-        							publishProgress(progress);
-    								HashMap<Integer, LTCStop> stops = loadStops(routesToDo.get(i).number, dir.number);
-    								if (fetchLocations[0]) {
-    									loadStopLocations(routesToDo.get(i).number, stops);
-    								}
-    								for (int stopNumber: stops.keySet()) {
-    									if (!allStops.containsKey(stopNumber)) {
-    										allStops.put(stopNumber, stops.get(stopNumber));
-    									}
-    									links.add(new RouteStopLink(routesToDo.get(i).number, dir.number, stopNumber));
-    								}
-    							}
-    							routesDone.add(routesToDo.get(i));
-    							routesToDo.remove(i); // don't increment i, just remove the one we just did
-    						}
-    						catch (IOException e) {
-    							failures++; // note that one failed
-    							if (failures > FAILURE_LIMIT) {
-    			    				throw(new ScrapeException(res.getString(R.string.too_many_failures), ScrapeStatus.PROBLEM_IMMEDIATELY));
-    							}
-    							i++; // go to the next one
-    						}
-    					}
-    					tries++;
-    				}
-    				publishProgress(new LoadProgress(res.getString(R.string.saving_database), 95));
-    				BusDb db = new BusDb(context);
-    				db.saveBusData(routesDone, allDirections.values(), allStops.values(), links, fetchLocations[0]);
-    				db.close();
-    				publishProgress(new LoadProgress("", 100));
-    			}
-    		}
-    		catch (IOException e) {
-    			progress.setFailed(res.getString(R.string.unable_to_load_routes));
-    			publishProgress(progress);
-    		}
-    		catch (ScrapeException e) {
-    			progress.setFailed(e.getMessage());
-    			publishProgress(progress);
-    		}
-    		catch (SQLiteException e) {
-    			progress.setFailed(e.getMessage());
-    			publishProgress(progress);
-    		}
+	private class LoadDataTask extends AsyncTask<Boolean, LoadProgress, Void> {
 
-    		return null;
-        }
+		protected Void doInBackground(Boolean... fetchLocations) {
+			ArrayList<LTCRoute> routesToDo;
+			ArrayList<LTCRoute> routesDone;
+			// all distinct directions (should only end up with four)
+			HashMap<Integer, LTCDirection> allDirections = new HashMap<Integer, LTCDirection>(4);
+			// all distinct stops
+			HashMap<Integer, LTCStop> allStops = new HashMap<Integer, LTCStop>();
+			// all stops that each route stops at in each direction
+			ArrayList<RouteStopLink> links = new ArrayList<RouteStopLink>();
+			//Resources res = getApplicationContext().getResources();
+			Resources res = context.getResources();
+			LoadProgress progress = new LoadProgress(res.getString(R.string.downloading_routes));
+			publishProgress(progress);
+			try {
+				routesToDo = loadRoutes();
+				if (routesToDo.size() == 0) {
+					progress.setFailed(res.getString(R.string.no_routes_found));
+					publishProgress(progress);
+				}
+				else {
+					int totalToDo = routesToDo.size();
+					routesDone = new ArrayList<LTCRoute>(totalToDo);
+					int failures = 0;
+					ALLROUTEFETCH: while (routesToDo.size() > 0) {
+						int i = 0;
+						while (i < routesToDo.size()) {
+							try {
+								int pct;
+								if (fetchLocations[0]) {
+									pct = 1 + 24 * routesDone.size() / totalToDo;
+								}
+								else {
+									pct = 5 + 90 * routesDone.size() / totalToDo;
+								}
+								progress.setProgress(String.format(res.getString(R.string.loading_route_nodir), routesToDo.get(i).name), pct);
+								publishProgress(progress);
+								ArrayList<LTCDirection> routeDirections = loadDirections(routesToDo.get(i).number);
+								//        				Log.d("loadtask", String.format("route %s has %d directions", routes.get(i).number, routeDirections.size()));
+								for (LTCDirection dir: routeDirections) {
+									if (!allDirections.containsKey(dir.number)) {
+										allDirections.put(dir.number, dir);
+									}
+									progress.setProgress(String.format(res.getString(R.string.loading_route_dir), routesToDo.get(i).name, dir.name), pct);
+									publishProgress(progress);
+									HashMap<Integer, LTCStop> stops = loadStops(routesToDo.get(i).number, dir.number);
+									for (int stopNumber: stops.keySet()) {
+										if (!allStops.containsKey(stopNumber)) {
+											allStops.put(stopNumber, stops.get(stopNumber));
+										}
+										links.add(new RouteStopLink(routesToDo.get(i).number, dir.number, stopNumber));
+									}
+								}
+								routesDone.add(routesToDo.get(i));
+								routesToDo.remove(i); // don't increment i, just remove the one we just did
+							}
+							catch (IOException e) {
+								failures++; // note that one failed
+								if (failures > FAILURE_LIMIT) {
+									throw(new ScrapeException(res.getString(R.string.too_many_failures), ScrapeStatus.PROBLEM_IMMEDIATELY));
+								}
+								i++; // go to the next one
+							}
+						}
+					}
+					publishProgress(new LoadProgress(res.getString(R.string.saving_database), fetchLocations[0] ? 30 : 95));
+					BusDb db = new BusDb(context);
+					db.saveBusData(routesDone, allDirections.values(), allStops.values(), links);
+					db.close();
+					if (fetchLocations[0]) {
+						// reset our trackers and prepare to download locations
+						routesToDo.addAll(routesDone);
+						routesDone.clear();
+						int tries = 0;
+						ALLROUTEFETCH: while (routesToDo.size() > 0) {
+							int i = 0;
+							while (i < routesToDo.size()) {
+								try {
+									int pct = 30 + 70 * routesDone.size() / totalToDo;
+									progress.setProgress(String.format(res.getString(R.string.loading_route_stop_locations), routesToDo.get(i).name), pct);
+									publishProgress(progress);
+									db = new BusDb(context);
+									// get existing stops from the database
+									HashMap<Integer, LTCStop> stops = db.findStopRoutesAnyDir(routesToDo.get(i).number);
+									db.close();
+									// update those with actual stop locations from the website
+									loadStopLocations(routesToDo.get(i).number, stops);
+									// convert stops to a plain collection and save it
+									db = new BusDb(context);
+									db.saveBusData(null, null, stops.values(), null);
+									db.close();
+									routesDone.add(routesToDo.get(i));
+									routesToDo.remove(i); // don't increment i, just remove the one we just did
+								}
+								catch (IOException e) {
+									failures++; // note that one failed
+									if (failures > FAILURE_LIMIT) {
+										throw(new ScrapeException(res.getString(R.string.too_many_failures), ScrapeStatus.PROBLEM_IMMEDIATELY));
+									}
+									i++; // go to the next one
+								}
+								tries++;
+							}
+						}
+					}
+					publishProgress(new LoadProgress("", 100));
+				}
+			}
+			catch (IOException e) {
+				progress.setFailed(res.getString(R.string.unable_to_load_routes));
+				publishProgress(progress);
+			}
+			catch (ScrapeException e) {
+				progress.setFailed(e.getMessage());
+				publishProgress(progress);
+			}
+			catch (SQLiteException e) {
+				progress.setFailed(e.getMessage());
+				publishProgress(progress);
+			}
 
-        protected void onProgressUpdate(LoadProgress... progress) {
-        	if (!isCancelled() && status != null) {
-        		status.update(progress[0]);
-        	}
-        }
+			return null;
+		}
 
-    }
+		protected void onProgressUpdate(LoadProgress... progress) {
+			if (!isCancelled() && status != null) {
+				status.update(progress[0]);
+			}
+		}
+
+	}
 
 }

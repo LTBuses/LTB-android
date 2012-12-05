@@ -321,6 +321,27 @@ public class BusDb {
 		return stop;
 	}
 	
+	/* this fetches all stops for a given route */
+	HashMap<Integer, LTCStop> findStopRoutesAnyDir(String routeNumber) {
+		Cursor c = db.rawQuery(String.format("select %s, %s, %s, %s from %s where %s in (select %s from %s where %s = ?)",
+											 STOP_NUMBER, STOP_NAME, LATITUDE, LONGITUDE,
+											 STOP_TABLE,
+											 STOP_NUMBER,
+											 STOP_NUMBER,
+											 LINK_TABLE,
+											 ROUTE_NUMBER),
+				new String[] { routeNumber });
+		HashMap<Integer, LTCStop> stops = new HashMap<Integer, LTCStop>();
+		if (c.moveToFirst()) {
+			for (; !c.isAfterLast(); c.moveToNext()) {
+				LTCStop stop = new LTCStop(c.getInt(0), c.getString(1), c.getDouble(2), c.getDouble(3));
+				stops.put(stop.number, stop);
+			}
+			c.close();
+		}
+		return stops;
+	}
+	
 	/* this fetches routes, but it also adds the direction and direction initial letter */
 	ArrayList<LTCRoute> findStopRoutes(String stopNumber, String routeNumber, int directionNumber) {
 		Cursor c = db.rawQuery(String.format("select %s.%s, %s.%s, %s.%s, %s.%s from %s, %s, %s where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ?",
@@ -488,8 +509,7 @@ public class BusDb {
 	public void saveBusData(Collection<LTCRoute> routes,
 			Collection<LTCDirection> directions,
 			Collection<LTCStop> stops,
-			Collection<RouteStopLink> links,
-			Boolean locationsIncluded) throws SQLException {
+			Collection<RouteStopLink> links) throws SQLException {
 		db.beginTransaction();
 		/* we use insert for everything below because all tables have an appropriate UNIQUE constraint with
 		 * ON CONFLICT REPLACE
@@ -501,56 +521,61 @@ public class BusDb {
 			String deleteCond = "freshness < ?";
 			String deleteArgs[] = new String[] { String.valueOf(deleteAge) };
 			ContentValues cv = new ContentValues(5); // 5 should deal with everything
-			for (LTCRoute route : routes) {
-				cv.clear();
-				cv.put(ROUTE_NUMBER, route.number);
-				cv.put(ROUTE_NAME, route.name);
-				cv.put(FRESHNESS, nowMillis);
-				db.insertWithOnConflict(ROUTE_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
-			}
-			db.delete(ROUTE_TABLE, deleteCond, deleteArgs);
-			for (LTCDirection dir : directions) {
-				cv.clear();
-				cv.put(DIRECTION_NUMBER, dir.number);
-				cv.put(DIRECTION_NAME, dir.name);
-				cv.put(FRESHNESS, nowMillis);
-				db.insertWithOnConflict (DIRECTION_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
-			}
-			db.delete(DIRECTION_TABLE, deleteCond, deleteArgs);
-			for (LTCStop stop : stops) {
-				cv.clear();
-				cv.put(STOP_NUMBER, stop.number);
-				cv.put(STOP_NAME, stop.name);
-				if (stop.latitude > MIN_LATITUDE) {
-					// latitude should be zero if it wasn't fetched
-					cv.put(LATITUDE, stop.latitude);
-					cv.put(LONGITUDE, stop.longitude);
+			if (routes != null) {
+				for (LTCRoute route : routes) {
+					cv.clear();
+					cv.put(ROUTE_NUMBER, route.number);
+					cv.put(ROUTE_NAME, route.name);
+					cv.put(FRESHNESS, nowMillis);
+					db.insertWithOnConflict(ROUTE_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 				}
-				cv.put(FRESHNESS, nowMillis);
-				if (db.update(STOP_TABLE, cv, String.format("%s = %d", STOP_NUMBER, stop.number), null) == 0) {
-					db.insertWithOnConflict (STOP_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+				db.delete(ROUTE_TABLE, deleteCond, deleteArgs);
+			}
+			if (directions != null) {
+				for (LTCDirection dir : directions) {
+					cv.clear();
+					cv.put(DIRECTION_NUMBER, dir.number);
+					cv.put(DIRECTION_NAME, dir.name);
+					cv.put(FRESHNESS, nowMillis);
+					db.insertWithOnConflict (DIRECTION_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
 				}
+				db.delete(DIRECTION_TABLE, deleteCond, deleteArgs);
 			}
-			db.delete(STOP_TABLE, deleteCond, deleteArgs);
-			for (RouteStopLink link : links) {
-				cv.clear();
-				cv.put(ROUTE_NUMBER, link.routeNumber);
-				cv.put(DIRECTION_NUMBER, link.directionNumber);
-				cv.put(STOP_NUMBER, link.stopNumber);
-				cv.put(FRESHNESS, nowMillis);
-				db.insertWithOnConflict (LINK_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
+			if (stops != null) {
+				for (LTCStop stop : stops) {
+					cv.clear();
+					cv.put(STOP_NUMBER, stop.number);
+					cv.put(STOP_NAME, stop.name);
+					if (stop.latitude > MIN_LATITUDE) {
+						// latitude should be zero if it wasn't fetched
+						cv.put(LATITUDE, stop.latitude);
+						cv.put(LONGITUDE, stop.longitude);
+					}
+					cv.put(FRESHNESS, nowMillis);
+					if (db.update(STOP_TABLE, cv, String.format("%s = %d", STOP_NUMBER, stop.number), null) == 0) {
+						db.insertWithOnConflict (STOP_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+					}
+				}
+				db.delete(STOP_TABLE, deleteCond, deleteArgs);
 			}
-			db.delete(LINK_TABLE, deleteCond, deleteArgs);
+			if (links != null) {
+				for (RouteStopLink link : links) {
+					cv.clear();
+					cv.put(ROUTE_NUMBER, link.routeNumber);
+					cv.put(DIRECTION_NUMBER, link.directionNumber);
+					cv.put(STOP_NUMBER, link.stopNumber);
+					cv.put(FRESHNESS, nowMillis);
+					db.insertWithOnConflict (LINK_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
+				}
+				db.delete(LINK_TABLE, deleteCond, deleteArgs);
+			}
 			cv.clear();
 			cv.put(currentFreshnessColumn(now), nowMillis);
-			if (locationsIncluded) {
-				cv.put(currentLocationFreshnessColumn(now), nowMillis);
-			}
 			db.update(FRESHNESS_TABLE, cv, null, null);
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();
 		}
 	}
-	
+		
 }
