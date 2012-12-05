@@ -8,6 +8,7 @@ import android.content.res.Resources;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
@@ -59,8 +60,16 @@ public class DownloadService extends Service {
 		
 		public void update(LoadProgress progress) {
 			if (notifBuilder != null) {
-				notifBuilder.setContentText(String.format(resources.getString(R.string.notification_progress_format),
-						progress.percent, progress.message));
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+					// show percentage on platforms that don't support progress bars in notifications
+					notifBuilder.setContentText(String.format(resources.getString(R.string.notification_progress_format_pct),
+							progress.percent, progress.message));
+				}
+				else {
+					// rely on the progress bar
+					notifBuilder.setContentText(String.format(resources.getString(R.string.notification_progress_format),
+							progress.message));
+				}
 				notifBuilder.setProgress(100, progress.percent, false);
 				notifManager.notify(NOTIF_ID, notifBuilder.build());
 				//startForeground(NOTIF_ID, notifBuilder.build());

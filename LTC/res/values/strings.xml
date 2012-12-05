@@ -174,7 +174,7 @@
     <string name="update_recommended">An update is recommended.</string>
     <string name="update_required">An update is required.</string>
     <string name="update_not_required">An update is not required.</string>
-    <string name="update_database">Update Bus Data</string>
+    <string name="update_database">Update bus data&#8230;</string>
     <string name="retrying">Connection took too long, retrying&#8230;</string>
     <string name="times_none">None</string>
     <string name="times_fail">[Failed]</string>
@@ -207,7 +207,7 @@
     <string name="database_ready">Bus data is ready</string>
     <string name="download_failed">LTC download failed</string>
     <string name="tap_to_diagnose">Tap to diagnose.</string>
-    <string name="notification_progress_format">%1$d%%: %2$s</string>
+    <string name="notification_progress_format_pct">%1$d%%: %2$s</string>
     <string name="downloading">Downloading LTC route data</string>
     <string name="cancel">Cancel</string>
     <string name="no_routes_found">No routes found</string>
@@ -217,5 +217,9 @@
     <string name="too_many_failures">Too many failures, try again later.</string>
     <string name="unable_to_load_routes">Unable to load routes</string>
     <string name="saving_database">Saving data&#8230;</string>
+    <string name="notification_progress_format">%1$s</string>
+    <string name="share">Share app&#8230;</string>
+    <string name="share_text">Find all LTC buses at a stop with http://play.google.com/store/apps/details?id=org.frasermccrossan.ltc</string>
+    <string name="share_subject">App to find all LTC buses at a stop</string>
 
 </resources>

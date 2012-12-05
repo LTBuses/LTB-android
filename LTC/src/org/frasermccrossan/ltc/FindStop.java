@@ -7,6 +7,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -120,7 +121,7 @@ public class FindStop extends Activity {
 
 		public View getCustomView(int position, boolean shortForm, int layoutId, ViewGroup parent) {
 			LayoutInflater inflater = getLayoutInflater();
-			View row=inflater.inflate(layoutId, parent, false);
+			View row = inflater.inflate(layoutId, parent, false);
 			TextView label=(TextView)row.findViewById(android.R.id.text1);
 			if (routes[position] == null) {
 				label.setText(shortForm? R.string.all_routes_short : R.string.all_routes_long);
@@ -259,6 +260,15 @@ public class FindStop extends Activity {
 			return true;
 		case R.id.find_stop_help:
 			startActivity(new Intent(this, FindStopHelp.class));
+			return true;
+		case R.id.share_app:
+			Resources r = getResources();
+			Intent sendIntent = new Intent();
+			sendIntent.setAction(Intent.ACTION_SEND);
+			sendIntent.putExtra(Intent.EXTRA_TEXT, r.getString(R.string.share_text));
+			sendIntent.putExtra(Intent.EXTRA_SUBJECT, r.getString(R.string.share_subject));
+			sendIntent.setType("text/plain");
+			startActivity(Intent.createChooser(sendIntent, null));
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);

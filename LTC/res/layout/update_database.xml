@@ -74,9 +74,10 @@
 	        android:id="@+id/status_text"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:maxLines="1"
+	        android:singleLine="true"
+	        android:ellipsize="end"
 	        android:paddingTop="8dip"
-	        android:textAppearance="?android:attr/textAppearanceMedium" />
+	        android:textAppearance="?android:attr/textAppearanceLarge" />
 
 	    <CheckBox
 	        android:id="@+id/fetch_positions"
