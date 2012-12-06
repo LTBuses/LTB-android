@@ -10,7 +10,7 @@
     <string name="last_updated">Last updated</string>
     <string name="at_this_stop">At this stop: %1$s</string>
     <string name="stop_times">Stop Times</string>
-    <string name="download_instructions">Updating bus route and stop data takes about 20 seconds. Updating stop locations adds several minutes. Updating uses between 1M and 2M of data. WiFi is recommended but not required.</string>
+    <string name="download_instructions">Updating bus route and stop data takes about 20 seconds (stop GPS coordinates take a lot longer, but don\'t stop you from checking buses). Updating uses between 1M and 2M of data, and you can safely leave this screen during the update.</string>
     <string name="update">Start update</string>
     <string name="using_provider">Location provider: %1$s</string>
     <string name="no_provider">Location not available</string>
@@ -108,7 +108,7 @@
     <dt>Favourites</dt>
     <dd>Stops you\'ve checked most often, otherwise alphabetical</dd>
     <dt>Nearby</dt>
-    <dd>Stops closest to you (available if GPS enabled and stop data downloaded)</dd>
+    <dd>Stops closest to you (available if GPS coordinates updated)</dd>
     <dt>Any</dt>
     <dd>Stops serviced by any route</dd>
     <dt>Route Number</dt>
@@ -188,7 +188,7 @@
     <string name="website_slow">Sorry, still waiting for the LTC website&#8230;</string>
     <string name="no_bus">(No Bus)</string>
     <string name="failed">Network error</string>
-    <string name="fetch_positions">Fetch stop locations (slow)</string>
+    <string name="fetch_positions">Fetch stop GPS coordinates</string>
     <string name="status_location_format">Last %1$s stop location download: %2$s</string>
     <string name="direction">Direction</string>
     <string name="not_working">Not working?</string>
@@ -203,16 +203,17 @@
     <string name="all_routes_short">Any</string>
     <string name="all_routes_long">Stops serviced by any route</string>
     <string name="only_check_route">Check %1$s only</string>
-    <string name="download_complete">Update complete</string>
+    <string name="stop_download_complete">Stop/Route update complete</string>
+    <string name="location_download_complete">Stop location update complete</string>
     <string name="database_ready">Bus data is ready</string>
-    <string name="download_failed">LTC download failed</string>
+    <string name="download_failed">LTC update failed</string>
     <string name="tap_to_diagnose">Tap to diagnose.</string>
     <string name="notification_progress_format_pct">%1$d%%: %2$s</string>
     <string name="downloading">Downloading LTC route data</string>
     <string name="cancel">Cancel</string>
     <string name="no_routes_found">No routes found</string>
-    <string name="downloading_routes">Downloading routes</string>
-    <string name="downloading_locations">Downloading stop locations</string>
+    <string name="downloading_routes">Updating routes</string>
+    <string name="downloading_locations">Updating stop locations</string>
     <string name="loading_route_stop_locations">Locations: %1$s</string>
     <string name="loading_route_nodir">%1$s</string>
     <string name="loading_route_dir">Stops: %2$s %1$s</string>

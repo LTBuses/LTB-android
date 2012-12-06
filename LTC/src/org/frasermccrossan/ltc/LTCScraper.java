@@ -386,13 +386,14 @@ public class LTCScraper {
 			ArrayList<RouteStopLink> links = new ArrayList<RouteStopLink>();
 			//Resources res = getApplicationContext().getResources();
 			Resources res = context.getResources();
-			LoadProgress progress = new LoadProgress(res.getString(R.string.downloading_routes));
-			publishProgress(progress);
+			LoadProgress progress = new LoadProgress();
+			publishProgress(progress.title(res.getString(R.string.downloading_routes)));
 			try {
 				routesToDo = loadRoutes();
 				if (routesToDo.size() == 0) {
-					progress.setFailed(res.getString(R.string.no_routes_found));
-					publishProgress(progress);
+					publishProgress(progress.title(res.getString(R.string.download_failed))
+							.message(res.getString(R.string.no_routes_found))
+							.failed());
 				}
 				else {
 					int totalToDo = routesToDo.size();
@@ -402,23 +403,17 @@ public class LTCScraper {
 						int i = 0;
 						while (i < routesToDo.size()) {
 							try {
-								int pct;
-								if (fetchLocations[0]) {
-									pct = 1 + 24 * routesDone.size() / totalToDo;
-								}
-								else {
-									pct = 5 + 90 * routesDone.size() / totalToDo;
-								}
-								progress.setProgress(String.format(res.getString(R.string.loading_route_nodir), routesToDo.get(i).name), pct);
-								publishProgress(progress);
+								int pct = 5 + 90 * routesDone.size() / totalToDo;
+								publishProgress(progress.message(String.format(res.getString(R.string.loading_route_nodir), routesToDo.get(i).name))
+										.percent(pct));
 								ArrayList<LTCDirection> routeDirections = loadDirections(routesToDo.get(i).number);
 								//        				Log.d("loadtask", String.format("route %s has %d directions", routes.get(i).number, routeDirections.size()));
 								for (LTCDirection dir: routeDirections) {
 									if (!allDirections.containsKey(dir.number)) {
 										allDirections.put(dir.number, dir);
 									}
-									progress.setProgress(String.format(res.getString(R.string.loading_route_dir), routesToDo.get(i).name, dir.name), pct);
-									publishProgress(progress);
+//									publishProgress(progress.message(String.format(res.getString(R.string.loading_route_dir), routesToDo.get(i).name, dir.name))
+//											.percent(pct));
 									HashMap<Integer, LTCStop> stops = loadStops(routesToDo.get(i).number, dir.number);
 									for (int stopNumber: stops.keySet()) {
 										if (!allStops.containsKey(stopNumber)) {
@@ -439,22 +434,28 @@ public class LTCScraper {
 							}
 						}
 					}
-					publishProgress(new LoadProgress(res.getString(R.string.saving_database), fetchLocations[0] ? 30 : 95));
+					publishProgress(progress.message(res.getString(R.string.saving_database))
+							.percent(95));
 					BusDb db = new BusDb(context);
 					db.saveBusData(routesDone, allDirections.values(), allStops.values(), links);
 					db.close();
+					publishProgress(progress.title(res.getString(R.string.stop_download_complete))
+							.message(res.getString(R.string.database_ready))
+							.complete());
 					if (fetchLocations[0]) {
 						// reset our trackers and prepare to download locations
 						routesToDo.addAll(routesDone);
 						routesDone.clear();
 						int tries = 0;
+						publishProgress(progress.reset()
+								.title(res.getString(R.string.downloading_locations)));
 						ALLROUTEFETCH: while (routesToDo.size() > 0) {
 							int i = 0;
 							while (i < routesToDo.size()) {
 								try {
-									int pct = 30 + 70 * routesDone.size() / totalToDo;
-									progress.setProgress(String.format(res.getString(R.string.loading_route_stop_locations), routesToDo.get(i).name), pct);
-									publishProgress(progress);
+									int pct = 100* routesDone.size() / totalToDo;
+									publishProgress(progress.message(routesToDo.get(i).name)
+											.percent(pct));
 									db = new BusDb(context);
 									// get existing stops from the database
 									HashMap<Integer, LTCStop> stops = db.findStopRoutesAnyDir(routesToDo.get(i).number);
@@ -478,21 +479,26 @@ public class LTCScraper {
 								tries++;
 							}
 						}
+						publishProgress(progress.title(res.getString(R.string.location_download_complete))
+								.message(res.getString(R.string.database_ready))
+								.complete());
 					}
-					publishProgress(new LoadProgress("", 100));
 				}
 			}
 			catch (IOException e) {
-				progress.setFailed(res.getString(R.string.unable_to_load_routes));
-				publishProgress(progress);
+				publishProgress(progress.title(res.getString(R.string.unable_to_load_routes))
+						.message(e.getMessage())
+						.failed());
 			}
 			catch (ScrapeException e) {
-				progress.setFailed(e.getMessage());
-				publishProgress(progress);
+				publishProgress(progress.title(e.getMessage())
+						.message("")
+						.failed());
 			}
 			catch (SQLiteException e) {
-				progress.setFailed(e.getMessage());
-				publishProgress(progress);
+				publishProgress(progress.title(e.getMessage())
+						.message("")
+						.failed());
 			}
 
 			return null;

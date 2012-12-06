@@ -34,7 +34,8 @@ public class UpdateDatabase extends Activity {
 	TextView saturdayLocationStatus;
 	TextView sundayLocationStatus;
 	TextView ageLimit;
-	TextView status;
+	TextView title;
+	TextView message;
 	Button updateButton;
 	Button cancelButton;
 	Button notWorkingButton;
@@ -83,7 +84,8 @@ public class UpdateDatabase extends Activity {
         saturdayLocationStatus = (TextView)findViewById(R.id.saturday_location_status);
         sundayLocationStatus = (TextView)findViewById(R.id.sunday_location_status);
         ageLimit = (TextView)findViewById(R.id.age_limit);
-        status = (TextView)findViewById(R.id.status_text);
+        title = (TextView)findViewById(R.id.title);
+        message = (TextView)findViewById(R.id.message);
 
         Calendar now = Calendar.getInstance();
         HashMap<Integer, Long> freshnesses = db.getFreshnesses(now.getTimeInMillis());
@@ -111,7 +113,7 @@ public class UpdateDatabase extends Activity {
         		freshnessDays(freshnesses.get(BusDb.SUNDAY_LOCATION_FRESHNESS), res)));
         ageLimit.setText(String.format(res.getString(R.string.age_limit),
         		freshnessDays(BusDb.UPDATE_DATABASE_AGE_LIMIT, res)));
-        status.setText(res.getString(db.updateStrRes(updateStatus)));
+        title.setText(res.getString(db.updateStrRes(updateStatus)));
         
         fetchPositions = (CheckBox)findViewById(R.id.fetch_positions);
         
@@ -225,11 +227,13 @@ public class UpdateDatabase extends Activity {
 		
 		public void update(LoadProgress progress) {
 			if (progress == null) {
-				status.setText("");
+				title.setText("");
+				message.setText("");
 				progressBar.setProgress(0);
 			}
 			else {
-				status.setText(progress.message);
+				title.setText(progress.title);
+				message.setText(progress.message);
 				progressBar.setProgress(progress.percent);
 				if (progress.percent >= 100) {
 					finish();

@@ -4,42 +4,56 @@ public class LoadProgress {
 	
 	static final int FAILED = -1;
 
+	public String title;
 	public String message;
 	public int percent = 0;
+	boolean alert = false;
 	
-	LoadProgress(String m, int p) {
-		message = m;
-		percent = p;
-	}
-	
-	LoadProgress(String m) {
-		message = m;
+	LoadProgress() {
+		title = message = "";
 		percent = 0;
 	}
 	
-	static LoadProgress makeFailed(String m) {
-		return new LoadProgress(m, FAILED);
+	LoadProgress title(String t) {
+		title = t;
+		return this;
 	}
 	
-	void chain(LoadProgress other) {
-		message = other.message;
-		percent = other.percent;
-	}
-	
-	void setProgress(String m, int p) {
+	LoadProgress message(String m) {
 		message = m;
-		percent = p;
+		return this;
 	}
 	
-	void setFailed(String m) {
-		setProgress(m, FAILED);
+	LoadProgress percent(int p) {
+		percent = p;
+		return this;
+	}
+	
+	LoadProgress complete() {
+		percent = 100;
+		alert = true;
+		return this;
+	}
+	
+	LoadProgress reset() {
+		title = message = "";
+		percent = 0;
+		alert = false;
+		return this;
+	}
+	
+	LoadProgress failed() {
+		percent = FAILED;
+		alert = true;
+		return this;
 	}
 	
 	boolean isComplete() {
 		return (percent >= 100 || percent < 0);
 	}
 	
-	boolean failed() {
+	boolean isFailed() {
 		return percent == FAILED;
 	}
+	
 }
