@@ -118,8 +118,6 @@ public class StopTimes extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		adapter = null;
-		predictions = null;
 		super.onDestroy();
 	}
 	
