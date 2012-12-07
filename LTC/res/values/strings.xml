@@ -19,7 +19,7 @@
     <![CDATA[<html>
     <body>
     <h1>LTC Buses</h1>
-    <h3>Version 1.3 &copy; 2012 Fraser McCrossan</h3>
+    <h3>Version 1.4 &copy; 2012 Fraser McCrossan</h3>
     <h2>Notice</h2>
     <p>
     Although this app uses data from the
@@ -203,13 +203,13 @@
     <string name="all_routes_short">Any</string>
     <string name="all_routes_long">Stops serviced by any route</string>
     <string name="only_check_route">Check %1$s only</string>
-    <string name="stop_download_complete">Stop/Route update complete</string>
-    <string name="location_download_complete">Stop location update complete</string>
+    <string name="stop_download_complete">Bus update done</string>
+    <string name="location_download_complete">Bus update done</string>
     <string name="database_ready">Bus data is ready</string>
-    <string name="download_failed">LTC update failed</string>
+    <string name="download_failed">Bus update failed</string>
     <string name="tap_to_diagnose">Tap to diagnose.</string>
     <string name="notification_progress_format_pct">%1$d%%: %2$s</string>
-    <string name="downloading">Downloading LTC route data</string>
+    <string name="downloading">Downloading bus data</string>
     <string name="cancel">Cancel</string>
     <string name="no_routes_found">No routes found</string>
     <string name="downloading_routes">Updating routes</string>
@@ -221,7 +221,7 @@
     <string name="unable_to_load_routes">Unable to load routes</string>
     <string name="saving_database">Saving data&#8230;</string>
     <string name="notification_progress_format">%1$s</string>
-    <string name="share">Share app&#8230;</string>
+    <string name="share">Tell your friends&#8230;</string>
     <string name="share_text">Find all LTC buses at a stop with http://play.google.com/store/apps/details?id=org.frasermccrossan.ltc</string>
     <string name="share_subject">App to find all LTC buses at a stop</string>
 

@@ -288,16 +288,18 @@ public class FindStop extends Activity {
 		if (Integer.valueOf(stop.get(BusDb.STOP_USES_COUNT)) > 0) {
 			menu.add(ContextMenu.NONE, FORGET_FAVOURITE, 2, R.string.forget_favourite);
 		}
-		String query = Uri.encode(String.format("%s@%s,%s",
-				stop.get(BusDb.STOP_NAME), 
-				stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE)
-				));
-		String geoUri = String.format("geo:%s,%s?q=%s",
-				stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE),
-				query);
-		Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
-		MenuItem map = menu.add(ContextMenu.NONE, Menu.NONE, 1, R.string.show_map);
-		map.setIntent(mapIntent);
+		if (stop.get(BusDb.LATITUDE) != null && Float.valueOf(stop.get(BusDb.LATITUDE)) > BusDb.MIN_LATITUDE) {
+			String query = Uri.encode(String.format("%s@%s,%s",
+					stop.get(BusDb.STOP_NAME), 
+					stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE)
+					));
+			String geoUri = String.format("geo:%s,%s?q=%s",
+					stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE),
+					query);
+			Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
+			MenuItem map = menu.add(ContextMenu.NONE, Menu.NONE, 1, R.string.show_map);
+			map.setIntent(mapIntent);
+		}
 		BusDb db = new BusDb(this);
 		ArrayList<LTCRoute> stopRoutes = db.findStopRoutes(stop.get(BusDb.STOP_NUMBER), null, 0);
 		db.close();
