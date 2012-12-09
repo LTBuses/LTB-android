@@ -457,14 +457,17 @@ public class LTCScraper {
 									publishProgress(progress.message(routesToDo.get(i).name)
 											.percent(pct));
 									db = new BusDb(context);
-									// get existing stops from the database
-									HashMap<Integer, LTCStop> stops = db.findStopRoutesAnyDir(routesToDo.get(i).number);
-									db.close();
-									// update those with actual stop locations from the website
-									loadStopLocations(routesToDo.get(i).number, stops);
-									// convert stops to a plain collection and save it
-									db = new BusDb(context);
-									db.saveBusData(null, null, stops.values(), null);
+									// check if any stops on this route lack location information
+									if (db.getLocationlessStopCount(routesToDo.get(i)) > 0) {
+										// get existing stops from the database
+										HashMap<Integer, LTCStop> stops = db.findStopRoutesAnyDir(routesToDo.get(i).number);
+										db.close();
+										// update those with actual stop locations from the website
+										loadStopLocations(routesToDo.get(i).number, stops);
+										// convert stops to a plain collection and save it
+										db = new BusDb(context);
+										db.saveBusData(null, null, stops.values(), null);
+									}
 									db.close();
 									routesDone.add(routesToDo.get(i));
 									routesToDo.remove(i); // don't increment i, just remove the one we just did

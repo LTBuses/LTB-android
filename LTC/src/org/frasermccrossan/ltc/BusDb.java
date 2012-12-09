@@ -342,6 +342,25 @@ public class BusDb {
 		return stops;
 	}
 	
+	/* given a route, return how many stops on that route lack location information */
+	int getLocationlessStopCount(LTCRoute route) {
+		Cursor c = db.rawQuery(String.format("select count(*) from %s where (%s is null or %s < 0.1) and %s in (select %s from %s where %s = ?);",
+				STOP_TABLE,
+				LATITUDE, LATITUDE,
+				STOP_NUMBER,
+				STOP_NUMBER,
+				LINK_TABLE,
+				ROUTE_NUMBER),
+				new String[] { route.number });
+		int count = 0;
+		if (c.moveToFirst()) {
+			count = c.getInt(0);
+			c.close();
+		}
+		return count;
+
+	}
+	
 	/* this fetches routes, but it also adds the direction and direction initial letter */
 	ArrayList<LTCRoute> findStopRoutes(String stopNumber, String routeNumber, int directionNumber) {
 		Cursor c = db.rawQuery(String.format("select %s.%s, %s.%s, %s.%s, %s.%s from %s, %s, %s where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ?",
