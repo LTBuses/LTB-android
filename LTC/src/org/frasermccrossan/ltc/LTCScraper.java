@@ -439,15 +439,12 @@ public class LTCScraper {
 					BusDb db = new BusDb(context);
 					db.saveBusData(routesDone, allDirections.values(), allStops.values(), links);
 					db.close();
-					publishProgress(progress.title(res.getString(R.string.stop_download_complete))
-							.message(res.getString(R.string.database_ready))
-							.complete());
 					if (fetchLocations[0]) {
 						// reset our trackers and prepare to download locations
 						routesToDo.addAll(routesDone);
 						routesDone.clear();
 						int tries = 0;
-						publishProgress(progress.reset()
+						publishProgress(progress.reset().enough(true)
 								.title(res.getString(R.string.downloading_locations)));
 						ALLROUTEFETCH: while (routesToDo.size() > 0) {
 							int i = 0;
@@ -482,10 +479,10 @@ public class LTCScraper {
 								tries++;
 							}
 						}
-						publishProgress(progress.title(res.getString(R.string.location_download_complete))
-								.message(res.getString(R.string.database_ready))
-								.complete());
 					}
+					publishProgress(progress.title(res.getString(R.string.stop_download_complete))
+							.message(res.getString(R.string.database_ready))
+							.complete());
 				}
 			}
 			catch (IOException e) {

@@ -26,31 +26,13 @@
 	        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 	    <TextView
-	        android:id="@+id/weekday_location_status"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-	    <TextView
 	        android:id="@+id/saturday_status"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 	    <TextView
-	        android:id="@+id/saturday_location_status"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-	    <TextView
 	        android:id="@+id/sunday_status"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-	    <TextView
-	        android:id="@+id/sunday_location_status"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:textAppearance="?android:attr/textAppearanceSmall" />

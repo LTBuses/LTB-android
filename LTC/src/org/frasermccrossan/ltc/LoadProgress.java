@@ -7,7 +7,7 @@ public class LoadProgress {
 	public String title;
 	public String message;
 	public int percent = 0;
-	boolean alert = false;
+	public boolean completeEnough = false; // notification may go to main screen
 	
 	LoadProgress() {
 		title = message = "";
@@ -29,22 +29,27 @@ public class LoadProgress {
 		return this;
 	}
 	
+	LoadProgress enough(boolean enough) {
+		completeEnough = enough;
+		return this;
+	}
+	
 	LoadProgress complete() {
 		percent = 100;
-		alert = true;
+		completeEnough = true;
 		return this;
 	}
 	
 	LoadProgress reset() {
 		title = message = "";
 		percent = 0;
-		alert = false;
+		completeEnough = false;
 		return this;
 	}
 	
 	LoadProgress failed() {
 		percent = FAILED;
-		alert = true;
+		completeEnough = true;
 		return this;
 	}
 	

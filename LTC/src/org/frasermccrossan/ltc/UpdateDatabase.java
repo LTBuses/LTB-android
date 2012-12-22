@@ -30,9 +30,6 @@ public class UpdateDatabase extends Activity {
 	TextView weekdayStatus;
 	TextView saturdayStatus;
 	TextView sundayStatus;
-	TextView weekdayLocationStatus;
-	TextView saturdayLocationStatus;
-	TextView sundayLocationStatus;
 	TextView ageLimit;
 	TextView title;
 	TextView message;
@@ -80,9 +77,6 @@ public class UpdateDatabase extends Activity {
         weekdayStatus = (TextView)findViewById(R.id.weekday_status);
         saturdayStatus = (TextView)findViewById(R.id.saturday_status);
         sundayStatus = (TextView)findViewById(R.id.sunday_status);
-        weekdayLocationStatus = (TextView)findViewById(R.id.weekday_location_status);
-        saturdayLocationStatus = (TextView)findViewById(R.id.saturday_location_status);
-        sundayLocationStatus = (TextView)findViewById(R.id.sunday_location_status);
         ageLimit = (TextView)findViewById(R.id.age_limit);
         title = (TextView)findViewById(R.id.title);
         message = (TextView)findViewById(R.id.message);
@@ -102,15 +96,6 @@ public class UpdateDatabase extends Activity {
         		res.getString(R.string.sunday),
         		freshnessDays(freshnesses.get(BusDb.SUNDAY_FRESHNESS), res)));
         String statusLocationFormat = res.getString(R.string.status_location_format);
-        weekdayLocationStatus.setText(String.format(statusLocationFormat,
-        		res.getString(R.string.weekday),
-        		freshnessDays(freshnesses.get(BusDb.WEEKDAY_LOCATION_FRESHNESS), res)));
-        saturdayLocationStatus.setText(String.format(statusLocationFormat,
-        		res.getString(R.string.saturday),
-        		freshnessDays(freshnesses.get(BusDb.SATURDAY_LOCATION_FRESHNESS), res)));
-        sundayLocationStatus.setText(String.format(statusLocationFormat,
-        		res.getString(R.string.sunday),
-        		freshnessDays(freshnesses.get(BusDb.SUNDAY_LOCATION_FRESHNESS), res)));
         ageLimit.setText(String.format(res.getString(R.string.age_limit),
         		freshnessDays(BusDb.UPDATE_DATABASE_AGE_LIMIT, res)));
         title.setText(res.getString(db.updateStrRes(updateStatus)));

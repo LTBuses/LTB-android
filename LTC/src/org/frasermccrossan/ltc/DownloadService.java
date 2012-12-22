@@ -15,7 +15,7 @@ import android.support.v4.app.NotificationCompat;
 public class DownloadService extends Service {
 
 	static final int NOTIF_ID = 12345;
-	static final int NOTIF_COMPLETED_ID = NOTIF_ID + 1;
+//	static final int NOTIF_COMPLETED_ID = NOTIF_ID + 1;
 	static final String FETCH_POSITIONS = "getpos";
 
 	LTCScraper scraper = null;
@@ -65,11 +65,12 @@ public class DownloadService extends Service {
 					// rely on the progress bar
 					msgMaybePct = progress.message;
 				}
-				int id = progress.alert ? NOTIF_COMPLETED_ID : NOTIF_ID;
+//				int id = progress.alert ? NOTIF_COMPLETED_ID : NOTIF_ID;
 				notifBuilder.setContentText(msgMaybePct);
 				notifBuilder.setProgress(100, progress.percent, false);
 				notifBuilder.setContentTitle(progress.title);
 				notifBuilder.setTicker(progress.title);
+				Intent notifIntent;
 				if (progress.isComplete()) {
 					notifManager.cancelAll();
 					notifBuilder.setOngoing(false);
@@ -78,14 +79,14 @@ public class DownloadService extends Service {
 					Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION); 
 					notifBuilder.setSound(alert);
 					if (progress.isFailed()) {
-						Intent notifIntent = new Intent(DownloadService.this, DiagnoseProblems.class);
+						notifIntent = new Intent(DownloadService.this, DiagnoseProblems.class);
 				    	notifIntent.putExtra("testurl", LTCScraper.ROUTE_URL);
 						PendingIntent notifPendingIntent = PendingIntent.getActivity(DownloadService.this, 0,
 								notifIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 						notifBuilder.setContentIntent(notifPendingIntent);
 					}
 					else {
-						Intent notifIntent = new Intent(DownloadService.this, FindStop.class);
+						notifIntent = new Intent(DownloadService.this, FindStop.class);
 						notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 						PendingIntent notifPendingIntent = PendingIntent.getActivity(DownloadService.this, 0,
 								notifIntent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -96,13 +97,19 @@ public class DownloadService extends Service {
 					notifBuilder.setOngoing(true);
 					notifBuilder.setAutoCancel(false);
 					notifBuilder.setSmallIcon(R.drawable.ic_stat_download);
-					Intent notifIntent = new Intent(DownloadService.this, UpdateDatabase.class);
-					notifIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+					if (progress.completeEnough) {
+						notifIntent = new Intent(DownloadService.this, FindStop.class);
+						notifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					}
+					else {
+						notifIntent = new Intent(DownloadService.this, UpdateDatabase.class);
+						notifIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+					}
 					PendingIntent notifPendingIntent = PendingIntent.getActivity(DownloadService.this, 0,
 							notifIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 					notifBuilder.setContentIntent(notifPendingIntent);
 				}
-				notifManager.notify(id, notifBuilder.build());
+				notifManager.notify(NOTIF_ID, notifBuilder.build());
 				if (progress.isComplete()) {
 					stopSelf();
 				}
