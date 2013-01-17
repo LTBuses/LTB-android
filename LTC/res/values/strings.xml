@@ -13,13 +13,13 @@
     <string name="download_instructions">Updating bus route and stop data takes about 20 seconds (stop GPS coordinates take a lot longer, but don\'t stop you from checking buses). Updating uses between 1M and 2M of data, and you can safely leave this screen during the update.</string>
     <string name="update">Start update</string>
     <string name="using_provider">Location provider: %1$s</string>
-    <string name="no_provider">Location not available</string>
+    <string name="no_provider">No location provider</string>
     <string name="about">About</string>
     <string name="about_text">
     <![CDATA[<html>
     <body>
     <h1>LTC Buses</h1>
-    <h3>Version 1.41 &copy; 2012 Fraser McCrossan</h3>
+    <h3>Version 1.42test &copy; 2012 Fraser McCrossan</h3>
     <h2>Notice</h2>
     <p>
     Although this app uses data from the
@@ -224,5 +224,8 @@
     <string name="share">Tell your friends&#8230;</string>
     <string name="share_text">Find all LTC buses at a stop with http://play.google.com/store/apps/details?id=org.frasermccrossan.ltc</string>
     <string name="share_subject">App to find all LTC buses at a stop</string>
+    <string name="location_disabled">GPS is disabled</string>
+    <string name="old_stop_locations">Stop locations are too old, update database</string>
+    <string name="no_stop_locations">Stop locations not available, update database</string>
 
 </resources>

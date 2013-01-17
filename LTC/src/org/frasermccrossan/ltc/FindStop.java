@@ -35,6 +35,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class FindStop extends Activity {
 
@@ -75,6 +76,26 @@ public class FindStop extends Activity {
 
 		@Override
 		public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+			if (searchTypeSpinner.getSelectedItemPosition() == CLOSEST_STOPS) {
+				BusDb db = new BusDb(FindStop.this);
+				int failReason = 0;
+				if (locProvider == null) {
+					failReason = R.string.no_provider;
+				}
+				else if (!myLocationManager.isProviderEnabled(locProvider)) {
+					failReason = R.string.location_disabled;
+				}
+				else if (db.getLocationUpdateStatus() == BusDb.UPDATE_REQUIRED) {
+					failReason = R.string.no_stop_locations;
+				}
+				db.close();
+				if (failReason != 0) {
+					searchTypeSpinner.setSelection(RECENT_STOPS);
+					Toast locToast = Toast.makeText(FindStop.this, failReason, Toast.LENGTH_SHORT);
+					locToast.show();
+					return;
+				}
+			}
 			setLocationUpdates();
 			updateStops();
 		}
@@ -191,16 +212,6 @@ public class FindStop extends Activity {
 		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		BusDb db = new BusDb(this);
 		locProvider = LocationManager.GPS_PROVIDER;
-		if (locProvider != null) {
-			if (myLocationManager.isProviderEnabled(locProvider) && db.getLocationUpdateStatus() != BusDb.UPDATE_REQUIRED) {
-				searchTypeSpinner.setEnabled(true);
-				//myLocationManager.requestSingleUpdate(locProvider, locationListener, null);
-			}
-			else {
-				searchTypeSpinner.setSelection(RECENT_STOPS);
-				searchTypeSpinner.setEnabled(false);
-			}
-		}
 		routes = db.getAllRoutes(true);
 		if (routes != null) {
 			RouteAdapter routeAdapter = new RouteAdapter(this, R.layout.route_view, routes);
