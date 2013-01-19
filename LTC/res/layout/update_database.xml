@@ -10,6 +10,147 @@
 	    android:layout_height="match_parent"
 	    android:orientation="vertical" >
 
+		<TextView
+		    android:id="@+id/textView5"
+		    android:layout_width="fill_parent"
+		    android:layout_height="wrap_content"
+		    android:gravity="center_horizontal"
+		    android:text="@string/last_updates"
+		    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+		<TableLayout
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:stretchColumns="0"
+		    android:shrinkColumns="1,2" >
+
+		    <TableRow
+		        android:id="@+id/tableRow1"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content" >
+
+		        <TextView
+		            android:id="@+id/textView1"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:text="@string/update_type"
+		            android:textStyle="bold"
+		            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		        <TextView
+		            android:id="@+id/textView2"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:gravity="right"
+		            android:minWidth="120dp"
+		            android:text="@string/routes"
+		            android:textStyle="bold"
+		            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		        <TextView
+		            android:id="@+id/textView3"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:gravity="right"
+		            android:minWidth="120dp"
+		            android:text="@string/gps_locations"
+		            android:textStyle="bold"
+		            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		    </TableRow>
+
+		    <TableRow
+		        android:id="@+id/tableRow2"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content" >
+
+		        <TextView
+		            android:id="@+id/textView4"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:text="@string/weekday"
+		            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		        <TextView
+		            android:id="@+id/weekday_stops"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:gravity="right"
+		            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		        <TextView
+		            android:id="@+id/weekday_locations"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:gravity="right"
+		            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		    </TableRow>
+
+		    <TableRow
+		        android:id="@+id/tableRow3"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content" >
+
+		        <TextView
+		            android:id="@+id/textView7"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:text="@string/saturday"
+		            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		        <TextView
+		            android:id="@+id/saturday_stops"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:gravity="right"
+		            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		        <TextView
+		            android:id="@+id/saturday_locations"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:gravity="right"
+		            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		    </TableRow>
+
+		    <TableRow
+		        android:id="@+id/tableRow4"
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content" >
+
+		        <TextView
+		            android:id="@+id/textView10"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:text="@string/sunday"
+		            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		        <TextView
+		            android:id="@+id/sunday_stops"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:gravity="right"
+		            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		        <TextView
+		            android:id="@+id/sunday_locations"
+		            android:layout_width="wrap_content"
+		            android:layout_height="wrap_content"
+		            android:gravity="right"
+		            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+		    </TableRow>
+		</TableLayout>
+
+	    <TextView
+	        android:id="@+id/age_limit"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:paddingBottom="8dip"
+	        android:textAppearance="?android:attr/textAppearanceSmall" />
+
 	    <TextView
 	        android:id="@+id/download_instructions"
 	        android:layout_width="match_parent"
@@ -18,31 +159,6 @@
 	        android:text="@string/download_instructions"
 	        android:textAppearance="?android:attr/textAppearanceMedium"
 	        android:textStyle="italic" />
-
-	    <TextView
-	        android:id="@+id/weekday_status"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-	    <TextView
-	        android:id="@+id/saturday_status"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-	    <TextView
-	        android:id="@+id/sunday_status"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-	    <TextView
-	        android:id="@+id/age_limit"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:paddingBottom="8dip"
-	        android:textAppearance="?android:attr/textAppearanceSmall" />
 
 	    <ProgressBar
 	        android:id="@+id/progress"

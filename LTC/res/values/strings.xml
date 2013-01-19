@@ -10,7 +10,7 @@
     <string name="last_updated">Last updated</string>
     <string name="at_this_stop">At this stop: %1$s</string>
     <string name="stop_times">Stop Times</string>
-    <string name="download_instructions">Updating bus route and stop data takes about 20 seconds (stop GPS coordinates take a lot longer, but don\'t stop you from checking buses). Updating uses between 1M and 2M of data, and you can safely leave this screen during the update.</string>
+    <string name="download_instructions">Updating bus route and stop data takes a couple of minutes and uses between 1M and 2M of data. You can leave this screen during the update.</string>
     <string name="update">Start update</string>
     <string name="using_provider">Location provider: %1$s</string>
     <string name="no_provider">No location provider</string>
@@ -19,7 +19,7 @@
     <![CDATA[<html>
     <body>
     <h1>LTC Buses</h1>
-    <h3>Version 1.42test &copy; 2012 Fraser McCrossan</h3>
+    <h3>Version 1.42test2 &copy; 2012 Fraser McCrossan</h3>
     <h2>Notice</h2>
     <p>
     Although this app uses data from the
@@ -163,7 +163,7 @@
     <string name="msg_querying">fetch</string>
     <string name="msg_fail">fail</string>
     <string name="msg_bug">bug!</string>
-    <string name="weekday">weekday</string>
+    <string name="weekday">Weekday</string>
     <string name="saturday">Saturday</string>
     <string name="sunday">Sunday</string>
     <string name="status_format">Last %1$s download: %2$s</string>
@@ -213,7 +213,7 @@
     <string name="cancel">Cancel</string>
     <string name="no_routes_found">No routes found</string>
     <string name="downloading_routes">Updating routes</string>
-    <string name="downloading_locations">Updating stop locations</string>
+    <string name="downloading_locations">Routes done, fetching stop locations</string>
     <string name="loading_route_stop_locations">Locations: %1$s</string>
     <string name="loading_route_nodir">%1$s</string>
     <string name="loading_route_dir">Stops: %2$s %1$s</string>
@@ -227,5 +227,9 @@
     <string name="location_disabled">GPS is disabled</string>
     <string name="old_stop_locations">Stop locations are too old, update database</string>
     <string name="no_stop_locations">Stop locations not available, update database</string>
+    <string name="update_type">Day Type</string>
+    <string name="routes">Routes</string>
+    <string name="gps_locations">GPS Coords</string>
+    <string name="last_updates">Last Updates</string>
 
 </resources>

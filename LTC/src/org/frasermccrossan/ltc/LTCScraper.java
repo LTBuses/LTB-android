@@ -399,7 +399,7 @@ public class LTCScraper {
 					int totalToDo = routesToDo.size();
 					routesDone = new ArrayList<LTCRoute>(totalToDo);
 					int failures = 0;
-					ALLROUTEFETCH: while (routesToDo.size() > 0) {
+					while (routesToDo.size() > 0) {
 						int i = 0;
 						while (i < routesToDo.size()) {
 							try {
@@ -437,7 +437,7 @@ public class LTCScraper {
 					publishProgress(progress.message(res.getString(R.string.saving_database))
 							.percent(95));
 					BusDb db = new BusDb(context);
-					db.saveBusData(routesDone, allDirections.values(), allStops.values(), links);
+					db.saveBusData(routesDone, allDirections.values(), allStops.values(), links, false);
 					db.close();
 					if (fetchLocations[0]) {
 						// reset our trackers and prepare to download locations
@@ -446,7 +446,7 @@ public class LTCScraper {
 						int tries = 0;
 						publishProgress(progress.reset().enough(true)
 								.title(res.getString(R.string.downloading_locations)));
-						ALLROUTEFETCH: while (routesToDo.size() > 0) {
+						while (routesToDo.size() > 0) {
 							int i = 0;
 							while (i < routesToDo.size()) {
 								try {
@@ -463,7 +463,7 @@ public class LTCScraper {
 										loadStopLocations(routesToDo.get(i).number, stops);
 										// convert stops to a plain collection and save it
 										db = new BusDb(context);
-										db.saveBusData(null, null, stops.values(), null);
+										db.saveBusData(null, null, stops.values(), null, true);
 									}
 									db.close();
 									routesDone.add(routesToDo.get(i));

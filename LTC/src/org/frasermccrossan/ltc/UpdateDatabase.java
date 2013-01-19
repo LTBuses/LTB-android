@@ -27,9 +27,12 @@ public class UpdateDatabase extends Activity {
 	LTCScraper scraper = null;
 	ProgressBar progressBar;
 	TextView freshnessText;
-	TextView weekdayStatus;
-	TextView saturdayStatus;
-	TextView sundayStatus;
+	TextView weekdayStops;
+	TextView weekdayLocations;
+	TextView saturdayStops;
+	TextView saturdayLocations;
+	TextView sundayStops;
+	TextView sundayLocations;
 	TextView ageLimit;
 	TextView title;
 	TextView message;
@@ -74,9 +77,12 @@ public class UpdateDatabase extends Activity {
 
         progressBar = (ProgressBar)findViewById(R.id.progress);
         
-        weekdayStatus = (TextView)findViewById(R.id.weekday_status);
-        saturdayStatus = (TextView)findViewById(R.id.saturday_status);
-        sundayStatus = (TextView)findViewById(R.id.sunday_status);
+        weekdayStops = (TextView)findViewById(R.id.weekday_stops);
+        weekdayLocations = (TextView)findViewById(R.id.weekday_locations);
+        saturdayStops = (TextView)findViewById(R.id.saturday_stops);
+        saturdayLocations = (TextView)findViewById(R.id.saturday_locations);
+        sundayStops = (TextView)findViewById(R.id.sunday_stops);
+        sundayLocations = (TextView)findViewById(R.id.sunday_locations);
         ageLimit = (TextView)findViewById(R.id.age_limit);
         title = (TextView)findViewById(R.id.title);
         message = (TextView)findViewById(R.id.message);
@@ -86,15 +92,12 @@ public class UpdateDatabase extends Activity {
         int updateStatus = db.updateStatus(freshnesses, now);
         
         String statusFormat = res.getString(R.string.status_format);
-        weekdayStatus.setText(String.format(statusFormat,
-        		res.getString(R.string.weekday),
-        		freshnessDays(freshnesses.get(BusDb.WEEKDAY_FRESHNESS), res)));
-        saturdayStatus.setText(String.format(statusFormat,
-        		res.getString(R.string.saturday),
-        		freshnessDays(freshnesses.get(BusDb.SATURDAY_FRESHNESS), res)));
-        sundayStatus.setText(String.format(statusFormat,
-        		res.getString(R.string.sunday),
-        		freshnessDays(freshnesses.get(BusDb.SUNDAY_FRESHNESS), res)));
+        weekdayStops.setText(freshnessDays(freshnesses.get(BusDb.WEEKDAY_FRESHNESS), res));
+        weekdayLocations.setText(freshnessDays(freshnesses.get(BusDb.WEEKDAY_LOCATION_FRESHNESS), res));
+        saturdayStops.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_FRESHNESS), res));
+        saturdayLocations.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_LOCATION_FRESHNESS), res));
+        sundayStops.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_FRESHNESS), res));
+        sundayLocations.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_LOCATION_FRESHNESS), res));
         String statusLocationFormat = res.getString(R.string.status_location_format);
         ageLimit.setText(String.format(res.getString(R.string.age_limit),
         		freshnessDays(BusDb.UPDATE_DATABASE_AGE_LIMIT, res)));

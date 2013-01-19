@@ -528,7 +528,8 @@ public class BusDb {
 	public void saveBusData(Collection<LTCRoute> routes,
 			Collection<LTCDirection> directions,
 			Collection<LTCStop> stops,
-			Collection<RouteStopLink> links) throws SQLException {
+			Collection<RouteStopLink> links,
+			boolean withLocations) throws SQLException {
 		db.beginTransaction();
 		/* we use insert for everything below because all tables have an appropriate UNIQUE constraint with
 		 * ON CONFLICT REPLACE
@@ -590,6 +591,9 @@ public class BusDb {
 			}
 			cv.clear();
 			cv.put(currentFreshnessColumn(now), nowMillis);
+			if (withLocations) {
+				cv.put(currentLocationFreshnessColumn(now), nowMillis);
+			}
 			db.update(FRESHNESS_TABLE, cv, null, null);
 			db.setTransactionSuccessful();
 		} finally {
