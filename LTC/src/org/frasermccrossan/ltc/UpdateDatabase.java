@@ -71,10 +71,6 @@ public class UpdateDatabase extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.update_database);
 
-        Resources res = getResources();
-
-        BusDb db = new BusDb(this);
-
         progressBar = (ProgressBar)findViewById(R.id.progress);
         
         weekdayStops = (TextView)findViewById(R.id.weekday_stops);
@@ -86,22 +82,6 @@ public class UpdateDatabase extends Activity {
         ageLimit = (TextView)findViewById(R.id.age_limit);
         title = (TextView)findViewById(R.id.title);
         message = (TextView)findViewById(R.id.message);
-
-        Calendar now = Calendar.getInstance();
-        HashMap<Integer, Long> freshnesses = db.getFreshnesses(now.getTimeInMillis());
-        int updateStatus = db.updateStatus(freshnesses, now);
-        
-        String statusFormat = res.getString(R.string.status_format);
-        weekdayStops.setText(freshnessDays(freshnesses.get(BusDb.WEEKDAY_FRESHNESS), res));
-        weekdayLocations.setText(freshnessDays(freshnesses.get(BusDb.WEEKDAY_LOCATION_FRESHNESS), res));
-        saturdayStops.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_FRESHNESS), res));
-        saturdayLocations.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_LOCATION_FRESHNESS), res));
-        sundayStops.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_FRESHNESS), res));
-        sundayLocations.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_LOCATION_FRESHNESS), res));
-        String statusLocationFormat = res.getString(R.string.status_location_format);
-        ageLimit.setText(String.format(res.getString(R.string.age_limit),
-        		freshnessDays(BusDb.UPDATE_DATABASE_AGE_LIMIT, res)));
-        title.setText(res.getString(db.updateStrRes(updateStatus)));
         
         fetchPositions = (CheckBox)findViewById(R.id.fetch_positions);
         
@@ -136,9 +116,7 @@ public class UpdateDatabase extends Activity {
 		    	startActivity(diagnoseIntent);
 			}
         });
-        
-        db.close();
-        
+          
     }
 	
 	@Override
@@ -146,6 +124,7 @@ public class UpdateDatabase extends Activity {
 		super.onResume();
         Intent intent = new Intent(this, DownloadService.class);
         bindService(intent, connection, 0);
+        setFreshnesses();
 	}
 	
 	@Override
@@ -210,6 +189,26 @@ public class UpdateDatabase extends Activity {
 		cancelButton.setVisibility(ProgressBar.GONE);
 		progressBar.setVisibility(ProgressBar.GONE);
 	}
+	
+	void setFreshnesses() {
+        BusDb db = new BusDb(this);
+        Resources res = getResources();
+
+        Calendar now = Calendar.getInstance();
+        HashMap<Integer, Long> freshnesses = db.getFreshnesses(now.getTimeInMillis());
+        int updateStatus = db.updateStatus(freshnesses, now);
+        
+        weekdayStops.setText(freshnessDays(freshnesses.get(BusDb.WEEKDAY_FRESHNESS), res));
+        weekdayLocations.setText(freshnessDays(freshnesses.get(BusDb.WEEKDAY_LOCATION_FRESHNESS), res));
+        saturdayStops.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_FRESHNESS), res));
+        saturdayLocations.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_LOCATION_FRESHNESS), res));
+        sundayStops.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_FRESHNESS), res));
+        sundayLocations.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_LOCATION_FRESHNESS), res));
+        ageLimit.setText(String.format(res.getString(R.string.age_limit),
+        		freshnessDays(BusDb.UPDATE_DATABASE_AGE_LIMIT, res)));
+        title.setText(res.getString(db.updateStrRes(updateStatus)));
+        db.close();
+	}
 
 	class UpdateScrapingStatus implements ScrapingStatus {
 		
@@ -225,6 +224,9 @@ public class UpdateDatabase extends Activity {
 				progressBar.setProgress(progress.percent);
 				if (progress.percent >= 100) {
 					finish();
+				}
+				if (progress.completeEnough) {
+					setFreshnesses();
 				}
 				if (progress.percent < 0) {
 					notWorkingButton.setVisibility(Button.VISIBLE);

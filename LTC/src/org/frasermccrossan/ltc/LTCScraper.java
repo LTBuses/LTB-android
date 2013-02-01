@@ -439,6 +439,8 @@ public class LTCScraper {
 					BusDb db = new BusDb(context);
 					db.saveBusData(routesDone, allDirections.values(), allStops.values(), links, false);
 					db.close();
+					publishProgress(progress.message(res.getString(R.string.saving_database))
+							.percent(97).enough(true));
 					if (fetchLocations[0]) {
 						// reset our trackers and prepare to download locations
 						routesToDo.addAll(routesDone);
