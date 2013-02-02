@@ -95,9 +95,7 @@ public class BusDb {
 	
 	BusDb(Context c) {
 		context = c;
-		Log.i("BusDb", String.format("%d:%s %s", Thread.currentThread().getId(), "waiting to lock", blocker.toString()));
 		blocker.lock();
-		Log.i("BusDb", String.format("%d:%s %s", Thread.currentThread().getId(), "just locked", blocker.toString()));
 		BusDbOpenHelper helper = new BusDbOpenHelper(context);
 		db = helper.getWritableDatabase();
 	}
@@ -105,17 +103,16 @@ public class BusDb {
 	public void close() {
 		db.close();
 		blocker.unlock();
-		Log.i("BusDb", String.format("%d:%s %s", Thread.currentThread().getId(), "just unlocked", blocker.toString()));
 	}
 	
-	public int getCurrentFreshnessDayType(Calendar time) {
+	public String getCurrentFreshnessDayType(Calendar time) {
 		switch(time.get(Calendar.DAY_OF_WEEK)) {
 		case Calendar.SATURDAY:
-			return SATURDAY_FRESHNESS;
+			return SATURDAY_FRESHNESS_COLUMN;
 		case Calendar.SUNDAY:
-			return SUNDAY_FRESHNESS;
+			return SUNDAY_FRESHNESS_COLUMN;
 		default:
-			return WEEKDAY_FRESHNESS;
+			return WEEKDAY_FRESHNESS_COLUMN;
 		}
 	}
 	
@@ -131,25 +128,25 @@ public class BusDb {
 	}
 	
 	private String currentFreshnessColumn(Calendar time) {
-		switch(getCurrentFreshnessDayType(time)) {
-		case SATURDAY_FRESHNESS:
+		String curFresh = getCurrentFreshnessDayType(time);
+		if (curFresh.equals(SATURDAY_FRESHNESS_COLUMN)) {
 			return SATURDAY_FRESHNESS_COLUMN;
-		case SUNDAY_FRESHNESS:
-			return SUNDAY_FRESHNESS_COLUMN;
-		default:
-			return WEEKDAY_FRESHNESS_COLUMN;
 		}
+		if (curFresh.equals(SUNDAY_FRESHNESS_COLUMN)) {
+			return SUNDAY_FRESHNESS_COLUMN;
+		}
+		return WEEKDAY_FRESHNESS_COLUMN;
 	}
 	
 	private String currentLocationFreshnessColumn(Calendar time) {
-		switch(getCurrentFreshnessDayType(time)) {
-		case SATURDAY_FRESHNESS:
+		String curFresh = getCurrentFreshnessDayType(time);
+		if (curFresh.equals(SATURDAY_FRESHNESS_COLUMN)) {
 			return SATURDAY_LOCATION_FRESHNESS_COLUMN;
-		case SUNDAY_FRESHNESS:
-			return SUNDAY_LOCATION_FRESHNESS_COLUMN;
-		default:
-			return WEEKDAY_LOCATION_FRESHNESS_COLUMN;
 		}
+		if (curFresh.equals(SUNDAY_FRESHNESS_COLUMN)) {
+			return SUNDAY_LOCATION_FRESHNESS_COLUMN;
+		}
+		return WEEKDAY_LOCATION_FRESHNESS_COLUMN;
 	}
 	
 	public int updateStrRes(int updateStatus) {
@@ -165,19 +162,19 @@ public class BusDb {
 		}
 	}
 
-	HashMap<Integer, Long> getFreshnesses(long nowMillis) {
+	HashMap<String, Long> getFreshnesses(long nowMillis) {
 		Cursor c = db.rawQuery(String.format("select %s, %s, %s, %s, %s, %s from %s",
 				WEEKDAY_FRESHNESS_COLUMN, SATURDAY_FRESHNESS_COLUMN, SUNDAY_FRESHNESS_COLUMN,
 				WEEKDAY_LOCATION_FRESHNESS_COLUMN, SATURDAY_LOCATION_FRESHNESS_COLUMN, SUNDAY_LOCATION_FRESHNESS_COLUMN,
 				FRESHNESS_TABLE), null);
 		if (c.moveToFirst()) {
-			 HashMap<Integer, Long> f = new HashMap<Integer, Long>(3);
-			 f.put(WEEKDAY_FRESHNESS, nowMillis - c.getLong(0));
-			 f.put(SATURDAY_FRESHNESS, nowMillis - c.getLong(1));
-			 f.put(SUNDAY_FRESHNESS, nowMillis - c.getLong(2));
-			 f.put(WEEKDAY_LOCATION_FRESHNESS, nowMillis - c.getLong(3));
-			 f.put(SATURDAY_LOCATION_FRESHNESS, nowMillis - c.getLong(4));
-			 f.put(SUNDAY_LOCATION_FRESHNESS, nowMillis - c.getLong(5));
+			 HashMap<String, Long> f = new HashMap<String, Long>(3);
+			 f.put(WEEKDAY_FRESHNESS_COLUMN, nowMillis - c.getLong(0));
+			 f.put(SATURDAY_FRESHNESS_COLUMN, nowMillis - c.getLong(1));
+			 f.put(SUNDAY_FRESHNESS_COLUMN, nowMillis - c.getLong(2));
+			 f.put(WEEKDAY_LOCATION_FRESHNESS_COLUMN, nowMillis - c.getLong(3));
+			 f.put(SATURDAY_LOCATION_FRESHNESS_COLUMN, nowMillis - c.getLong(4));
+			 f.put(SUNDAY_LOCATION_FRESHNESS_COLUMN, nowMillis - c.getLong(5));
 			 c.close();
 			 return f;
 		}
@@ -186,11 +183,11 @@ public class BusDb {
 	}
 	
 	// determines if an update is recommended or required
-	public int updateStatus(HashMap<Integer, Long> freshnesses, Calendar now) {
+	public int updateStatus(HashMap<String, Long> freshnesses, Calendar now) {
 		if (freshnesses == null) {
 			return UPDATE_NOT_REQUIRED; // shouldn't happen
 		}
-		int currentFreshnessDayType = getCurrentFreshnessDayType(now);
+		String currentFreshnessDayType = getCurrentFreshnessDayType(now);
 		long currentFreshness = freshnesses.get(currentFreshnessDayType);
 		if (currentFreshness < UPDATE_DATABASE_AGE_LIMIT) {
 			// freshness for today's day type is younger than the threshold, we can bail out now
@@ -199,8 +196,8 @@ public class BusDb {
 		// nope, we need to know how old the others are
 		long latestOtherFreshness = UPDATE_DATABASE_AGE_LIMIT;
 		// at this point we are computing other freshness in epoch time
-		for (int ft: freshnesses.keySet()) {
-			if (ft != currentFreshnessDayType) {
+		for (String ft: freshnesses.keySet()) {
+			if (!ft.equals(currentFreshnessDayType)) {
 				if (freshnesses.get(ft) < latestOtherFreshness) {
 					latestOtherFreshness = freshnesses.get(ft);
 				}
@@ -214,11 +211,11 @@ public class BusDb {
 		return UPDATE_REQUIRED;
 	}
 	
-	public int locationUpdateStatus(HashMap<Integer, Long> freshnesses, Calendar now) {
+	public int locationUpdateStatus(HashMap<String, Long> freshnesses, Calendar now) {
 		if (freshnesses == null) {
 			return UPDATE_REQUIRED; // shouldn't happen
 		}
-		int currentFreshnessDayType = getCurrentFreshnessDayType(now);
+		String currentFreshnessDayType = getCurrentFreshnessDayType(now);
 		int currentLocationFreshnessDayType = getCurrentLocationFreshnessDayType(now);
 		if (freshnesses.get(currentLocationFreshnessDayType) ==
 				freshnesses.get(currentFreshnessDayType)) {
@@ -235,14 +232,14 @@ public class BusDb {
 	// this gets called from the main stop list screen so it does everything itself
 	public int getUpdateStatus() {
 		Calendar now = Calendar.getInstance();
-		HashMap<Integer, Long> freshnesses = getFreshnesses(now.getTimeInMillis());
+		HashMap<String, Long> freshnesses = getFreshnesses(now.getTimeInMillis());
 		return updateStatus(freshnesses, now);
 	}
 
 	// this gets called from the main stop list screen so it does everything itself
 	public int getLocationUpdateStatus() {
 		Calendar now = Calendar.getInstance();
-		HashMap<Integer, Long> freshnesses = getFreshnesses(now.getTimeInMillis());
+		HashMap<String, Long> freshnesses = getFreshnesses(now.getTimeInMillis());
 		return locationUpdateStatus(freshnesses, now);
 	}
 	
@@ -423,6 +420,7 @@ public class BusDb {
 			return summary;
 		}
 		else {
+			c.close();
 			return "";
 		}
 	}
@@ -524,6 +522,30 @@ public class BusDb {
 		}
 	}
 
+	// zero any freshnesses older than the "current" freshness
+	public void clearOldFreshnesses(String table, String col) {
+		Log.i("db", String.format("clearOld(%s,  %s)", table, col));
+		String s = String.format("UPDATE %s set %s = 0 WHERE %s < (SELECT %s from %s)",
+				table, col, col, col, FRESHNESS_TABLE);
+		db.execSQL(s);
+	}
+	
+	// delete any rows where all freshnesses are old
+	public void deleteStaleRecords(String table) {
+		Log.i("db", String.format("deleteStale(%s)", table));
+		String s = String.format("DELETE FROM %s WHERE %s = 0 and %s = 0 and %s = 0",
+				table,
+				WEEKDAY_FRESHNESS_COLUMN, SATURDAY_FRESHNESS_COLUMN, SUNDAY_FRESHNESS_COLUMN);
+		db.execSQL(s);
+	}
+	
+	// called by saveBusData() to clear out stale records
+	public void purgeStaleRecords(String table, String col) {
+		Log.i("db", String.format("purgeStale(%s,  %s)", table, col));
+		clearOldFreshnesses(table, col);
+		deleteStaleRecords(table);
+	}
+		
 	// called by the scraper to load everything it found into the database
 	public void saveBusData(Collection<LTCRoute> routes,
 			Collection<LTCDirection> directions,
@@ -537,31 +559,43 @@ public class BusDb {
 		try {
 			Calendar now = Calendar.getInstance();
 			long nowMillis = now.getTimeInMillis();
-			long deleteAge = nowMillis - DELETE_ROWS_AFTER;
-			String deleteCond = "freshness < ?";
-			String deleteArgs[] = new String[] { String.valueOf(deleteAge) };
+			String freshCol = currentFreshnessColumn(now);
 			ContentValues cv = new ContentValues(5); // 5 should deal with everything
+			cv.clear();
+			cv.put(freshCol, nowMillis);
+			if (withLocations) {
+				cv.put(currentLocationFreshnessColumn(now), nowMillis);
+			}
+			Log.i("db", "Update freshnesses");
+			db.update(FRESHNESS_TABLE, cv, null, null);
 			if (routes != null) {
+				Log.i("db", "Update routes");
 				for (LTCRoute route : routes) {
 					cv.clear();
 					cv.put(ROUTE_NUMBER, route.number);
 					cv.put(ROUTE_NAME, route.name);
-					cv.put(FRESHNESS, nowMillis);
-					db.insertWithOnConflict(ROUTE_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+					cv.put(freshCol, nowMillis);
+					if (db.update(ROUTE_TABLE, cv, String.format("%s = '%s'", ROUTE_NUMBER, route.number), null) == 0) {
+						db.insertWithOnConflict(ROUTE_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+					}
 				}
-				db.delete(ROUTE_TABLE, deleteCond, deleteArgs);
+				purgeStaleRecords(ROUTE_TABLE, freshCol);
 			}
 			if (directions != null) {
+				Log.i("db", "Update directions");
 				for (LTCDirection dir : directions) {
 					cv.clear();
 					cv.put(DIRECTION_NUMBER, dir.number);
 					cv.put(DIRECTION_NAME, dir.name);
-					cv.put(FRESHNESS, nowMillis);
-					db.insertWithOnConflict (DIRECTION_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
+					cv.put(freshCol, nowMillis);
+					if (db.update(DIRECTION_TABLE, cv, String.format("%s = %d", DIRECTION_NUMBER, dir.number), null) == 0) {
+						db.insertWithOnConflict (DIRECTION_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+					}
 				}
-				db.delete(DIRECTION_TABLE, deleteCond, deleteArgs);
+				purgeStaleRecords(DIRECTION_TABLE, freshCol);
 			}
 			if (stops != null) {
+				Log.i("db", "Update stops");
 				for (LTCStop stop : stops) {
 					cv.clear();
 					cv.put(STOP_NUMBER, stop.number);
@@ -571,30 +605,30 @@ public class BusDb {
 						cv.put(LATITUDE, stop.latitude);
 						cv.put(LONGITUDE, stop.longitude);
 					}
-					cv.put(FRESHNESS, nowMillis);
+					cv.put(freshCol, nowMillis);
 					if (db.update(STOP_TABLE, cv, String.format("%s = %d", STOP_NUMBER, stop.number), null) == 0) {
 						db.insertWithOnConflict (STOP_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 					}
 				}
-				db.delete(STOP_TABLE, deleteCond, deleteArgs);
+				purgeStaleRecords(STOP_TABLE, freshCol);
 			}
 			if (links != null) {
+				Log.i("db", "Update links");
 				for (RouteStopLink link : links) {
 					cv.clear();
 					cv.put(ROUTE_NUMBER, link.routeNumber);
 					cv.put(DIRECTION_NUMBER, link.directionNumber);
 					cv.put(STOP_NUMBER, link.stopNumber);
-					cv.put(FRESHNESS, nowMillis);
-					db.insertWithOnConflict (LINK_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);				
+					cv.put(freshCol, nowMillis);
+					if (db.update(LINK_TABLE, cv, String.format("%s = '%s' and %s = %d and %s = %d",
+							ROUTE_NUMBER, link.routeNumber,
+							DIRECTION_NUMBER, link.directionNumber,
+							STOP_NUMBER, link.stopNumber), null) == 0) {
+						db.insertWithOnConflict (LINK_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+					}
 				}
-				db.delete(LINK_TABLE, deleteCond, deleteArgs);
+				purgeStaleRecords(LINK_TABLE, freshCol);
 			}
-			cv.clear();
-			cv.put(currentFreshnessColumn(now), nowMillis);
-			if (withLocations) {
-				cv.put(currentLocationFreshnessColumn(now), nowMillis);
-			}
-			db.update(FRESHNESS_TABLE, cv, null, null);
 			db.setTransactionSuccessful();
 		} finally {
 			db.endTransaction();

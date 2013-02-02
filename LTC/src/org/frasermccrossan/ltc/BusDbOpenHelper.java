@@ -108,19 +108,19 @@ public class BusDbOpenHelper extends SQLiteOpenHelper {
 			// sqlite can't rename columns so rename old, create new and copy
 			db.beginTransaction();
 			try {
-				s = String.format("CREATE TABLE %s (_id integer primary key, %s TEXT UNIQUE ON CONFLICT REPLACE, %s TEXT, %s NUMBER NOT NULL, %s NUMBER NOT NULL, %s NUMBER NOT NULL)",
+				s = String.format("CREATE TABLE %s (_id integer primary key, %s TEXT UNIQUE ON CONFLICT REPLACE, %s TEXT, %s NUMBER NOT NULL DEFAULT 0, %s NUMBER NOT NULL DEFAULT 0, %s NUMBER NOT NULL DEFAULT 0)",
 						BusDb.ROUTE_TABLE, BusDb.ROUTE_NUMBER, BusDb.ROUTE_NAME,
 						BusDb.WEEKDAY_FRESHNESS_COLUMN, BusDb.SATURDAY_FRESHNESS_COLUMN, BusDb.SUNDAY_FRESHNESS_COLUMN);
 				updateTable3Freshness(db, BusDb.ROUTE_TABLE, s);
-				s = String.format("CREATE TABLE %s (_id integer primary key, %s NUMBER UNIQUE ON CONFLICT REPLACE, %s TEXT, %s NUMBER, %s NUMBER, %s NUMBER NOT NULL, %s NUMBER NOT NULL, %s NUMBER NOT NULL)",
+				s = String.format("CREATE TABLE %s (_id integer primary key, %s NUMBER UNIQUE ON CONFLICT REPLACE, %s TEXT, %s NUMBER, %s NUMBER, %s NUMBER NOT NULL DEFAULT 0, %s NUMBER NOT NULL DEFAULT 0, %s NUMBER NOT NULL DEFAULT 0)",
 						BusDb.STOP_TABLE, BusDb.STOP_NUMBER, BusDb.STOP_NAME, BusDb.LATITUDE, BusDb.LONGITUDE,
 						BusDb.WEEKDAY_FRESHNESS_COLUMN, BusDb.SATURDAY_FRESHNESS_COLUMN, BusDb.SUNDAY_FRESHNESS_COLUMN);
 				updateTable3Freshness(db, BusDb.STOP_TABLE, s);
-				s = String.format("CREATE TABLE %s (_id integer primary key, %s NUMBER UNIQUE, %s TEXT UNIQUE ON CONFLICT REPLACE, %s NUMBER NOT NULL, %s NUMBER NOT NULL, %s NUMBER NOT NULL)",
+				s = String.format("CREATE TABLE %s (_id integer primary key, %s NUMBER UNIQUE, %s TEXT UNIQUE ON CONFLICT REPLACE, %s NUMBER NOT NULL DEFAULT 0, %s NUMBER NOT NULL DEFAULT 0, %s NUMBER NOT NULL DEFAULT 0)",
 						BusDb.DIRECTION_TABLE, BusDb.DIRECTION_NUMBER, BusDb.DIRECTION_NAME,
 						BusDb.WEEKDAY_FRESHNESS_COLUMN, BusDb.SATURDAY_FRESHNESS_COLUMN, BusDb.SUNDAY_FRESHNESS_COLUMN);
 				updateTable3Freshness(db, BusDb.DIRECTION_TABLE, s);
-				s = String.format("CREATE TABLE %s (_id integer primary key, %s TEXT, %s NUMBER, %s NUMBER, %s NUMBER NOT NULL, %s NUMBER NOT NULL, %s NUMBER NOT NULL, UNIQUE(%s, %s, %s) ON CONFLICT REPLACE)",
+				s = String.format("CREATE TABLE %s (_id integer primary key, %s TEXT, %s NUMBER, %s NUMBER, %s NUMBER NOT NULL DEFAULT 0, %s NUMBER NOT NULL DEFAULT 0, %s NUMBER NOT NULL DEFAULT 0, UNIQUE(%s, %s, %s) ON CONFLICT REPLACE)",
 						BusDb.LINK_TABLE, BusDb.ROUTE_NUMBER, BusDb.DIRECTION_NUMBER, BusDb.STOP_NUMBER,
 						BusDb.WEEKDAY_FRESHNESS_COLUMN, BusDb.SATURDAY_FRESHNESS_COLUMN, BusDb.SUNDAY_FRESHNESS_COLUMN,
 						BusDb.ROUTE_NUMBER, BusDb.DIRECTION_NUMBER, BusDb.STOP_NUMBER);
@@ -157,8 +157,6 @@ public class BusDbOpenHelper extends SQLiteOpenHelper {
 	}
 
 	private void updateTable3Freshness(SQLiteDatabase db, String table, String createSQL) {
-		Log.i("ut3f", table);
-		Log.i("ut3f", createSQL);
 		String s;
 		s = String.format("ALTER TABLE %s rename to foo", table);
 		db.execSQL(s);

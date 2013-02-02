@@ -131,7 +131,6 @@ public class UpdateDatabase extends Activity {
 	protected void onPause() {
 		if (boundService != null) {
 			unbindService(connection);
-			boundService = null;
 		}
 		super.onPause();
 	}
@@ -195,15 +194,15 @@ public class UpdateDatabase extends Activity {
         Resources res = getResources();
 
         Calendar now = Calendar.getInstance();
-        HashMap<Integer, Long> freshnesses = db.getFreshnesses(now.getTimeInMillis());
+        HashMap<String, Long> freshnesses = db.getFreshnesses(now.getTimeInMillis());
         int updateStatus = db.updateStatus(freshnesses, now);
         
-        weekdayStops.setText(freshnessDays(freshnesses.get(BusDb.WEEKDAY_FRESHNESS), res));
-        weekdayLocations.setText(freshnessDays(freshnesses.get(BusDb.WEEKDAY_LOCATION_FRESHNESS), res));
-        saturdayStops.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_FRESHNESS), res));
-        saturdayLocations.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_LOCATION_FRESHNESS), res));
-        sundayStops.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_FRESHNESS), res));
-        sundayLocations.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_LOCATION_FRESHNESS), res));
+        weekdayStops.setText(freshnessDays(freshnesses.get(BusDb.WEEKDAY_FRESHNESS_COLUMN), res));
+        weekdayLocations.setText(freshnessDays(freshnesses.get(BusDb.WEEKDAY_LOCATION_FRESHNESS_COLUMN), res));
+        saturdayStops.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_FRESHNESS_COLUMN), res));
+        saturdayLocations.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_LOCATION_FRESHNESS_COLUMN), res));
+        sundayStops.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_FRESHNESS_COLUMN), res));
+        sundayLocations.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_LOCATION_FRESHNESS_COLUMN), res));
         ageLimit.setText(String.format(res.getString(R.string.age_limit),
         		freshnessDays(BusDb.UPDATE_DATABASE_AGE_LIMIT, res)));
         title.setText(res.getString(db.updateStrRes(updateStatus)));
