@@ -34,10 +34,9 @@ public class DownloadService extends Service {
 		resources = getResources();
 		notifManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 		notifBuilder = new NotificationCompat.Builder(DownloadService.this);
-		boolean fetchLocations = intent.getBooleanExtra(FETCH_POSITIONS, false);
 		UpdateStatus updateStatus = new UpdateStatus();
 		scraper = new LTCScraper(DownloadService.this, updateStatus);
-		scraper.loadAll(fetchLocations);
+		scraper.loadAll();
 		manuallyStopped = false;
 		return START_NOT_STICKY;
 	}

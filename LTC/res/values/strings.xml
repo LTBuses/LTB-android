@@ -214,9 +214,8 @@
     <string name="no_routes_found">No routes found</string>
     <string name="downloading_routes">Updating routes</string>
     <string name="downloading_locations">Routes done, fetching stop locations</string>
-    <string name="loading_route_stop_locations">Locations: %1$s</string>
+    <string name="loading_route_stop_locations">%1$s (stop locations)</string>
     <string name="loading_route_nodir">%1$s</string>
-    <string name="loading_route_dir">Stops: %2$s %1$s</string>
     <string name="too_many_failures">Too many failures, try again later.</string>
     <string name="unable_to_load_routes">Unable to load routes</string>
     <string name="saving_database">Saving data&#8230;</string>
@@ -228,8 +227,6 @@
     <string name="old_stop_locations">Stop locations are too old, update database</string>
     <string name="no_stop_locations">Stop locations not available, update database</string>
     <string name="update_type">Day Type</string>
-    <string name="routes">Routes</string>
-    <string name="gps_locations">GPS Coords</string>
-    <string name="last_updates">Last Updates</string>
+    <string name="last_update">Last Update</string>
 
 </resources>

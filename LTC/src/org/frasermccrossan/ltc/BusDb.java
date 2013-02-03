@@ -235,13 +235,6 @@ public class BusDb {
 		HashMap<String, Long> freshnesses = getFreshnesses(now.getTimeInMillis());
 		return updateStatus(freshnesses, now);
 	}
-
-	// this gets called from the main stop list screen so it does everything itself
-	public int getLocationUpdateStatus() {
-		Calendar now = Calendar.getInstance();
-		HashMap<String, Long> freshnesses = getFreshnesses(now.getTimeInMillis());
-		return locationUpdateStatus(freshnesses, now);
-	}
 	
 	void noteStopUse(int stopNumber) {
 		long now = System.currentTimeMillis();

@@ -2,14 +2,17 @@ package org.frasermccrossan.ltc;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.BasicResponseHandler;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Attributes;
@@ -20,8 +23,11 @@ import org.jsoup.select.Elements;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.sqlite.SQLiteException;
+import android.net.http.AndroidHttpClient;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.text.TextUtils.SimpleStringSplitter;
@@ -45,7 +51,7 @@ public class LTCScraper {
 	public static final String ROUTE_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx";
 	static final String DIRECTION_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx?r=%s";
 	static final String STOPS_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx?r=%s&d=%d";
-	static final String MAP_URL = "http://www.ltconline.ca/WebWatch/map.aspx?mode=g&r=%s";
+	static final String LOCATIONS_URL = "http://www.ltconline.ca/WebWatch/UpdateWebMap.aspx?u=%s";
 	static final String PREDICTIONS_URL = "http://teuchter.lan:8000/foo.html";
 	static final Pattern TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{2}) ?([AP])?");
 	// matches arrival text in the MobileAda.aspx prediction
@@ -85,19 +91,29 @@ public class LTCScraper {
 			task.cancel(true);
 		}
 	}
+	
+	String userAgent() {
+		try {
+			PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+			return String.format("%s %s", info.packageName, info.versionName);
+		}
+		catch (PackageManager.NameNotFoundException e) {
+			return "Unknown";
+		}
+	}
 
 	@SuppressLint("NewApi")
-	public void loadAll(Boolean fetchLocations) {
+	public void loadAll() {
 		task = new LoadDataTask();
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			/* on Honeycomb and later, ASyncTasks run on a serial executor, and since
 			 * we might have another asynctask running in an activity (e.g. fetching stop lists),
 			 * we don't really want them all to block
 			 */
-			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, fetchLocations);
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 		}
 		else {
-			task.execute(fetchLocations);
+			task.execute();
 		}
 	}
 
@@ -333,49 +349,50 @@ public class LTCScraper {
 
 	/* this just updates existing stops with any locations found from the google map URL */
 	void loadStopLocations(String routeNum, HashMap<Integer, LTCStop> stops) throws ScrapeException, IOException {
-		String url = String.format(MAP_URL, routeNum);
-		Connection conn = Jsoup.connect(url);
-		conn.timeout(FETCH_TIMEOUT);
-		Document doc = conn.get();
-		Elements scripts = doc.select("script");
-		for (Element script : scripts) {
-			String stopData = script.data();
-			if (stopData.contains("var initInfoString")) {
-				int offset = 0;
-				// skip past the crap at the start by finding the 4th asterisk
-				for (int i = 0; i < 4; ++i) {
-					offset = stopData.indexOf('*', offset) + 1;
-				}
-				/* get the interesting part, and while we're at it, remove all asterisks
-				 * so we don't have to deal with them at the start of latitudes later
-				 */
-				String actualStopText = stopData.substring(offset).replace("*", "");
-				StringSplitter splitter = new SimpleStringSplitter(';');
-				splitter.setString(actualStopText);
-				for (String stopInfo : splitter) {
-					String elems[] = stopInfo.split("\\|");
-					if (elems.length == 7) {
-						double latitude = Double.valueOf(elems[0]);
-						double longitude = Double.valueOf(elems[1]);
-						Matcher stopNumMatch = LOCATION_STOP_PATTERN.matcher(elems[4]);
-						if (stopNumMatch.find()) {
-							int stopNum = Integer.valueOf(stopNumMatch.group(1));
-							LTCStop stop = stops.get(stopNum);
-							if (stop != null) {
-								stop.latitude = latitude;
-								stop.longitude = longitude;
-							}
-						}
-					}
-				}
-				return;
-			}
+		String url = String.format(LOCATIONS_URL, routeNum);
+		AndroidHttpClient client = AndroidHttpClient.newInstance(userAgent());
+		HttpGet request = new HttpGet();
+		try {
+			request.setURI(new URI(url));
 		}
+		catch (URISyntaxException e) {
+			throw new ScrapeException("internal error: bad URL");
+		}
+        int offset = 0;
+        String stopData = client.execute(request, new BasicResponseHandler());
+        client.close();
+        // skip past the crap at the start by finding the 1st asterisk
+        for (int i = 0; i < 1; ++i) {
+        	offset = stopData.indexOf('*', offset) + 1;
+        }
+        /* get the interesting part, and while we're at it, remove all asterisks
+         * so we don't have to deal with them at the start of latitudes later
+         */
+        String actualStopText = stopData.substring(offset).replace("*", "");
+        StringSplitter splitter = new SimpleStringSplitter(';');
+        splitter.setString(actualStopText);
+        for (String stopInfo : splitter) {
+        	String elems[] = stopInfo.split("\\|");
+        	if (elems.length == 7) {
+        		double latitude = Double.valueOf(elems[0]);
+        		double longitude = Double.valueOf(elems[1]);
+        		Matcher stopNumMatch = LOCATION_STOP_PATTERN.matcher(elems[4]);
+        		if (stopNumMatch.find()) {
+        			int stopNum = Integer.valueOf(stopNumMatch.group(1));
+        			LTCStop stop = stops.get(stopNum);
+        			if (stop != null) {
+        				stop.latitude = latitude;
+        				stop.longitude = longitude;
+        			}
+        		}
+        	}
+        }
+        return;
 	}
 
-	private class LoadDataTask extends AsyncTask<Boolean, LoadProgress, Void> {
+	private class LoadDataTask extends AsyncTask<Void, LoadProgress, Void> {
 
-		protected Void doInBackground(Boolean... fetchLocations) {
+		protected Void doInBackground(Void... voids) {
 			ArrayList<LTCRoute> routesToDo;
 			ArrayList<LTCRoute> routesDone;
 			// all distinct directions (should only end up with four)
@@ -403,9 +420,8 @@ public class LTCScraper {
 						int i = 0;
 						while (i < routesToDo.size()) {
 							try {
-								int pct = 5 + 90 * routesDone.size() / totalToDo;
 								publishProgress(progress.message(String.format(res.getString(R.string.loading_route_nodir), routesToDo.get(i).name))
-										.percent(pct));
+										.percent(5 + 90 * routesDone.size() / totalToDo));
 								ArrayList<LTCDirection> routeDirections = loadDirections(routesToDo.get(i).number);
 								//        				Log.d("loadtask", String.format("route %s has %d directions", routes.get(i).number, routeDirections.size()));
 								for (LTCDirection dir: routeDirections) {
@@ -415,6 +431,9 @@ public class LTCScraper {
 //									publishProgress(progress.message(String.format(res.getString(R.string.loading_route_dir), routesToDo.get(i).name, dir.name))
 //											.percent(pct));
 									HashMap<Integer, LTCStop> stops = loadStops(routesToDo.get(i).number, dir.number);
+									publishProgress(progress.message(String.format(res.getString(R.string.loading_route_stop_locations), routesToDo.get(i).name))
+											.percent(6 + 90 * routesDone.size() / totalToDo));
+									loadStopLocations(routesToDo.get(i).number, stops);
 									for (int stopNumber: stops.keySet()) {
 										if (!allStops.containsKey(stopNumber)) {
 											allStops.put(stopNumber, stops.get(stopNumber));
@@ -440,51 +459,51 @@ public class LTCScraper {
 					db.saveBusData(routesDone, allDirections.values(), allStops.values(), links, false);
 					db.close();
 					publishProgress(progress.message(res.getString(R.string.saving_database))
-							.percent(97).enough(true));
-					if (fetchLocations[0]) {
-						// reset our trackers and prepare to download locations
-						routesToDo.addAll(routesDone);
-						routesDone.clear();
-						int tries = 0;
-						publishProgress(progress.reset().enough(true)
-								.title(res.getString(R.string.downloading_locations)));
-						while (routesToDo.size() > 0) {
-							int i = 0;
-							while (i < routesToDo.size()) {
-								try {
-									int pct = 100* routesDone.size() / totalToDo;
-									publishProgress(progress.message(routesToDo.get(i).name)
-											.percent(pct));
-									db = new BusDb(context);
-									// check if any stops on this route lack location information
-									if (db.getLocationlessStopCount(routesToDo.get(i)) > 0) {
-										// get existing stops from the database
-										HashMap<Integer, LTCStop> stops = db.findStopRoutesAnyDir(routesToDo.get(i).number);
-										db.close();
-										// update those with actual stop locations from the website
-										loadStopLocations(routesToDo.get(i).number, stops);
-										// convert stops to a plain collection and save it
-										db = new BusDb(context);
-										db.saveBusData(null, null, stops.values(), null, true);
-									}
-									db.close();
-									routesDone.add(routesToDo.get(i));
-									routesToDo.remove(i); // don't increment i, just remove the one we just did
-								}
-								catch (IOException e) {
-									failures++; // note that one failed
-									if (failures > FAILURE_LIMIT) {
-										throw(new ScrapeException(res.getString(R.string.too_many_failures), ScrapeStatus.PROBLEM_IMMEDIATELY));
-									}
-									i++; // go to the next one
-								}
-								tries++;
-							}
-						}
-					}
-					publishProgress(progress.title(res.getString(R.string.stop_download_complete))
-							.message(res.getString(R.string.database_ready))
-							.complete());
+							.percent(100).enough(true));
+//					if (fetchLocations[0]) {
+//						// reset our trackers and prepare to download locations
+//						routesToDo.addAll(routesDone);
+//						routesDone.clear();
+//						int tries = 0;
+//						publishProgress(progress.reset().enough(true)
+//								.title(res.getString(R.string.downloading_locations)));
+//						while (routesToDo.size() > 0) {
+//							int i = 0;
+//							while (i < routesToDo.size()) {
+//								try {
+//									int pct = 100* routesDone.size() / totalToDo;
+//									publishProgress(progress.message(routesToDo.get(i).name)
+//											.percent(pct));
+//									db = new BusDb(context);
+//									// check if any stops on this route lack location information
+//									if (db.getLocationlessStopCount(routesToDo.get(i)) > 0) {
+//										// get existing stops from the database
+//										HashMap<Integer, LTCStop> stops = db.findStopRoutesAnyDir(routesToDo.get(i).number);
+//										db.close();
+//										// update those with actual stop locations from the website
+//										loadStopLocations(routesToDo.get(i).number, stops);
+//										// convert stops to a plain collection and save it
+//										db = new BusDb(context);
+//										db.saveBusData(null, null, stops.values(), null, true);
+//									}
+//									db.close();
+//									routesDone.add(routesToDo.get(i));
+//									routesToDo.remove(i); // don't increment i, just remove the one we just did
+//								}
+//								catch (IOException e) {
+//									failures++; // note that one failed
+//									if (failures > FAILURE_LIMIT) {
+//										throw(new ScrapeException(res.getString(R.string.too_many_failures), ScrapeStatus.PROBLEM_IMMEDIATELY));
+//									}
+//									i++; // go to the next one
+//								}
+//								tries++;
+//							}
+//						}
+//					}
+//					publishProgress(progress.title(res.getString(R.string.stop_download_complete))
+//							.message(res.getString(R.string.database_ready))
+//							.complete());
 				}
 			}
 			catch (IOException e) {

@@ -85,9 +85,6 @@ public class FindStop extends Activity {
 				else if (!myLocationManager.isProviderEnabled(locProvider)) {
 					failReason = R.string.location_disabled;
 				}
-				else if (db.getLocationUpdateStatus() == BusDb.UPDATE_REQUIRED) {
-					failReason = R.string.no_stop_locations;
-				}
 				db.close();
 				if (failReason != 0) {
 					searchTypeSpinner.setSelection(RECENT_STOPS);

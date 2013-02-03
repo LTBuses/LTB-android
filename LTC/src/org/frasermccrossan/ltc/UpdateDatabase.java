@@ -28,18 +28,14 @@ public class UpdateDatabase extends Activity {
 	ProgressBar progressBar;
 	TextView freshnessText;
 	TextView weekdayStops;
-	TextView weekdayLocations;
 	TextView saturdayStops;
-	TextView saturdayLocations;
 	TextView sundayStops;
-	TextView sundayLocations;
 	TextView ageLimit;
 	TextView title;
 	TextView message;
 	Button updateButton;
 	Button cancelButton;
 	Button notWorkingButton;
-	CheckBox fetchPositions;
 	UpdateScrapingStatus scrapingStatus = null;
 	DownloadService boundService = null;
 	
@@ -74,23 +70,17 @@ public class UpdateDatabase extends Activity {
         progressBar = (ProgressBar)findViewById(R.id.progress);
         
         weekdayStops = (TextView)findViewById(R.id.weekday_stops);
-        weekdayLocations = (TextView)findViewById(R.id.weekday_locations);
         saturdayStops = (TextView)findViewById(R.id.saturday_stops);
-        saturdayLocations = (TextView)findViewById(R.id.saturday_locations);
         sundayStops = (TextView)findViewById(R.id.sunday_stops);
-        sundayLocations = (TextView)findViewById(R.id.sunday_locations);
         ageLimit = (TextView)findViewById(R.id.age_limit);
         title = (TextView)findViewById(R.id.title);
         message = (TextView)findViewById(R.id.message);
-        
-        fetchPositions = (CheckBox)findViewById(R.id.fetch_positions);
         
         updateButton = (Button)findViewById(R.id.update_button);
         updateButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent serviceIntent = new Intent(UpdateDatabase.this, DownloadService.class);
-				serviceIntent.putExtra(DownloadService.FETCH_POSITIONS, fetchPositions.isChecked());
 				startService(serviceIntent);
 		        bindService(serviceIntent, connection, 0);
 			}
@@ -177,14 +167,12 @@ public class UpdateDatabase extends Activity {
 	
 	void disableUI() {
 		updateButton.setVisibility(ProgressBar.GONE);
-		fetchPositions.setVisibility(CheckBox.GONE);
 		cancelButton.setVisibility(ProgressBar.VISIBLE);
 		progressBar.setVisibility(ProgressBar.VISIBLE);
 	}
 	
 	void enableUI() {
 		updateButton.setVisibility(ProgressBar.VISIBLE);
-		fetchPositions.setVisibility(CheckBox.VISIBLE);
 		cancelButton.setVisibility(ProgressBar.GONE);
 		progressBar.setVisibility(ProgressBar.GONE);
 	}
@@ -198,11 +186,8 @@ public class UpdateDatabase extends Activity {
         int updateStatus = db.updateStatus(freshnesses, now);
         
         weekdayStops.setText(freshnessDays(freshnesses.get(BusDb.WEEKDAY_FRESHNESS_COLUMN), res));
-        weekdayLocations.setText(freshnessDays(freshnesses.get(BusDb.WEEKDAY_LOCATION_FRESHNESS_COLUMN), res));
         saturdayStops.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_FRESHNESS_COLUMN), res));
-        saturdayLocations.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_LOCATION_FRESHNESS_COLUMN), res));
         sundayStops.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_FRESHNESS_COLUMN), res));
-        sundayLocations.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_LOCATION_FRESHNESS_COLUMN), res));
         ageLimit.setText(String.format(res.getString(R.string.age_limit),
         		freshnessDays(BusDb.UPDATE_DATABASE_AGE_LIMIT, res)));
         title.setText(res.getString(db.updateStrRes(updateStatus)));
