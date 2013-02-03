@@ -43,6 +43,11 @@ public class DownloadService extends Service {
 	
 	public void cancel() {
 		manuallyStopped = true;
+		if (scraper != null) {
+			scraper.cancelLoadAll();
+			scraper.close();
+			scraper = null;
+		}
 		stopSelf();
 	}
 	
@@ -139,6 +144,7 @@ public class DownloadService extends Service {
 		if (scraper != null) {
 			scraper.cancelLoadAll();
 			scraper.close();
+			scraper = null;
 		}
 		if (notifManager != null && manuallyStopped) {
 			notifManager.cancelAll();
