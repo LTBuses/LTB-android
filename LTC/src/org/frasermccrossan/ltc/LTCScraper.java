@@ -117,11 +117,11 @@ public class LTCScraper {
 		}
 	}
 
-	public void cancelLoadAll() {
-		if (task != null) {
-			task.cancel(true);
-		}
-	}
+//	public void cancelLoadAll() {
+//		if (task != null) {
+//			task.cancel(true);
+//		}
+//	}
 
 	public String predictionUrl(LTCRoute route, String stopNumber) {
 		//		return PREDICTIONS_URL;
@@ -416,7 +416,7 @@ public class LTCScraper {
 					int totalToDo = routesToDo.size();
 					routesDone = new ArrayList<LTCRoute>(totalToDo);
 					int failures = 0;
-					while (routesToDo.size() > 0) {
+					MAINLOOP: while (routesToDo.size() > 0) {
 						int i = 0;
 						while (i < routesToDo.size()) {
 							try {
@@ -430,9 +430,15 @@ public class LTCScraper {
 									}
 //									publishProgress(progress.message(String.format(res.getString(R.string.loading_route_dir), routesToDo.get(i).name, dir.name))
 //											.percent(pct));
+									if (isCancelled()) {
+										break MAINLOOP;
+									}
 									HashMap<Integer, LTCStop> stops = loadStops(routesToDo.get(i).number, dir.number);
 									publishProgress(progress.message(String.format(res.getString(R.string.loading_route_stop_locations), routesToDo.get(i).name))
 											.percent(6 + 90 * routesDone.size() / totalToDo));
+									if (isCancelled()){
+										break MAINLOOP;
+									}
 									loadStopLocations(routesToDo.get(i).number, stops);
 									for (int stopNumber: stops.keySet()) {
 										if (!allStops.containsKey(stopNumber)) {
@@ -455,56 +461,14 @@ public class LTCScraper {
 					}
 					publishProgress(progress.message(res.getString(R.string.saving_database))
 							.percent(95));
-					BusDb db = new BusDb(context);
-					db.saveBusData(routesDone, allDirections.values(), allStops.values(), links, false);
-					db.close();
-					publishProgress(progress.title(res.getString(R.string.stop_download_complete))
-					.message(res.getString(R.string.database_ready))
-					.percent(100).complete());
-//					if (fetchLocations[0]) {
-//						// reset our trackers and prepare to download locations
-//						routesToDo.addAll(routesDone);
-//						routesDone.clear();
-//						int tries = 0;
-//						publishProgress(progress.reset().enough(true)
-//								.title(res.getString(R.string.downloading_locations)));
-//						while (routesToDo.size() > 0) {
-//							int i = 0;
-//							while (i < routesToDo.size()) {
-//								try {
-//									int pct = 100* routesDone.size() / totalToDo;
-//									publishProgress(progress.message(routesToDo.get(i).name)
-//											.percent(pct));
-//									db = new BusDb(context);
-//									// check if any stops on this route lack location information
-//									if (db.getLocationlessStopCount(routesToDo.get(i)) > 0) {
-//										// get existing stops from the database
-//										HashMap<Integer, LTCStop> stops = db.findStopRoutesAnyDir(routesToDo.get(i).number);
-//										db.close();
-//										// update those with actual stop locations from the website
-//										loadStopLocations(routesToDo.get(i).number, stops);
-//										// convert stops to a plain collection and save it
-//										db = new BusDb(context);
-//										db.saveBusData(null, null, stops.values(), null, true);
-//									}
-//									db.close();
-//									routesDone.add(routesToDo.get(i));
-//									routesToDo.remove(i); // don't increment i, just remove the one we just did
-//								}
-//								catch (IOException e) {
-//									failures++; // note that one failed
-//									if (failures > FAILURE_LIMIT) {
-//										throw(new ScrapeException(res.getString(R.string.too_many_failures), ScrapeStatus.PROBLEM_IMMEDIATELY));
-//									}
-//									i++; // go to the next one
-//								}
-//								tries++;
-//							}
-//						}
-//					}
-//					publishProgress(progress.title(res.getString(R.string.stop_download_complete))
-//							.message(res.getString(R.string.database_ready))
-//							.complete());
+					if (!isCancelled()) {
+						BusDb db = new BusDb(context);
+						db.saveBusData(routesDone, allDirections.values(), allStops.values(), links, false);
+						db.close();
+						publishProgress(progress.title(res.getString(R.string.stop_download_complete))
+								.message(res.getString(R.string.database_ready))
+								.percent(100).complete());
+					}
 				}
 			}
 			catch (IOException e) {

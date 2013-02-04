@@ -44,7 +44,7 @@ public class DownloadService extends Service {
 	public void cancel() {
 		manuallyStopped = true;
 		if (scraper != null) {
-			scraper.cancelLoadAll();
+//			scraper.cancelLoadAll();
 			scraper.close();
 			scraper = null;
 		}
@@ -142,7 +142,7 @@ public class DownloadService extends Service {
 	@Override
 	public void onDestroy() {
 		if (scraper != null) {
-			scraper.cancelLoadAll();
+//			scraper.cancelLoadAll();
 			scraper.close();
 			scraper = null;
 		}
