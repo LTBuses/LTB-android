@@ -189,7 +189,7 @@ public class UpdateDatabase extends Activity {
         saturdayStops.setText(freshnessDays(freshnesses.get(BusDb.SATURDAY_FRESHNESS_COLUMN), res));
         sundayStops.setText(freshnessDays(freshnesses.get(BusDb.SUNDAY_FRESHNESS_COLUMN), res));
         ageLimit.setText(String.format(res.getString(R.string.age_limit),
-        		freshnessDays(BusDb.UPDATE_DATABASE_AGE_LIMIT, res)));
+        		freshnessDays(BusDb.UPDATE_DATABASE_AGE_LIMIT_HARD, res)));
         title.setText(res.getString(db.updateStrRes(updateStatus)));
         db.close();
 	}

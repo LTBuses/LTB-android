@@ -72,7 +72,8 @@ public class BusDb {
 	static final int UPDATE_NOT_REQUIRED = 0;
 	static final int UPDATE_RECOMMENDED = 1;
 	static final int UPDATE_REQUIRED = 2;
-	static final long UPDATE_DATABASE_AGE_LIMIT = 1000L * 60L * 60L * 24L * 90L; // 90 days
+	static final long UPDATE_DATABASE_AGE_LIMIT_SOFT = 1000L * 60L * 60L * 24L * 75L; // 90 days
+	static final long UPDATE_DATABASE_AGE_LIMIT_HARD = 1000L * 60L * 60L * 24L * 90L; // 90 days
 	static final long DELETE_ROWS_AFTER = 1000L * 60L * 60L * 24L * 180L;
 	
 	static final String LINK_TABLE = "route_stops";
@@ -193,44 +194,14 @@ public class BusDb {
 		}
 		String currentFreshnessDayType = getCurrentFreshnessDayType(now);
 		long currentFreshness = freshnesses.get(currentFreshnessDayType);
-		if (currentFreshness < UPDATE_DATABASE_AGE_LIMIT) {
+		if (currentFreshness < UPDATE_DATABASE_AGE_LIMIT_SOFT) {
 			// freshness for today's day type is younger than the threshold, we can bail out now
 			return UPDATE_NOT_REQUIRED;
 		}
-		// nope, we need to know how old the others are
-		long latestOtherFreshness = UPDATE_DATABASE_AGE_LIMIT;
-		// at this point we are computing other freshness in epoch time
-		for (String ft: freshnesses.keySet()) {
-			if (!ft.equals(currentFreshnessDayType)) {
-				if (freshnesses.get(ft) < latestOtherFreshness) {
-					latestOtherFreshness = freshnesses.get(ft);
-				}
-			}
-		}
-		if (latestOtherFreshness < UPDATE_DATABASE_AGE_LIMIT) {
-			// one of the others is recent enough, just recommend an update
+		if (currentFreshness < UPDATE_DATABASE_AGE_LIMIT_HARD) {
 			return UPDATE_RECOMMENDED;
 		}
-		// nothing is young enough, require an update
 		return UPDATE_REQUIRED;
-	}
-	
-	public int locationUpdateStatus(HashMap<String, Long> freshnesses, Calendar now) {
-		if (freshnesses == null) {
-			return UPDATE_REQUIRED; // shouldn't happen
-		}
-		String currentFreshnessDayType = getCurrentFreshnessDayType(now);
-		int currentLocationFreshnessDayType = getCurrentLocationFreshnessDayType(now);
-		if (freshnesses.get(currentLocationFreshnessDayType) ==
-				freshnesses.get(currentFreshnessDayType)) {
-			// location freshness and stop freshness are the same, all up to date!
-			return UPDATE_NOT_REQUIRED;
-		}
-		if (freshnesses.get(currentLocationFreshnessDayType) - freshnesses.get(currentFreshnessDayType) > UPDATE_DATABASE_AGE_LIMIT) {
-			return UPDATE_REQUIRED; // means no locations, disable the menu
-		}
-		// means locations are fairly new, but show warning
-		return UPDATE_RECOMMENDED;
 	}
 	
 	// this gets called from the main stop list screen so it does everything itself
