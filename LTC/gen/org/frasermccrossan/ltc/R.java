@@ -151,6 +151,7 @@ public final class R {
         public static final int no_service=0x7f05003b;
         public static final int no_stop_locations=0x7f050056;
         public static final int no_stops_found=0x7f05002c;
+        public static final int none_stop_today=0x7f050059;
         public static final int not_working=0x7f050034;
         public static final int notification_progress_format=0x7f050050;
         public static final int notification_progress_format_pct=0x7f050045;

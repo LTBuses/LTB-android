@@ -401,6 +401,7 @@ public class BusDb {
 		if (c.moveToFirst()) {
 			String summary = null;
 			String lastRouteNum = "";
+			@SuppressWarnings("unused")
 			int i;
 			for (i = 0; !c.isAfterLast(); i++, c.moveToNext()) {
 				String routeNum = c.getString(0);

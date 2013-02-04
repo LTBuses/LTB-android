@@ -83,25 +83,31 @@ public class StopTimes extends Activity {
         String routeNumberOnly = intent.getStringExtra(BusDb.ROUTE_NUMBER);
         int routeDirectionOnly = intent.getIntExtra(BusDb.DIRECTION_NUMBER, 0);
         routeList = db.findStopRoutes(stopNumber, routeNumberOnly, routeDirectionOnly);
-        
-        /* now create a list of route views based on that routeList */
-        routeViews = new ArrayList<RouteDirTextView>(routeList.size());
-        for (LTCRoute route : routeList) {
-        	RouteDirTextView routeView = new RouteDirTextView(this, route);
-        	routeViews.add(routeView);
-        	routeViewLayout.addView(routeView);
-        }
-        
-        predictionList = (ListView)findViewById(R.id.prediction_list);
-        predictionList.setEmptyView(findViewById(R.id.empty_prediction_list));
-		predictions = new ArrayList<HashMap<String,String>>(3);
-		adapter = new SimpleAdapter(StopTimes.this,
-       		 predictions,
-       		 R.layout.prediction_item,
-       		 new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.DIRECTION_IMG_RES, BusDb.ROUTE_NAME, BusDb.DESTINATION, BusDb.RAW_TIME },
-       		 new int[] { R.id.crossing_time, R.id.route_number, R.id.route_direction_img, R.id.route_long_name, R.id.destination, R.id.raw_crossing_time });
-        predictionList.setAdapter(adapter);
         db.close();
+
+        if (routeList.size() == 0) {
+        	Toast.makeText(StopTimes.this, R.string.none_stop_today, Toast.LENGTH_SHORT).show();
+        	finish();
+        }
+        else {
+        	/* now create a list of route views based on that routeList */
+        	routeViews = new ArrayList<RouteDirTextView>(routeList.size());
+        	for (LTCRoute route : routeList) {
+        		RouteDirTextView routeView = new RouteDirTextView(this, route);
+        		routeViews.add(routeView);
+        		routeViewLayout.addView(routeView);
+        	}
+
+        	predictionList = (ListView)findViewById(R.id.prediction_list);
+        	predictionList.setEmptyView(findViewById(R.id.empty_prediction_list));
+        	predictions = new ArrayList<HashMap<String,String>>(3);
+        	adapter = new SimpleAdapter(StopTimes.this,
+        			predictions,
+        			R.layout.prediction_item,
+        			new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.DIRECTION_IMG_RES, BusDb.ROUTE_NAME, BusDb.DESTINATION, BusDb.RAW_TIME },
+        			new int[] { R.id.crossing_time, R.id.route_number, R.id.route_direction_img, R.id.route_long_name, R.id.destination, R.id.raw_crossing_time });
+        	predictionList.setAdapter(adapter);
+        }
 	}
 	
 	@Override

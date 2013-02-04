@@ -228,5 +228,6 @@
     <string name="no_stop_locations">Stop locations not available, update database</string>
     <string name="update_type">Day Type</string>
     <string name="last_update">Last Update</string>
+    <string name="none_stop_today">No routes stop here today</string>
 
 </resources>
