@@ -138,6 +138,10 @@ public class BusDb {
 		return WEEKDAY_FRESHNESS_COLUMN;
 	}
 	
+	private String currentFreshnessColumnNow() {
+		return currentFreshnessColumn(Calendar.getInstance());
+	}
+	
 	private String currentLocationFreshnessColumn(Calendar time) {
 		String curFresh = getCurrentFreshnessDayType(time);
 		if (curFresh.equals(SATURDAY_FRESHNESS_COLUMN)) {
@@ -353,7 +357,8 @@ public class BusDb {
 	
 	/* this fetches routes, but it also adds the direction and direction initial letter */
 	ArrayList<LTCRoute> findStopRoutes(String stopNumber, String routeNumber, int directionNumber) {
-		Cursor c = db.rawQuery(String.format("select %s.%s, %s.%s, %s.%s, %s.%s from %s, %s, %s where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ?",
+		String freshCol = currentFreshnessColumnNow();
+		Cursor c = db.rawQuery(String.format("select %s.%s, %s.%s, %s.%s, %s.%s from %s, %s, %s where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ? and %s.%s != 0",
 											 ROUTE_TABLE, ROUTE_NUMBER,
 											 ROUTE_TABLE, ROUTE_NAME,
 											 LINK_TABLE, DIRECTION_NUMBER,
@@ -361,7 +366,8 @@ public class BusDb {
 											 ROUTE_TABLE, LINK_TABLE, DIRECTION_TABLE,
 											 ROUTE_TABLE, ROUTE_NUMBER, LINK_TABLE, ROUTE_NUMBER,
 											 LINK_TABLE, DIRECTION_NUMBER, DIRECTION_TABLE, DIRECTION_NUMBER,
-											 LINK_TABLE, STOP_NUMBER),
+											 LINK_TABLE, STOP_NUMBER,
+											 LINK_TABLE, freshCol),
 				new String[] { stopNumber });
 		ArrayList<LTCRoute> routes = new ArrayList<LTCRoute>();
 		if (c.moveToFirst()) {
@@ -378,16 +384,19 @@ public class BusDb {
 	
 	/* this fetches routes, but it also adds the direction and direction initial letter */
 	private String findStopRouteSummary(String stopNumber) {
-		Cursor c = db.rawQuery(String.format("select ltrim(%s.%s, '0'), substr(%s.%s, 1, 1) " +
+		String freshCol = currentFreshnessColumnNow();
+		String query = String.format("select ltrim(%s.%s, '0'), substr(%s.%s, 1, 1) " +
 				"from %s, %s, %s " +
-				"where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ? " +
+				"where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ? and %s.%s != 0 " +
 				"order by %s.%s",
 				ROUTE_TABLE, ROUTE_NUMBER, DIRECTION_TABLE, DIRECTION_NAME,
 				ROUTE_TABLE, LINK_TABLE, DIRECTION_TABLE,
 				ROUTE_TABLE, ROUTE_NUMBER, LINK_TABLE, ROUTE_NUMBER,
 				LINK_TABLE, DIRECTION_NUMBER, DIRECTION_TABLE, DIRECTION_NUMBER,
 				LINK_TABLE, STOP_NUMBER,
-				ROUTE_TABLE, ROUTE_NUMBER),
+				LINK_TABLE, freshCol,
+				ROUTE_TABLE, ROUTE_NUMBER);
+		Cursor c = db.rawQuery(query,
 				new String[] { stopNumber });
 		if (c.moveToFirst()) {
 			String summary = null;
