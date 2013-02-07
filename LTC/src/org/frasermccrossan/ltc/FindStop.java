@@ -307,6 +307,10 @@ public class FindStop extends Activity {
 			Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
 			MenuItem map = menu.add(ContextMenu.NONE, Menu.NONE, 1, R.string.show_map);
 			map.setIntent(mapIntent);
+//			Intent connIntent = new Intent(FindStop.this, FindConnections.class);
+//			connIntent.putExtra(BusDb.STOP_NUMBER, stop.get(BusDb.STOP_NUMBER));
+//			MenuItem conn = menu.add(ContextMenu.NONE, Menu.NONE, 3, R.string.find_connections);
+//			conn.setIntent(connIntent);
 		}
 		BusDb db = new BusDb(this);
 		ArrayList<LTCRoute> stopRoutes = db.findStopRoutes(stop.get(BusDb.STOP_NUMBER), null, 0);
@@ -316,7 +320,7 @@ public class FindStop extends Activity {
 			stopTimeIntent.putExtra(BusDb.STOP_NUMBER, stop.get(BusDb.STOP_NUMBER));
 			stopTimeIntent.putExtra(BusDb.ROUTE_NUMBER, stopRoute.number);
 			stopTimeIntent.putExtra(BusDb.DIRECTION_NUMBER, stopRoute.direction);
-			MenuItem check = menu.add(ContextMenu.NONE, Menu.NONE, 3, String.format(getString(R.string.only_check_route), stopRoute.getShortRouteDirection()));
+			MenuItem check = menu.add(ContextMenu.NONE, Menu.NONE, 4, String.format(getString(R.string.only_check_route), stopRoute.getShortRouteDirection()));
 			check.setIntent(stopTimeIntent);
 		}
 	}

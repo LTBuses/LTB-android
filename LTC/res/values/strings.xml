@@ -19,7 +19,7 @@
     <![CDATA[<html>
     <body>
     <h1>LTC Buses</h1>
-    <h3>Version 1.43 &copy; 2012 Fraser McCrossan</h3>
+    <h3>Version 1.50 &copy; 2012 Fraser McCrossan</h3>
     <h2>Notice</h2>
     <p>
     Although this app uses data from the
@@ -229,5 +229,8 @@
     <string name="update_type">Day Type</string>
     <string name="last_update">Last Update</string>
     <string name="none_stop_today">No routes stop here today</string>
+    <string name="no_connecting_found">No connecting routes found</string>
+    <string name="searching_for_connections">Searching for connections...</string>
+    <string name="find_connections">Find connections...</string>
 
 </resources>

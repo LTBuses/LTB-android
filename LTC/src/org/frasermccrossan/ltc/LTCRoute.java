@@ -57,9 +57,12 @@ public class LTCRoute {
 		return getOneLetterDirection() + "B";
 	}
 	
+	char dirChar() {
+		return directionName.charAt(0);
+	}
+	
 	String getDirectionDrawableRes() {
-		char dir = directionName.charAt(0);
-		switch (dir) {
+		switch (dirChar()) {
 		case 'N':
 		case 'n':
 			return NORTHBOUND_IMG;

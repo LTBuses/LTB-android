@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.frasermccrossan.ltc"
-    android:versionCode="17"
-    android:versionName="1.43" >
+    android:versionCode="18"
+    android:versionName="1.50" >
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="15" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -27,6 +27,9 @@
         <activity
             android:name=".StopTimes"
             android:label="@string/stop_times" />
+<!--         <activity -->
+<!--             android:name=".FindConnections" -->
+<!--             android:label="@string/find_connections" /> -->
         <activity
             android:name=".About"
             android:label="@string/about" />

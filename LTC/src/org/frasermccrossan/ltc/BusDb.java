@@ -51,7 +51,6 @@ public class BusDb {
 	static final String STOP_USES_COUNT = "stop_uses_count"; // for the count view
 	static final int STOP_HISTORY_LENGTH = 200;
 	
-	static final String ROUTE_LIST = "route_list";
 
 	static final String FRESHNESS = "freshness";
 	
@@ -88,6 +87,8 @@ public class BusDb {
 	static final String DISTANCE_ORDER = "distance_order";
 	static final String ROUTE_INTERNAL_NUMBER = "route_object"; // for storing route object in prediction entry
 	static final String ROUTE_DIRECTION_NAME = "route_name";
+	static final String ROUTE_LIST = "route_list";
+	static final String CONN_LIST = "conn_list";
 	
 	static final private ReentrantLock blocker = new ReentrantLock();
 	
@@ -471,6 +472,111 @@ public class BusDb {
 
 	}
 
+//	public HashMap<String, LTCConnection> findConnections(String stopNumber) {
+//		HashMap<String, LTCConnection> connections = new HashMap<String, LTCConnection>();
+//		LTCStop stop = findStop(stopNumber);
+//		
+//		ArrayList<LTCRoute> routesLeavingHere = findStopRoutes(stopNumber, null, 0);
+//		for (LTCRoute route: routesLeavingHere) {
+//			// for each route leaving this stop, find all routes it connects to, at which stop
+//			ArrayList<LTCConnection> routeConnections = findRouteConnections(stop, route, routesLeavingHere);
+//		}
+//		return connections;
+//	}
+//	
+//	/* return the SQL search condition for stops on route "route" after stop "stop"
+//	 * note this is pretty simplistic: for a northbound route is just returns all stops north of this one
+//	 */
+//	String afterCondition(LTCStop stop, LTCRoute route) {
+//		String op;
+//		String field;
+//		double value;
+//		
+//		switch (route.dirChar()) {
+//		case 'N':
+//		case 'n':
+//			op = ">";
+//			field = LATITUDE;
+//			value = stop.latitude;
+//			break;
+//		case 'S':
+//		case 's':
+//			op = "<";
+//			field = LATITUDE;
+//			value = stop.latitude;
+//			break;
+//		case 'E':
+//		case 'e':
+//			op = ">";
+//			field = LONGITUDE;
+//			value = stop.longitude;
+//			break;
+//		default:
+//			op = "<";
+//			field = LONGITUDE;
+//			value = stop.longitude;
+//			break;
+//		}
+//		return String.format("%s %s %f AND %s IN (SELECT %s FROM %s WHERE %s = '%s' AND %s = %s)",
+//				field, op, value,
+//				STOP_NUMBER, dunSTOP_NUMBER, LINK_TABLE,
+//				ROUTE_NUMBER, route.number,
+//				DIRECTION_NUMBER, route.direction);
+//	}
+//
+//	String afterOrder(LTCStop stop, LTCRoute route) {
+//		String field;
+//		String order;
+//		
+//		switch (route.dirChar()) {
+//		case 'N':
+//		case 'n':
+//			field = LATITUDE;
+//			order = "asc";
+//			break;
+//		case 'S':
+//		case 's':
+//			field = LATITUDE;
+//			order = "desc";
+//			break;
+//		case 'E':
+//		case 'e':
+//			field = LONGITUDE;
+//			order = "asc";
+//			break;
+//		default:
+//			field = LONGITUDE;
+//			order = "desc";
+//			break;
+//		}
+//		return String.format("%s %s", field, order);
+//	}
+//	
+//	ArrayList<LTCStop> findStopsAfter(LTCStop stopFrom, LTCRoute route) {
+//		ArrayList<LTCStop> stops = new ArrayList<LTCStop>();
+//		Cursor c = db.query(STOP_TABLE,
+//				new String[] { STOP_NUMBER, STOP_NAME, LATITUDE, LONGITUDE },
+//				afterCondition(stopFrom, route),
+//				null, null, null,
+//				afterOrder(stopFrom, route));
+//		if (c.moveToFirst()) {
+//			for (; !c.isAfterLast(); c.moveToNext()) {
+//				LTCStop stop = new LTCStop(c.getInt(0), c.getString(1), c.getDouble(2), c.getDouble(3));
+//				stops.add(stop);
+//			}
+//			c.close();
+//		}
+//		return stops;
+//	}
+//	
+//	ArrayList<LTCConnection> findRouteConnections(LTCStop afterStop, LTCRoute route, ArrayList<LTCRoute> routesToIgnore) {
+//		ArrayList<LTCConnection> conns = new ArrayList<LTCConnection>();
+//		ArrayList<LTCStop> stopsAfter = findStopsAfter(afterStop, route);
+//		
+//		
+//		
+//		return conns;
+//	}
 	
 	// format a distance nicely
 	private String niceDistance(float val) {
