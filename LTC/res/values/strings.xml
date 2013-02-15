@@ -230,7 +230,9 @@
     <string name="last_update">Last Update</string>
     <string name="none_stop_today">No routes stop here today</string>
     <string name="no_connecting_found">No connecting routes found</string>
-    <string name="searching_for_connections">Searching for connections...</string>
-    <string name="find_connections">Find connections...</string>
+<!--     <string name="searching_for_connections">Searching for connections...</string> -->
+<!--     <string name="find_connections">Find connections...</string> -->
+    <string name="no_time_diff">---</string>
+    <string name="no_time">--:--</string>
 
 </resources>

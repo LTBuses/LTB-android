@@ -88,6 +88,7 @@ public class BusDb {
 	static final String CROSSING_TIME = "crossing_time";
 	static final String DATE_VALUE = "date_value";
 	static final String FAILED = "failed";
+	static final String TEXT_TIME = "texttime";
 	static final String RAW_TIME = "rawtime";
 	static final String DISTANCE_TEXT = "distance";
 	static final String DISTANCE_ORDER = "distance_order";
@@ -95,6 +96,7 @@ public class BusDb {
 	static final String ROUTE_DIRECTION_NAME = "route_name";
 	static final String ROUTE_LIST = "route_list";
 	static final String CONN_LIST = "conn_list";
+	static final String ERROR_MESSAGE = "err";
 	
 	static final private ReentrantLock blocker = new ReentrantLock();
 	

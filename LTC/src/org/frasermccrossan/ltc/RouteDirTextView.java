@@ -108,32 +108,33 @@ public class RouteDirTextView extends TextView implements ScrapeStatus {
 	}
 	
 	public ArrayList<HashMap<String,String>> getPredictions() {
-		if (isOkToPost()) {
-			return predictions;
-		}
-		else {
-			return predictionSugar();
-		}
+		return predictions;
+//		if (isOkToPost()) {
+//			return predictions;
+//		}
+//		else {
+//			return predictionSugar();
+//		}
 	}
 	
 	// add visual sugar about a particular route (e.g. fetching, failed, etc.),
 	// used when predictions aren't available
-	ArrayList<HashMap<String, String>> predictionSugar() {
-		Resources res = getResources();
-		HashMap<String, String> sugar;
-		String dateValue;
-		switch (state) {
-		case FAILED:
-			dateValue = VERY_FAR_AWAY;
-			break;
-		default:
-			dateValue = VERY_CLOSE;
-			break;
-		}
-		sugar = LTCScraper.predictionEntry(route, dateValue, res.getString(msgResource()), null, null);
-		ArrayList<HashMap<String, String>> arl = new ArrayList<HashMap<String, String>>(1);
-		arl.add(sugar);
-		return arl;
-	}
+//	ArrayList<HashMap<String, String>> predictionSugar() {
+//		Resources res = getResources();
+//		HashMap<String, String> sugar;
+//		String dateValue;
+//		switch (state) {
+//		case FAILED:
+//			dateValue = VERY_FAR_AWAY;
+//			break;
+//		default:
+//			dateValue = VERY_CLOSE;
+//			break;
+//		}
+//		sugar = LTCScraper.predictionEntry(route, dateValue, res.getString(msgResource()), null, null);
+//		ArrayList<HashMap<String, String>> arl = new ArrayList<HashMap<String, String>>(1);
+//		arl.add(sugar);
+//		return arl;
+//	}
 
 }

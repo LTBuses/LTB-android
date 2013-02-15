@@ -128,7 +128,6 @@ public final class R {
         public static final int downloading_routes=0x7f050049;
         public static final int failed=0x7f050030;
         public static final int fetch_positions=0x7f050031;
-        public static final int find_connections=0x7f05005c;
         public static final int find_hint=0x7f050003;
         public static final int finding_routes=0x7f050028;
         public static final int forget_favourite=0x7f05002d;
@@ -156,6 +155,11 @@ public final class R {
         public static final int no_service=0x7f05003b;
         public static final int no_stop_locations=0x7f050056;
         public static final int no_stops_found=0x7f05002c;
+        public static final int no_time=0x7f05005c;
+        /**      <string name="searching_for_connections">Searching for connections...</string> 
+     <string name="find_connections">Find connections...</string> 
+         */
+        public static final int no_time_diff=0x7f05005b;
         public static final int none_stop_today=0x7f050059;
         public static final int not_working=0x7f050034;
         public static final int notification_progress_format=0x7f050050;
@@ -167,7 +171,6 @@ public final class R {
         public static final int saturday=0x7f050019;
         public static final int saving_database=0x7f05004f;
         public static final int searching_for_buses=0x7f05002a;
-        public static final int searching_for_connections=0x7f05005b;
         public static final int searching_for_stops=0x7f05002b;
         public static final int share=0x7f050051;
         public static final int share_subject=0x7f050053;

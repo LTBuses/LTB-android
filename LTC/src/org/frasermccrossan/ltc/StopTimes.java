@@ -1,6 +1,7 @@
 package org.frasermccrossan.ltc;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -103,7 +105,7 @@ public class StopTimes extends Activity {
         	adapter = new SimpleAdapter(StopTimes.this,
         			predictions,
         			R.layout.prediction_item,
-        			new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.DIRECTION_IMG_RES, BusDb.ROUTE_NAME, BusDb.DESTINATION, BusDb.RAW_TIME },
+        			new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.DIRECTION_IMG_RES, BusDb.ROUTE_NAME, BusDb.DESTINATION, BusDb.TEXT_TIME },
         			new int[] { R.id.crossing_time, R.id.route_number, R.id.route_direction_img, R.id.route_long_name, R.id.destination, R.id.raw_crossing_time });
         	predictionList.setAdapter(adapter);
         }
@@ -198,6 +200,33 @@ public class StopTimes extends Activity {
 					++probCount;
 					break;
 				}
+				Calendar now = Calendar.getInstance();
+				for (HashMap<String, String> p: predictions) {
+					if (p.containsKey(BusDb.ERROR_MESSAGE)) {
+						Resources res = getResources();
+						p.put(BusDb.CROSSING_TIME, res.getString(R.string.no_time_diff));						
+						p.put(BusDb.TEXT_TIME, res.getString(R.string.no_time));	
+						p.put(BusDb.DATE_VALUE, LTCScraper.VERY_FAR_AWAY);
+						p.put(BusDb.DESTINATION, p.get(BusDb.ERROR_MESSAGE));
+					}
+					else {
+						int timeDifference = getTimeDiffAsMinutes(now, p.get(BusDb.RAW_TIME));
+						if (timeDifference >= 0) {
+							Calendar absTime = (Calendar)now.clone();
+							absTime.add(Calendar.MINUTE, timeDifference);
+							java.text.DateFormat absFormatter = DateFormat.getTimeFormat(StopTimes.this);
+							absFormatter.setCalendar(absTime);
+							p.put(BusDb.DATE_VALUE, String.format("%08d", timeDifference));
+							p.put(BusDb.CROSSING_TIME, minutesAsText(timeDifference));
+							p.put(BusDb.TEXT_TIME, absFormatter.format(absTime.getTime()));
+						}
+						else {
+							Resources res = getResources();
+							p.put(BusDb.CROSSING_TIME, res.getString(R.string.no_time_diff));						
+							p.put(BusDb.TEXT_TIME, res.getString(R.string.no_time));	
+						}
+					}
+				}
 				Collections.sort(predictions, new PredictionComparator());
 				adapter.notifyDataSetChanged();
 				routeView.updateDisplay();
@@ -252,14 +281,35 @@ public class StopTimes extends Activity {
 				HashMap<String, String> entry = predictions.get(i);
 				if (entry.get(BusDb.ROUTE_INTERNAL_NUMBER).equals(route.number) &&
 						entry.get(BusDb.DIRECTION_NAME).equals(route.directionName)) {
-					entry.put(BusDb.CROSSING_TIME, str);
+					entry.put(BusDb.RAW_TIME, res.getString(R.string.msg_querying));
 				}
 				++i;
 			}
 		}
 		
 	}
-	
+
+	String minutesAsText(long minutes) {
+		if (minutes < 0) {
+			return "?";
+		}
+		if (minutes < 60) {
+			return String.format("%d min", minutes);
+		}
+		else {
+			return String.format("%dh%dm", minutes / 60, minutes % 60);
+		}
+	}
+
+	/* given a time in text scraped from the website, get the best guess of the time it
+	 * represents; we do this all manually rather than use Calendar because the AM/PM
+	 * behaviour of Calendar is broken
+	 */
+	int getTimeDiffAsMinutes(Calendar reference, String textTime) {
+		HourMinute time = new HourMinute(textTime);
+		return time.timeDiff(reference);
+	}
+
 	class PredictionComparator implements Comparator<Map<String, String>> {
 		
 	    public int compare(Map<String, String> first, Map<String, String> second) {
