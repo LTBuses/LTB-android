@@ -200,21 +200,12 @@ public class FindStop extends Activity {
 		routeSpinner.setOnItemSelectedListener(routeListener);
 		registerForContextMenu(stopList);
 		downloadTry = 0;
-	}
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-		Criteria criteria = new Criteria();
-		criteria.setAccuracy(Criteria.ACCURACY_FINE);
 		BusDb db = new BusDb(this);
-		locProvider = LocationManager.GPS_PROVIDER;
 		routes = db.getAllRoutes(true);
 		if (routes != null) {
 			RouteAdapter routeAdapter = new RouteAdapter(this, R.layout.route_view, routes);
 			routeSpinner.setAdapter(routeAdapter);
 		}
-		setLocationUpdates();
 		int updateStatus = db.getUpdateStatus();
 		db.close();
 		if (updateStatus != BusDb.UPDATE_NOT_REQUIRED) {
@@ -231,6 +222,15 @@ public class FindStop extends Activity {
 		else {
 			updateStops();
 		}
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		locProvider = LocationManager.GPS_PROVIDER;
+		setLocationUpdates();
 	}
 
 	@Override

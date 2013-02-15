@@ -39,6 +39,12 @@ public class BusDb {
 	// latitude must be this big for latitude data to be valid
 	static final double MIN_LATITUDE = 0.1;
 	
+	// for finding stops close to another stop; all distances in metres
+	static final double EARTH_CIRCUMFERENCE = 40075 * 1000;
+	static final double CLOSE_DISTANCE = 100;
+	static final double CLOSE_DISTANCE_DEGREES = 360 * (CLOSE_DISTANCE / EARTH_CIRCUMFERENCE);
+	static final double CLOSE_DISTANCE_SQUARED_DEGREES = CLOSE_DISTANCE_DEGREES * CLOSE_DISTANCE_DEGREES;
+	
 	static final String DIRECTION_TABLE = "directions";
 	static final String DIRECTION_NUMBER = "direction_number";
 	static final String DIRECTION_NAME = "direction_name";
@@ -519,11 +525,15 @@ public class BusDb {
 //		}
 //		return String.format("%s %s %f AND %s IN (SELECT %s FROM %s WHERE %s = '%s' AND %s = %s)",
 //				field, op, value,
-//				STOP_NUMBER, dunSTOP_NUMBER, LINK_TABLE,
+//				STOP_NUMBER, STOP_NUMBER, LINK_TABLE,
 //				ROUTE_NUMBER, route.number,
 //				DIRECTION_NUMBER, route.direction);
 //	}
 //
+//	/* condition used to determine whether a stop on a route is "after" a given stop;
+//	 * the current heuristic is that it is further in the direction of travel of a route,
+//	 * e.g. it is further north on a northbound route
+//	 */
 //	String afterOrder(LTCStop stop, LTCRoute route) {
 //		String field;
 //		String order;
@@ -552,6 +562,9 @@ public class BusDb {
 //		return String.format("%s %s", field, order);
 //	}
 //	
+//	/* find stops on a route that are "after" the current stop, that is, in the same
+//	 * direction of travel
+//	 */
 //	ArrayList<LTCStop> findStopsAfter(LTCStop stopFrom, LTCRoute route) {
 //		ArrayList<LTCStop> stops = new ArrayList<LTCStop>();
 //		Cursor c = db.query(STOP_TABLE,
@@ -569,10 +582,34 @@ public class BusDb {
 //		return stops;
 //	}
 //	
+//	/* find all stops that are "close" to the given list of stops */
+//	ArrayList<LTCStop> findStopsCloseTo(LTCStop stopFrom, LTCRoute route, ArrayList<LTCStop> refStops) {
+//		ArrayList<String> closeConditions = new ArrayList<String>();
+//		for (LTCStop refStop: refStops) {
+//			closeConditions.add(String.format("(latitude-(%.9f))*(latitude-(%.9f)) + (longitude-(%.9f))*(longitude-(%.9f)) < %.9f",
+//					refStop.latitude, refStop.latitude, refStop.longitude, refStop.longitude, CLOSE_DISTANCE_SQUARED_DEGREES));
+//		}
+//		String closeCondition = TextUtils.join(" OR ", closeConditions);
+//		ArrayList<LTCStop> stops = new ArrayList<LTCStop>();
+//		Cursor c = db.query(STOP_TABLE,
+//				new String[] { STOP_NUMBER, STOP_NAME, LATITUDE, LONGITUDE },
+//				closeCondition,
+//				null, null, null,
+//				afterOrder(stopFrom, route));
+//		if (c.moveToFirst()) {
+//			for (; !c.isAfterLast(); c.moveToNext()) {
+//				LTCStop stop = new LTCStop(c.getInt(0), c.getString(1), c.getDouble(2), c.getDouble(3));
+//				stops.add(stop);
+//			}
+//			c.close();
+//		}
+//		return stops;
+//	}
+//	
 //	ArrayList<LTCConnection> findRouteConnections(LTCStop afterStop, LTCRoute route, ArrayList<LTCRoute> routesToIgnore) {
 //		ArrayList<LTCConnection> conns = new ArrayList<LTCConnection>();
 //		ArrayList<LTCStop> stopsAfter = findStopsAfter(afterStop, route);
-//		
+//		ArrayList<LTCStop> stopsClose = findStopsCloseTo(afterStop, route, stopsAfter);
 //		
 //		
 //		return conns;
