@@ -4,27 +4,10 @@
     android:layout_height="match_parent"
     android:orientation="horizontal" >
 
-    <ListView
-        android:id="@+id/prediction_list"
-        android:layout_weight="1"
-        android:layout_width="0dip"
-        android:layout_height="fill_parent" >
-    </ListView>
-
-    <TextView
-        android:id="@+id/empty_prediction_list"
-        android:layout_weight="1"
-        android:layout_width="0dip"
-        android:layout_height="fill_parent"
-        android:gravity="center_horizontal"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:visibility="gone"
-        android:text="@string/searching_for_buses" />
-
     <LinearLayout
         android:id="@+id/right_side"
         android:orientation="vertical"
-        android:layout_width="120dip"
+        android:layout_width="160dip"
         android:layout_height="fill_parent"
         android:paddingLeft="3dip" >
         
@@ -63,6 +46,23 @@
             android:text="@string/not_working" />
         
     </LinearLayout>
+
+    <ListView
+        android:id="@+id/prediction_list"
+        android:layout_weight="1"
+        android:layout_width="0dip"
+        android:layout_height="fill_parent" >
+    </ListView>
+
+    <TextView
+        android:id="@+id/empty_prediction_list"
+        android:layout_weight="1"
+        android:layout_width="0dip"
+        android:layout_height="fill_parent"
+        android:gravity="center_horizontal"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:visibility="gone"
+        android:text="@string/searching_for_buses" />
     
 
 </LinearLayout>
