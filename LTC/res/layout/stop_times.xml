@@ -12,12 +12,6 @@
         android:paddingRight="3dp"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <TextView
-        android:id="@+id/last_updated"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
     <ListView
         android:id="@+id/prediction_list"
         android:layout_weight="1"

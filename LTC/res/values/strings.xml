@@ -19,7 +19,7 @@
     <![CDATA[<html>
     <body>
     <h1>LTC Buses</h1>
-    <h3>Version 1.50 &copy; 2012 Fraser McCrossan</h3>
+    <h3>Version 1.60 &copy; 2012 Fraser McCrossan</h3>
     <h2>Notice</h2>
     <p>
     Although this app uses data from the
@@ -94,12 +94,12 @@
     <![CDATA[
     <html>
     <body>
-    <h3>Stop List</h3>
-    Press to check all buses at the stop, long-press for more options.
-    <h3>Search Box</h3>
+    <big>Press a stop to check all buses at the stop, long-press for more options.</big>
+    <h3>Search</h3>
+    You can search for stop numbers (on the blue signs) or names.
     <dl>
     <dt>\"123\"</dt>
-    <dd>Stop names containing \"123\", or stop numbers starting with \"123\" (the numbers on the blue signs)</dd>
+    <dd>Stop names containing \"123\", or stop numbers starting with \"123\"</dd>
     <dt>\"dun rich\"</dt>
     <dd>Stop names containing all words, e.g. \"Dundas at Richmond St EB\"<dd>
     </dl>
@@ -108,7 +108,7 @@
     <dt>Favourites</dt>
     <dd>Stops you\'ve checked most often, otherwise alphabetical</dd>
     <dt>Nearby</dt>
-    <dd>Stops closest to you (available if GPS coordinates updated)</dd>
+    <dd>Stops closest to you (needs GPS enabled)</dd>
     <dt>Any</dt>
     <dd>Stops serviced by any route</dd>
     <dt>Route Number</dt>
