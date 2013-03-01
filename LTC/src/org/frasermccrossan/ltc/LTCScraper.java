@@ -1,9 +1,16 @@
 package org.frasermccrossan.ltc;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -32,7 +39,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.text.TextUtils.StringSplitter;
-import android.text.format.DateFormat;
 
 // everything required to load the LTC_supplied data into the database
 @SuppressLint("UseSparseArrays")
@@ -117,11 +123,21 @@ public class LTCScraper {
 		}
 	}
 
-//	public void cancelLoadAll() {
-//		if (task != null) {
-//			task.cancel(true);
-//		}
-//	}
+	private Document parseDocFromUri(String uri) throws IOException, MalformedURLException {
+		Document doc;
+		
+		URL url = new URL(uri);
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		doc = null;
+		try {
+			InputStream in = new BufferedInputStream(connection.getInputStream());
+			doc = Jsoup.parse(in, null, uri);
+		}
+		finally {
+			connection.disconnect();
+		}
+		return doc;
+	}
 
 	public String predictionUrl(LTCRoute route, String stopNumber) {
 		//		return PREDICTIONS_URL;
@@ -136,10 +152,7 @@ public class LTCScraper {
 			Calendar now = Calendar.getInstance();
 			now.set(Calendar.SECOND, 0);
 			now.set(Calendar.MILLISECOND, 0); // now we have 'now' set to the current time
-			Connection conn = Jsoup.connect(predictionUrl(route, stopNumber));
-			//conn.header("Connection", "close");
-			conn.timeout(FETCH_TIMEOUT);
-			Document doc = conn.get();
+			Document doc = parseDocFromUri(predictionUrl(route, stopNumber));
 			Elements divs = doc.select("div");
 			if (divs.size() == 0) {
 				throw new ScrapeException("LTC down?", ScrapeStatus.PROBLEM_IMMEDIATELY);
@@ -269,9 +282,7 @@ public class LTCScraper {
 
 	public ArrayList<LTCRoute> loadRoutes() throws ScrapeException, IOException {
 		ArrayList<LTCRoute> routes = new ArrayList<LTCRoute>();
-		Connection conn = Jsoup.connect(ROUTE_URL);
-		conn.timeout(FETCH_TIMEOUT);
-		Document doc = conn.get();
+		Document doc = parseDocFromUri(ROUTE_URL);
 		Elements routeLinks = doc.select("a[href]");
 		for (Element routeLink : routeLinks) {
 			String name = routeLink.text();
@@ -289,10 +300,7 @@ public class LTCScraper {
 
 	ArrayList<LTCDirection> loadDirections(String routeNum) throws ScrapeException, IOException {
 		ArrayList<LTCDirection> directions = new ArrayList<LTCDirection>(2); // probably 2
-		String url = String.format(DIRECTION_URL, routeNum);
-		Connection conn = Jsoup.connect(url);
-		conn.timeout(FETCH_TIMEOUT);
-		Document doc = conn.get();
+		Document doc = parseDocFromUri(String.format(DIRECTION_URL, routeNum));
 		Elements dirLinks = doc.select("a[href]");
 		for (Element dirLink : dirLinks) {
 			String name = dirLink.text();
@@ -311,10 +319,7 @@ public class LTCScraper {
 
 	HashMap<Integer, LTCStop> loadStops(String routeNum, int direction) throws ScrapeException, IOException {
 		HashMap<Integer, LTCStop> stops = new HashMap<Integer, LTCStop>();
-		String url = String.format(STOPS_URL, routeNum, direction);
-		Connection conn = Jsoup.connect(url);
-		conn.timeout(FETCH_TIMEOUT);
-		Document doc = conn.get();
+		Document doc = parseDocFromUri(String.format(STOPS_URL, routeNum, direction));
 		Elements stopLinks = doc.select("a[href]");
 		for (Element stopLink : stopLinks) {
 			String name = stopLink.text();
@@ -333,18 +338,21 @@ public class LTCScraper {
 
 	/* this just updates existing stops with any locations found from the google map URL */
 	void loadStopLocations(String routeNum, HashMap<Integer, LTCStop> stops) throws ScrapeException, IOException {
-		String url = String.format(LOCATIONS_URL, routeNum);
-		AndroidHttpClient client = AndroidHttpClient.newInstance(userAgent());
-		HttpGet request = new HttpGet();
+		StringBuilder builder = new StringBuilder(8192);
+		String line;
+		URL url = new URL(String.format(LOCATIONS_URL, routeNum));
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 		try {
-			request.setURI(new URI(url));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			while ((line = reader.readLine()) != null) {
+				builder.append(line);
+			}
 		}
-		catch (URISyntaxException e) {
-			throw new ScrapeException("internal error: bad URL");
+		finally {
+			connection.disconnect();
 		}
         int offset = 0;
-        String stopData = client.execute(request, new BasicResponseHandler());
-        client.close();
+        String stopData = builder.toString();
         // skip past the crap at the start by finding the 1st asterisk
         for (int i = 0; i < 1; ++i) {
         	offset = stopData.indexOf('*', offset) + 1;
