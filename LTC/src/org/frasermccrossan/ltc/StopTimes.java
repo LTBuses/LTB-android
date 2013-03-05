@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -15,7 +13,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -37,10 +34,10 @@ public class StopTimes extends Activity {
 	Button notWorkingButton;
 	ArrayList<LTCRoute> routeList;
 	ArrayList<RouteDirTextView> routeViews;
-	SimpleAdapter adapter;
+	PredictionAdapter adapter;
 	ListView predictionList;
 	PredictionTask task = null;
-	ArrayList<HashMap<String, String>> predictions;
+	ArrayList<Prediction> predictions;
 	
 	OnClickListener buttonListener = new OnClickListener() {
 		public void onClick(View v) {
@@ -101,12 +98,13 @@ public class StopTimes extends Activity {
 
         	predictionList = (ListView)findViewById(R.id.prediction_list);
         	predictionList.setEmptyView(findViewById(R.id.empty_prediction_list));
-        	predictions = new ArrayList<HashMap<String,String>>(3);
-        	adapter = new SimpleAdapter(StopTimes.this,
-        			predictions,
-        			R.layout.prediction_item,
-        			new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.DIRECTION_IMG_RES, BusDb.ROUTE_NAME, BusDb.DESTINATION, BusDb.TEXT_TIME },
-        			new int[] { R.id.crossing_time, R.id.route_number, R.id.route_direction_img, R.id.route_long_name, R.id.destination, R.id.raw_crossing_time });
+        	predictions = new ArrayList<Prediction>(3);
+//        	adapter = new SimpleAdapter(StopTimes.this,
+//        			predictions,
+//        			R.layout.prediction_item,
+//        			new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.DIRECTION_IMG_RES, BusDb.ROUTE_NAME, BusDb.DESTINATION, BusDb.TEXT_TIME },
+//        			new int[] { R.id.crossing_time, R.id.route_number, R.id.route_direction_img, R.id.route_long_name, R.id.destination, R.id.raw_crossing_time });
+        	adapter = new PredictionAdapter(this, R.layout.prediction_item, predictions);
         	predictionList.setAdapter(adapter);
         }
 	}
@@ -201,31 +199,32 @@ public class StopTimes extends Activity {
 					break;
 				}
 				Calendar now = Calendar.getInstance();
-				for (HashMap<String, String> p: predictions) {
-					if (p.containsKey(BusDb.ERROR_MESSAGE)) {
-						Resources res = getResources();
-						p.put(BusDb.CROSSING_TIME, res.getString(R.string.no_time_diff));						
-						p.put(BusDb.TEXT_TIME, res.getString(R.string.no_time));	
-						p.put(BusDb.DATE_VALUE, LTCScraper.VERY_FAR_AWAY);
-						p.put(BusDb.DESTINATION, p.get(BusDb.ERROR_MESSAGE));
-					}
-					else {
-						int timeDifference = getTimeDiffAsMinutes(now, p.get(BusDb.RAW_TIME));
-						if (timeDifference >= 0) {
-							Calendar absTime = (Calendar)now.clone();
-							absTime.add(Calendar.MINUTE, timeDifference);
-							java.text.DateFormat absFormatter = DateFormat.getTimeFormat(StopTimes.this);
-							absFormatter.setCalendar(absTime);
-							p.put(BusDb.DATE_VALUE, String.format("%08d", timeDifference));
-							p.put(BusDb.CROSSING_TIME, minutesAsText(timeDifference));
-							p.put(BusDb.TEXT_TIME, absFormatter.format(absTime.getTime()));
-						}
-						else {
-							Resources res = getResources();
-							p.put(BusDb.CROSSING_TIME, res.getString(R.string.no_time_diff));						
-							p.put(BusDb.TEXT_TIME, res.getString(R.string.no_time));	
-						}
-					}
+				for (Prediction p: predictions) {
+					p.update(StopTimes.this, now);
+//					if (p.containsKey(BusDb.ERROR_MESSAGE)) {
+//						Resources res = getResources();
+//						p.put(BusDb.CROSSING_TIME, res.getString(R.string.no_time_diff));						
+//						p.put(BusDb.TEXT_TIME, res.getString(R.string.no_time));	
+//						p.put(BusDb.DATE_VALUE, LTCScraper.VERY_FAR_AWAY);
+//						p.put(BusDb.DESTINATION, p.get(BusDb.ERROR_MESSAGE));
+//					}
+//					else {
+//						int timeDifference = getTimeDiffAsMinutes(now, p.get(BusDb.RAW_TIME));
+//						if (timeDifference >= 0) {
+//							Calendar absTime = (Calendar)now.clone();
+//							absTime.add(Calendar.MINUTE, timeDifference);
+//							java.text.DateFormat absFormatter = DateFormat.getTimeFormat(StopTimes.this);
+//							absFormatter.setCalendar(absTime);
+//							p.put(BusDb.DATE_VALUE, String.format("%08d", timeDifference));
+//							p.put(BusDb.CROSSING_TIME, minutesAsText(timeDifference));
+//							p.put(BusDb.TEXT_TIME, absFormatter.format(absTime.getTime()));
+//						}
+//						else {
+//							Resources res = getResources();
+//							p.put(BusDb.CROSSING_TIME, res.getString(R.string.no_time_diff));						
+//							p.put(BusDb.TEXT_TIME, res.getString(R.string.no_time));	
+//						}
+//					}
 				}
 				Collections.sort(predictions, new PredictionComparator());
 				adapter.notifyDataSetChanged();
@@ -261,9 +260,8 @@ public class StopTimes extends Activity {
 		private void removeRouteFromPredictions(LTCRoute route) {
 			int i = 0;
 			while (i < predictions.size()) {
-				HashMap<String, String> entry = predictions.get(i);
-				if (entry.get(BusDb.ROUTE_INTERNAL_NUMBER).equals(route.number) &&
-						entry.get(BusDb.DIRECTION_NAME).equals(route.directionName)) {
+				Prediction entry = predictions.get(i);
+				if (entry.isOnRoute(route)) {
 					predictions.remove(i);
 				}
 				else {
@@ -278,10 +276,9 @@ public class StopTimes extends Activity {
 			String str = res.getString(strRes);
 			int i = 0;
 			while (i < predictions.size()) {
-				HashMap<String, String> entry = predictions.get(i);
-				if (entry.get(BusDb.ROUTE_INTERNAL_NUMBER).equals(route.number) &&
-						entry.get(BusDb.DIRECTION_NAME).equals(route.directionName)) {
-					entry.put(BusDb.RAW_TIME, res.getString(R.string.msg_querying));
+				Prediction entry = predictions.get(i);
+				if (entry.isOnRoute(route)) {
+					//FIXME entry.put(BusDb.RAW_TIME, res.getString(R.string.msg_querying));
 				}
 				++i;
 			}
@@ -289,35 +286,43 @@ public class StopTimes extends Activity {
 		
 	}
 
-	String minutesAsText(long minutes) {
-		if (minutes < 0) {
-			return "?";
-		}
-		if (minutes < 60) {
-			return String.format("%d min", minutes);
-		}
-		else {
-			return String.format("%dh%dm", minutes / 60, minutes % 60);
-		}
-	}
+//	String minutesAsText(long minutes) {
+//		if (minutes < 0) {
+//			return "?";
+//		}
+//		if (minutes < 60) {
+//			return String.format("%d min", minutes);
+//		}
+//		else {
+//			return String.format("%dh%dm", minutes / 60, minutes % 60);
+//		}
+//	}
 
 	/* given a time in text scraped from the website, get the best guess of the time it
 	 * represents; we do this all manually rather than use Calendar because the AM/PM
 	 * behaviour of Calendar is broken
 	 */
-	int getTimeDiffAsMinutes(Calendar reference, String textTime) {
-		HourMinute time = new HourMinute(textTime);
-		return time.timeDiff(reference);
-	}
+//	int getTimeDiffAsMinutes(Calendar reference, String textTime) {
+//		HourMinute time = new HourMinute(textTime);
+//		return time.timeDiff(reference);
+//	}
 
-	class PredictionComparator implements Comparator<Map<String, String>> {
+	class PredictionComparator implements Comparator<Prediction> {
 		
-	    public int compare(Map<String, String> first, Map<String, String> second) {
-	    	String firstValue = first.get(BusDb.DATE_VALUE);
-	    	String secondValue = second.get(BusDb.DATE_VALUE);
-	    	return firstValue.compareTo(secondValue);
+	    public int compare(Prediction first, Prediction second) {
+	    	return first.timeDifference - second.timeDifference;
 	    }
 
 	}
+
+	//	class PredictionComparator implements Comparator<Map<String, String>> {
+//		
+//	    public int compare(Map<String, String> first, Map<String, String> second) {
+//	    	String firstValue = first.get(BusDb.DATE_VALUE);
+//	    	String secondValue = second.get(BusDb.DATE_VALUE);
+//	    	return firstValue.compareTo(secondValue);
+//	    }
+//
+//	}
 
 }

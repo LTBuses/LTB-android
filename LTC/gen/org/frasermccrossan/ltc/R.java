@@ -13,6 +13,12 @@ public final class R {
     }
     public static final class attr {
     }
+    public static final class color {
+        public static final int bg_failed=0x7f070001;
+        public static final int bg_idle=0x7f070003;
+        public static final int bg_ok=0x7f070002;
+        public static final int bg_querying=0x7f070000;
+    }
     public static final class drawable {
         public static final int bus_stop=0x7f020000;
         public static final int destination_sign=0x7f020001;
@@ -31,66 +37,66 @@ public final class R {
         public static final int westbound=0x7f02000e;
     }
     public static final class id {
-        public static final int about=0x7f080037;
-        public static final int about_web_view=0x7f080000;
-        public static final int age_limit=0x7f08002e;
-        public static final int cancel_button=0x7f080034;
-        public static final int conn_list=0x7f080009;
-        public static final int crossing_time=0x7f080016;
-        public static final int destination=0x7f080015;
-        public static final int distance=0x7f08001c;
-        public static final int download_instructions=0x7f08002f;
-        public static final int empty_conn_list=0x7f08000a;
-        public static final int empty_prediction_list=0x7f08001e;
-        public static final int empty_stop_list=0x7f080010;
-        public static final int find_hint=0x7f08000b;
-        public static final int find_stop_help=0x7f080038;
-        public static final int find_stop_help_web_view=0x7f080011;
-        public static final int message=0x7f080032;
-        public static final int network_settings=0x7f080002;
-        public static final int not_working=0x7f080020;
-        public static final int not_working_button=0x7f080035;
-        public static final int prediction_list=0x7f08001d;
-        public static final int progress=0x7f080030;
-        public static final int raw_crossing_time=0x7f080017;
-        public static final int refresh=0x7f08001f;
-        public static final int right_side=0x7f080021;
-        public static final int route_direction_img=0x7f080013;
-        public static final int route_list=0x7f08001b;
-        public static final int route_long_name=0x7f080014;
-        public static final int route_number=0x7f080012;
-        public static final int route_spinner=0x7f08000e;
-        public static final int route_view_text=0x7f080018;
-        public static final int saturday_stops=0x7f08002a;
-        public static final int scrollView1=0x7f080023;
-        public static final int scrollView2=0x7f080022;
-        public static final int search=0x7f08000c;
-        public static final int search_type_spinner=0x7f08000d;
-        public static final int share_app=0x7f080039;
-        public static final int stop_list=0x7f08000f;
-        public static final int stop_name=0x7f08001a;
-        public static final int stop_number=0x7f080019;
-        public static final int sunday_stops=0x7f08002d;
-        public static final int tableRow1=0x7f080024;
-        public static final int tableRow2=0x7f080025;
-        public static final int tableRow3=0x7f080028;
-        public static final int tableRow4=0x7f08002b;
-        public static final int test_website=0x7f080008;
-        public static final int textView1=0x7f080003;
-        public static final int textView10=0x7f08002c;
-        public static final int textView2=0x7f080001;
-        public static final int textView3=0x7f080007;
-        public static final int textView4=0x7f080026;
-        public static final int textView7=0x7f080029;
-        public static final int title=0x7f080031;
-        public static final int update_button=0x7f080033;
-        public static final int update_database=0x7f08003a;
-        public static final int update_database_help=0x7f08003b;
-        public static final int update_database_help_web_view=0x7f080036;
-        public static final int website_problems=0x7f080006;
-        public static final int weekday_stops=0x7f080027;
-        public static final int wifi_settings=0x7f080004;
-        public static final int wireless_settings=0x7f080005;
+        public static final int about=0x7f090037;
+        public static final int about_web_view=0x7f090000;
+        public static final int age_limit=0x7f09002e;
+        public static final int cancel_button=0x7f090034;
+        public static final int conn_list=0x7f090009;
+        public static final int crossing_time=0x7f090016;
+        public static final int destination=0x7f090015;
+        public static final int distance=0x7f09001c;
+        public static final int download_instructions=0x7f09002f;
+        public static final int empty_conn_list=0x7f09000a;
+        public static final int empty_prediction_list=0x7f09001e;
+        public static final int empty_stop_list=0x7f090010;
+        public static final int find_hint=0x7f09000b;
+        public static final int find_stop_help=0x7f090038;
+        public static final int find_stop_help_web_view=0x7f090011;
+        public static final int message=0x7f090032;
+        public static final int network_settings=0x7f090002;
+        public static final int not_working=0x7f090020;
+        public static final int not_working_button=0x7f090035;
+        public static final int prediction_list=0x7f09001d;
+        public static final int progress=0x7f090030;
+        public static final int raw_crossing_time=0x7f090017;
+        public static final int refresh=0x7f09001f;
+        public static final int right_side=0x7f090021;
+        public static final int route_direction_img=0x7f090013;
+        public static final int route_list=0x7f09001b;
+        public static final int route_long_name=0x7f090014;
+        public static final int route_number=0x7f090012;
+        public static final int route_spinner=0x7f09000e;
+        public static final int route_view_text=0x7f090018;
+        public static final int saturday_stops=0x7f09002a;
+        public static final int scrollView1=0x7f090023;
+        public static final int scrollView2=0x7f090022;
+        public static final int search=0x7f09000c;
+        public static final int search_type_spinner=0x7f09000d;
+        public static final int share_app=0x7f090039;
+        public static final int stop_list=0x7f09000f;
+        public static final int stop_name=0x7f09001a;
+        public static final int stop_number=0x7f090019;
+        public static final int sunday_stops=0x7f09002d;
+        public static final int tableRow1=0x7f090024;
+        public static final int tableRow2=0x7f090025;
+        public static final int tableRow3=0x7f090028;
+        public static final int tableRow4=0x7f09002b;
+        public static final int test_website=0x7f090008;
+        public static final int textView1=0x7f090003;
+        public static final int textView10=0x7f09002c;
+        public static final int textView2=0x7f090001;
+        public static final int textView3=0x7f090007;
+        public static final int textView4=0x7f090026;
+        public static final int textView7=0x7f090029;
+        public static final int title=0x7f090031;
+        public static final int update_button=0x7f090033;
+        public static final int update_database=0x7f09003a;
+        public static final int update_database_help=0x7f09003b;
+        public static final int update_database_help_web_view=0x7f090036;
+        public static final int website_problems=0x7f090006;
+        public static final int weekday_stops=0x7f090027;
+        public static final int wifi_settings=0x7f090004;
+        public static final int wireless_settings=0x7f090005;
     }
     public static final class layout {
         public static final int about=0x7f030000;
@@ -106,8 +112,8 @@ public final class R {
         public static final int update_database_help=0x7f03000a;
     }
     public static final class menu {
-        public static final int main_menu=0x7f070000;
-        public static final int update_database_menu=0x7f070001;
+        public static final int main_menu=0x7f080000;
+        public static final int update_database_menu=0x7f080001;
     }
     public static final class string {
         public static final int about=0x7f05000d;
@@ -210,6 +216,13 @@ public final class R {
     public static final class style {
         /**  Any customizations for your app running on pre-3.0 devices here 
          */
-        public static final int MyTheme=0x7f060000;
+        public static final int MyTheme=0x7f060007;
+        public static final int destination=0x7f060000;
+        public static final int invalid_destination=0x7f060001;
+        public static final int route_failed=0x7f060006;
+        public static final int route_idle=0x7f060003;
+        public static final int route_ok=0x7f060005;
+        public static final int route_querying=0x7f060004;
+        public static final int route_view=0x7f060002;
     }
 }

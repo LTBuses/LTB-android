@@ -128,6 +128,8 @@ public class LTCScraper {
 		
 		URL url = new URL(uri);
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setConnectTimeout(FETCH_TIMEOUT);
+		connection.setReadTimeout(FETCH_TIMEOUT);
 		doc = null;
 		try {
 			InputStream in = new BufferedInputStream(connection.getInputStream());
@@ -145,8 +147,8 @@ public class LTCScraper {
 				route.number, route.direction, stopNumber);
 	}
 
-	public ArrayList<HashMap<String, String>> getPredictions(LTCRoute route, String stopNumber, ScrapeStatus scrapeStatus) {
-		ArrayList<HashMap<String, String>> predictions = new ArrayList<HashMap<String, String>>(3); // usually get 3 of them
+	public ArrayList<Prediction> getPredictions(LTCRoute route, String stopNumber, ScrapeStatus scrapeStatus) {
+		ArrayList<Prediction> predictions = new ArrayList<Prediction>(3); // usually get 3 of them
 		Resources res = context.getResources();
 		try {
 			Calendar now = Calendar.getInstance();
@@ -172,25 +174,10 @@ public class LTCScraper {
 						throw new ScrapeException(res.getString(R.string.no_service), ScrapeStatus.PROBLEM_IF_ALL);
 					}
 					Matcher arrivalMatcher = ARRIVAL_PATTERN.matcher(text);
-					HashMap<String, String> crossingTime;
 					while (arrivalMatcher.find()) {
 						String textTime = arrivalMatcher.group(1);
 						String destination = arrivalMatcher.group(2);
-//						int timeDifference = getTimeDiffAsMinutes(now, TIME_PATTERN, textTime);
-//						Calendar absTime = (Calendar)now.clone();
-//						absTime.add(Calendar.MINUTE, timeDifference);
-//						java.text.DateFormat absFormatter = DateFormat.getTimeFormat(context);
-//						absFormatter.setCalendar(absTime);
-						crossingTime = predictionEntry(route,
-								textTime,
-//								String.format("%08d", timeDifference),
-//								minutesAsText(timeDifference),
-//								absFormatter.format(absTime.getTime()),
-								destination
-								/*String.format("%s %s",
-										route.directionName,
-										destination)*/);
-						predictions.add(crossingTime);
+						predictions.add(new Prediction(route, textTime, destination));
 					}
 				}
 			}
@@ -200,85 +187,66 @@ public class LTCScraper {
 			scrapeStatus.setStatus(ScrapeStatus.OK, ScrapeStatus.NOT_PROBLEM, null);
 		}
 		catch (ScrapeException e) {
-			HashMap<String, String> scrapeReport = predictionEntry(context,
-					route,
-//					VERY_FAR_AWAY,
-//					null,
-//					null,
-					R.string.no_time,
-					e.getMessage());
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.problemType, e.getMessage());
-			predictions.add(scrapeReport);
+			predictions.add(new Prediction(route, e.getMessage()));
 
 		}
 		catch (SocketTimeoutException e) {
-			HashMap<String, String> failReport = predictionEntry(context,
-					route,
-//					VERY_FAR_AWAY,
-					R.string.times_timeout,
-					null
-					);
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, ScrapeStatus.PROBLEM_IMMEDIATELY, e.getMessage());
-			predictions.add(failReport);
+			predictions.add(new Prediction(route, e.getMessage()));
 		}
 		catch (IOException e) {
-			HashMap<String, String> failReport = predictionEntry(context,
-					route,
-//					VERY_FAR_AWAY,
-					R.string.failed,
-					null
-					);
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, ScrapeStatus.PROBLEM_IMMEDIATELY, e.getMessage());
-			predictions.add(failReport);
+			predictions.add(new Prediction(route, e.getMessage()));
 		}
 		return predictions;
 	}
 
-	static HashMap<String, String> predictionEntry(LTCRoute route,
-//			String dateValue,
-//			String crossingTime,
-			String rawCrossingTime, // the actual text from the website
-			String destination) {
-		HashMap<String, String> p = new HashMap<String, String>(5);
-		p.put(BusDb.ROUTE_INTERNAL_NUMBER, route.number); // useful to look up route later
-		Matcher destMatcher = DESTINATION_PATTERN.matcher(destination);
-		p.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());		
-		if (destination == null) {
-			// just use the direction for the destination for sugar entries
-			p.put(BusDb.DESTINATION, route.directionName);
-		}
-		else if (destMatcher.find()) {
-			// a heuristic to convert "2 TO 2A Bla bla Street" into "2A Bla Bla Street"
-			p.put(BusDb.DESTINATION, destMatcher.group(3));
-			if (destMatcher.group(2) != null) {
-				p.put(BusDb.ROUTE_NUMBER, destMatcher.group(2));
-			}
-		}
-		else {
-			// well, worth a try, just use whatever they gave us
-			p.put(BusDb.DESTINATION, destination == null ? route.directionName : destination);
-		}
-		p.put(BusDb.RAW_TIME, rawCrossingTime);
-		p.put(BusDb.DIRECTION_NAME, route.directionName);
-		p.put(BusDb.ROUTE_NAME, route.name);
-		p.put(BusDb.SHORT_DIRECTION_NAME, route.getOneLetterDirection());
-		p.put(BusDb.DIRECTION_IMG_RES, route.getDirectionDrawableRes());
-//		p.put(BusDb.DATE_VALUE, dateValue);
-		return p;
-	}
-
-	static HashMap<String, String> predictionEntry(Context c, LTCRoute route,
-//			String dateValue,
-			int errorMsgRes, // look up this string resource to get displayed dateValue
-			String destination) {
-		Resources res = c.getResources();
-		if (destination == null) {
-			destination = res.getString(errorMsgRes);
-		}
-		HashMap<String, String> entry = predictionEntry(route, null, destination);
-		entry.put(BusDb.ERROR_MESSAGE, destination);
-		return entry;
-	}
+//	static HashMap<String, String> predictionEntry(LTCRoute route,
+////			String dateValue,
+////			String crossingTime,
+//			String rawCrossingTime, // the actual text from the website
+//			String destination) {
+//		HashMap<String, String> p = new HashMap<String, String>(5);
+//		p.put(BusDb.ROUTE_INTERNAL_NUMBER, route.number); // useful to look up route later
+//		Matcher destMatcher = DESTINATION_PATTERN.matcher(destination);
+//		p.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());		
+//		if (destination == null) {
+//			// just use the direction for the destination for sugar entries
+//			p.put(BusDb.DESTINATION, route.directionName);
+//		}
+//		else if (destMatcher.find()) {
+//			// a heuristic to convert "2 TO 2A Bla bla Street" into "2A Bla Bla Street"
+//			p.put(BusDb.DESTINATION, destMatcher.group(3));
+//			if (destMatcher.group(2) != null) {
+//				p.put(BusDb.ROUTE_NUMBER, destMatcher.group(2));
+//			}
+//		}
+//		else {
+//			// well, worth a try, just use whatever they gave us
+//			p.put(BusDb.DESTINATION, destination == null ? route.directionName : destination);
+//		}
+//		p.put(BusDb.RAW_TIME, rawCrossingTime);
+//		p.put(BusDb.DIRECTION_NAME, route.directionName);
+//		p.put(BusDb.ROUTE_NAME, route.name);
+//		p.put(BusDb.SHORT_DIRECTION_NAME, route.getOneLetterDirection());
+//		p.put(BusDb.DIRECTION_IMG_RES, route.getDirectionDrawableRes());
+////		p.put(BusDb.DATE_VALUE, dateValue);
+//		return p;
+//	}
+//
+//	static HashMap<String, String> predictionEntry(Context c, LTCRoute route,
+////			String dateValue,
+//			int errorMsgRes, // look up this string resource to get displayed dateValue
+//			String destination) {
+//		Resources res = c.getResources();
+//		if (destination == null) {
+//			destination = res.getString(errorMsgRes);
+//		}
+//		HashMap<String, String> entry = predictionEntry(route, null, destination);
+//		entry.put(BusDb.ERROR_MESSAGE, destination);
+//		return entry;
+//	}
 
 	public ArrayList<LTCRoute> loadRoutes() throws ScrapeException, IOException {
 		ArrayList<LTCRoute> routes = new ArrayList<LTCRoute>();
@@ -342,6 +310,8 @@ public class LTCScraper {
 		String line;
 		URL url = new URL(String.format(LOCATIONS_URL, routeNum));
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		connection.setConnectTimeout(FETCH_TIMEOUT);
+		connection.setReadTimeout(FETCH_TIMEOUT);
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			while ((line = reader.readLine()) != null) {

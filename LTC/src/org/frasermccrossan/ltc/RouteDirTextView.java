@@ -1,13 +1,11 @@
 package org.frasermccrossan.ltc;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Paint;
-import android.graphics.Typeface;
+import android.view.Gravity;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 /* a sub-class of TextView that contains an LTC route and knows how to render it properly */
@@ -16,7 +14,8 @@ import android.widget.TextView;
 public class RouteDirTextView extends TextView implements ScrapeStatus {
 
 	public LTCRoute route = null;
-	ArrayList<HashMap<String, String>> predictions = null;
+	ArrayList<Prediction> predictions = null;
+	Context context;
 	int defaultFlags;
 	int state;
 	int problemType;
@@ -26,10 +25,14 @@ public class RouteDirTextView extends TextView implements ScrapeStatus {
 	
 	public RouteDirTextView(Context c, LTCRoute r) {
 		super(c);
+		context = c;
 		route = r;
 		setText(route.getShortRouteDirection());
 		setPadding(0, 0, 3, 0);
-		defaultFlags = getPaintFlags();
+//		LayoutParams layout = new LayoutParams(0, LayoutParams.WRAP_CONTENT);
+//		layout.weight = 1.0f;
+//		layout.gravity = Gravity.FILL_HORIZONTAL;
+//		setLayoutParams(layout);
 		state = IDLE;
 		updateDisplay();
 	}
@@ -37,20 +40,24 @@ public class RouteDirTextView extends TextView implements ScrapeStatus {
 	public void updateDisplay() {
 		switch (state) {
 		case IDLE:
-			setPaintFlags(defaultFlags);
-			setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
+			setTextAppearance(context, R.style.route_idle);
+			setBackgroundResource(R.color.bg_idle);
+			//setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
 			break;
 		case QUERYING:
-			setPaintFlags(defaultFlags | Paint.UNDERLINE_TEXT_FLAG);
-			setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
+			setTextAppearance(context, R.style.route_querying);
+			setBackgroundResource(R.color.bg_querying);
+			//setTypeface(Typeface.DEFAULT, Typeface.ITALIC);
 			break;
 		case OK:
-			setPaintFlags(defaultFlags);
-			setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+			setTextAppearance(context, R.style.route_ok);
+			setBackgroundResource(R.color.bg_ok);
+			//setTypeface(Typeface.DEFAULT, Typeface.BOLD);
 			break;
 		case FAILED:
-			setPaintFlags(defaultFlags | Paint.STRIKE_THRU_TEXT_FLAG);
-			setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
+			setTextAppearance(context, R.style.route_failed);
+			setBackgroundResource(R.color.bg_failed);
+			//setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
 			break;
 		}
 	}
@@ -107,34 +114,8 @@ public class RouteDirTextView extends TextView implements ScrapeStatus {
 		predictions = scraper.getPredictions(route, stopNumber, this);
 	}
 	
-	public ArrayList<HashMap<String,String>> getPredictions() {
+	public ArrayList<Prediction> getPredictions() {
 		return predictions;
-//		if (isOkToPost()) {
-//			return predictions;
-//		}
-//		else {
-//			return predictionSugar();
-//		}
 	}
 	
-	// add visual sugar about a particular route (e.g. fetching, failed, etc.),
-	// used when predictions aren't available
-//	ArrayList<HashMap<String, String>> predictionSugar() {
-//		Resources res = getResources();
-//		HashMap<String, String> sugar;
-//		String dateValue;
-//		switch (state) {
-//		case FAILED:
-//			dateValue = VERY_FAR_AWAY;
-//			break;
-//		default:
-//			dateValue = VERY_CLOSE;
-//			break;
-//		}
-//		sugar = LTCScraper.predictionEntry(route, dateValue, res.getString(msgResource()), null, null);
-//		ArrayList<HashMap<String, String>> arl = new ArrayList<HashMap<String, String>>(1);
-//		arl.add(sugar);
-//		return arl;
-//	}
-
 }
