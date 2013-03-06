@@ -4,13 +4,21 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
-    <LinearLayout
-        android:id="@+id/route_list"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingLeft="3dp"
-        android:paddingRight="3dp"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+    <HorizontalScrollView
+        android:id="@+id/route_list_scrollview"
+        
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        
+        <LinearLayout
+            android:id="@+id/route_list"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    </HorizontalScrollView>
 
     <ListView
         android:id="@+id/prediction_list"

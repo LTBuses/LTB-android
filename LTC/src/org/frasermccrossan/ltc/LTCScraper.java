@@ -157,7 +157,7 @@ public class LTCScraper {
 			Document doc = parseDocFromUri(predictionUrl(route, stopNumber));
 			Elements divs = doc.select("div");
 			if (divs.size() == 0) {
-				throw new ScrapeException("LTC down?", ScrapeStatus.PROBLEM_IMMEDIATELY);
+				throw new ScrapeException("LTC down?", ScrapeStatus.PROBLEM_IMMEDIATELY, true);
 			}
 			//Log.i("GP", String.format("rows=%d", timeRows.size()));
 			for (Element div: divs) {
@@ -167,11 +167,11 @@ public class LTCScraper {
 					String text = node.text();
 					Matcher noBusMatcher = NO_BUS_PATTERN.matcher(text);
 					if (noBusMatcher.find()) {
-						throw new ScrapeException(res.getString(R.string.no_further), ScrapeStatus.PROBLEM_IF_ALL);
+						throw new ScrapeException(res.getString(R.string.no_further), ScrapeStatus.PROBLEM_IF_ALL, false);
 					}
 					Matcher noStopMatcher = NO_INFO_PATTERN.matcher(text);
 					if (noStopMatcher.find()) {
-						throw new ScrapeException(res.getString(R.string.no_service), ScrapeStatus.PROBLEM_IF_ALL);
+						throw new ScrapeException(res.getString(R.string.no_service), ScrapeStatus.PROBLEM_IF_ALL, false);
 					}
 					Matcher arrivalMatcher = ARRIVAL_PATTERN.matcher(text);
 					while (arrivalMatcher.find()) {
@@ -182,22 +182,22 @@ public class LTCScraper {
 				}
 			}
 			if (predictions.size() == 0) {
-				throw new ScrapeException(res.getString(R.string.no_bus), ScrapeStatus.PROBLEM_IF_ALL);
+				throw new ScrapeException(res.getString(R.string.no_bus), ScrapeStatus.PROBLEM_IF_ALL, true);
 			}
 			scrapeStatus.setStatus(ScrapeStatus.OK, ScrapeStatus.NOT_PROBLEM, null);
 		}
 		catch (ScrapeException e) {
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, e.problemType, e.getMessage());
-			predictions.add(new Prediction(route, e.getMessage()));
+			predictions.add(new Prediction(route, e.getMessage(), e.seriousProblem));
 
 		}
 		catch (SocketTimeoutException e) {
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, ScrapeStatus.PROBLEM_IMMEDIATELY, e.getMessage());
-			predictions.add(new Prediction(route, e.getMessage()));
+			predictions.add(new Prediction(context, route, R.string.times_timeout, true));
 		}
 		catch (IOException e) {
 			scrapeStatus.setStatus(ScrapeStatus.FAILED, ScrapeStatus.PROBLEM_IMMEDIATELY, e.getMessage());
-			predictions.add(new Prediction(route, e.getMessage()));
+			predictions.add(new Prediction(context, route, R.string.times_fail, true));
 		}
 		return predictions;
 	}
@@ -415,7 +415,7 @@ public class LTCScraper {
 							catch (IOException e) {
 								failures++; // note that one failed
 								if (failures > FAILURE_LIMIT) {
-									throw(new ScrapeException(res.getString(R.string.too_many_failures), ScrapeStatus.PROBLEM_IMMEDIATELY));
+									throw(new ScrapeException(res.getString(R.string.too_many_failures), ScrapeStatus.PROBLEM_IMMEDIATELY, true));
 								}
 								i++; // go to the next one
 							}

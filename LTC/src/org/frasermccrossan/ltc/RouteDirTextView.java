@@ -28,7 +28,7 @@ public class RouteDirTextView extends TextView implements ScrapeStatus {
 		context = c;
 		route = r;
 		setText(route.getShortRouteDirection());
-		setPadding(0, 0, 3, 0);
+		setPadding(2, 0, 2, 0);
 //		LayoutParams layout = new LayoutParams(0, LayoutParams.WRAP_CONTENT);
 //		layout.weight = 1.0f;
 //		layout.gravity = Gravity.FILL_HORIZONTAL;

@@ -2,7 +2,6 @@ package org.frasermccrossan.ltc;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -16,10 +15,12 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 public class StopTimes extends Activity {
@@ -30,8 +31,10 @@ public class StopTimes extends Activity {
 	
 	String stopNumber;
 	LinearLayout routeViewLayout;
+	HorizontalScrollView routeViewScrollview;
 	Button refreshButton;
 	Button notWorkingButton;
+	Button tweakButton;
 	ArrayList<LTCRoute> routeList;
 	ArrayList<RouteDirTextView> routeViews;
 	PredictionAdapter adapter;
@@ -77,6 +80,7 @@ public class StopTimes extends Activity {
         notWorkingButton.setOnClickListener(buttonListener);
         
         routeViewLayout = (LinearLayout)findViewById(R.id.route_list);        
+        routeViewScrollview = (HorizontalScrollView)findViewById(R.id.route_list_scrollview);        
 
         String routeNumberOnly = intent.getStringExtra(BusDb.ROUTE_NUMBER);
         int routeDirectionOnly = intent.getIntExtra(BusDb.DIRECTION_NUMBER, 0);
@@ -162,6 +166,10 @@ public class StopTimes extends Activity {
 			toast = Toast.makeText(StopTimes.this, R.string.website_slow, Toast.LENGTH_LONG);
 			toast.setGravity(Gravity.CENTER, 0, 0);
 			scheduleTimer();
+			for (RouteDirTextView routeView: routeViews) {
+				routeView.setStatus(RouteDirTextView.IDLE, null);
+				routeView.updateDisplay();
+			}
 		}
 		
 		protected Void doInBackground(RouteDirTextView... routeViews) {
@@ -185,7 +193,11 @@ public class StopTimes extends Activity {
 			for (RouteDirTextView routeView: routeViews) {
 				if (routeView.isOkToPost()) {
 					removeRouteFromPredictions(routeView.route);
-					predictions.addAll(routeView.getPredictions());
+					adapter.notifyDataSetChanged();
+					for (Prediction p: routeView.getPredictions()) {
+						adapter.add(p);
+					}
+					adapter.notifyDataSetChanged();
 				}
 				else {
 					updatePredictionsWithMessageRes(routeView.route, routeView.msgResource());
@@ -226,9 +238,21 @@ public class StopTimes extends Activity {
 //						}
 //					}
 				}
-				Collections.sort(predictions, new PredictionComparator());
+				adapter.sort(new PredictionComparator());
 				adapter.notifyDataSetChanged();
 				routeView.updateDisplay();
+				int right = routeView.getRight();
+				int svWidth = routeViewScrollview.getWidth();
+				if (right > svWidth) {
+					routeViewScrollview.smoothScrollTo(right - svWidth, 0);
+				}
+				else {
+					int left = routeView.getLeft();
+					int scrollPos = routeViewScrollview.getScrollX();
+					if (left < scrollPos) {
+						routeViewScrollview.smoothScrollTo(left, 0);						
+					}
+				}
 			}
 		}
 		
@@ -259,10 +283,10 @@ public class StopTimes extends Activity {
 		// removes all references to a particular route from the prediction list
 		private void removeRouteFromPredictions(LTCRoute route) {
 			int i = 0;
-			while (i < predictions.size()) {
+			while (i < adapter.getCount()) {
 				Prediction entry = predictions.get(i);
 				if (entry.isOnRoute(route)) {
-					predictions.remove(i);
+					adapter.remove(entry);
 				}
 				else {
 					++i;
