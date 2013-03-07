@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class PredictionAdapter extends ArrayAdapter<Prediction> {
@@ -51,6 +52,10 @@ public class PredictionAdapter extends ArrayAdapter<Prediction> {
 		
 		if (p.isValid()) {
 			destination.setTextAppearance(context, R.style.destination);
+			if (p.isQuerying()) {
+				LinearLayout predictionTimes = (LinearLayout)row.findViewById(R.id.prediction_times);
+				predictionTimes.setBackgroundResource(R.drawable.time_border_querying);
+			}
 		}
 		else {
 			if (p.isSerious()) {

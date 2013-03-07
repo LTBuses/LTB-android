@@ -24,6 +24,7 @@ public class Prediction implements Comparable<Prediction> {
 	String crossInMinutes;
 	String crossAt;
 	int timeDifference;
+	Boolean isQuerying = false;
 	
 	Prediction(LTCRoute r, String crossTime, String dest) {
 		route = r;
@@ -156,6 +157,14 @@ public class Prediction implements Comparable<Prediction> {
 		return time.timeDiff(reference);
 	}
 
+	void setQuerying() {
+		isQuerying = true;
+	}
+	
+	Boolean isQuerying() {
+		return isQuerying;
+	}
+	
 	@Override
 	public int compareTo(Prediction other) {
 		return timeDifference - other.timeDifference;

@@ -305,7 +305,7 @@ public class StopTimes extends Activity {
 			while (i < predictions.size()) {
 				Prediction entry = predictions.get(i);
 				if (entry.isOnRoute(route)) {
-					//FIXME entry.put(BusDb.RAW_TIME, res.getString(R.string.msg_querying));
+					entry.setQuerying();
 				}
 				++i;
 			}
