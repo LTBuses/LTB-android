@@ -10,7 +10,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.text.format.DateFormat;
 
-public class Prediction {
+public class Prediction implements Comparable<Prediction> {
 
 	static final Pattern DESTINATION_PATTERN = Pattern.compile("(?i) *to +((\\d+[a-z]?) +)?(.*)");
 	static final int VERY_FAR_AWAY = 999999999; // something guaranteed to sort after everything
@@ -104,10 +104,19 @@ public class Prediction {
 		return crossInMinutes;
 	}
 	
-	// update the text time representations at the given time-stamp
-	void update(Context context, Calendar time) {
+	void updateTimediff(Calendar time) {
 		if (isValid()) {
 			timeDifference = getTimeDiffAsMinutes(time, rawCrossingTime);
+		}
+		else {
+			timeDifference = VERY_FAR_AWAY;
+		}
+	}
+	
+	// update the text time representations at the given time-stamp
+	void updateFields(Context context, Calendar time) {
+		if (isValid()) {
+			updateTimediff(time);
 			if (timeDifference >= 0) {
 				Calendar absTime = (Calendar)time.clone();
 				absTime.add(Calendar.MINUTE, timeDifference);
@@ -145,6 +154,11 @@ public class Prediction {
 	int getTimeDiffAsMinutes(Calendar reference, String textTime) {
 		HourMinute time = new HourMinute(textTime);
 		return time.timeDiff(reference);
+	}
+
+	@Override
+	public int compareTo(Prediction other) {
+		return timeDifference - other.timeDifference;
 	}
 
 }

@@ -206,19 +206,16 @@ public class StopTimes extends Activity {
 			for (RouteDirTextView routeView: routeViews) {
 				if (routeView.isOkToPost()) {
 					removeRouteFromPredictions(routeView.route);
-					adapter.notifyDataSetChanged();
-					PredictionComparator comparator = new PredictionComparator();
 					for (Prediction p: routeView.getPredictions()) {
-						p.update(StopTimes.this, now);
+						p.updateTimediff(now);
 						// find the position where this Prediction should be inserted
-						int insertPosition = Collections.binarySearch(predictions, p, comparator);
+						int insertPosition = Collections.binarySearch(predictions, p);
 						// we don't care if we get a direct hit or just an insert position, we do the same thing
 						if (insertPosition < 0) {
 							insertPosition = -(insertPosition + 1);
 						}
 						// insert the Prediction at that location
 						adapter.insert(p, insertPosition);
-						adapter.notifyDataSetChanged();
 //						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 //							if ((insertPosition >= predictionList.getFirstVisiblePosition() &&
 //									insertPosition <= predictionList.getLastVisiblePosition()) ||
@@ -242,7 +239,7 @@ public class StopTimes extends Activity {
 					break;
 				}
 				for (Prediction p: predictions) {
-					p.update(StopTimes.this, now);
+					p.updateFields(StopTimes.this, now);
 				}
 				//adapter.sort(new PredictionComparator());
 				adapter.notifyDataSetChanged();
@@ -314,14 +311,6 @@ public class StopTimes extends Activity {
 			}
 		}
 		
-	}
-
-	class PredictionComparator implements Comparator<Prediction> {
-		
-	    public int compare(Prediction first, Prediction second) {
-	    	return first.timeDifference - second.timeDifference;
-	    }
-
 	}
 
 }
