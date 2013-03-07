@@ -2,6 +2,7 @@ package org.frasermccrossan.ltc;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -11,11 +12,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.HorizontalScrollView;
@@ -26,8 +29,7 @@ import android.widget.Toast;
 public class StopTimes extends Activity {
 
 	// how long before popping up an Toast about how long the LTC site is taking
-	static final long WARNING_DELAY = 5000;
-	static final long BUTTON_DELAY = 100;
+	static final long WARNING_DELAY = 10000;
 	
 	String stopNumber;
 	LinearLayout routeViewLayout;
@@ -142,7 +144,17 @@ public class StopTimes extends Activity {
 		notWorkingButton.setVisibility(Button.GONE);
 		task = new PredictionTask();
 		RouteDirTextView[] routeViewAry = new RouteDirTextView[routeViews.size()];
-		task.execute((RouteDirTextView[])(routeViews.toArray(routeViewAry)));
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+			/* on Honeycomb and later, ASyncTasks run on a serial executor, and since
+			 * we might have another asynctask running in an activity (e.g. fetching stop lists),
+			 * we don't really want them all to block
+			 */
+			task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,
+					(RouteDirTextView[])(routeViews.toArray(routeViewAry)));
+		}
+		else {
+			task.execute((RouteDirTextView[])(routeViews.toArray(routeViewAry)));
+		}
 	}
 	
 	/* this takes one or more LTCRoute objects and fetches the predictions for each
@@ -190,14 +202,33 @@ public class StopTimes extends Activity {
 			// update predictions and ping the listview
 			cancelTimer();
 			scheduleTimer();
+			Calendar now = Calendar.getInstance();
 			for (RouteDirTextView routeView: routeViews) {
 				if (routeView.isOkToPost()) {
 					removeRouteFromPredictions(routeView.route);
 					adapter.notifyDataSetChanged();
+					PredictionComparator comparator = new PredictionComparator();
 					for (Prediction p: routeView.getPredictions()) {
-						adapter.add(p);
+						p.update(StopTimes.this, now);
+						// find the position where this Prediction should be inserted
+						int insertPosition = Collections.binarySearch(predictions, p, comparator);
+						// we don't care if we get a direct hit or just an insert position, we do the same thing
+						if (insertPosition < 0) {
+							insertPosition = -(insertPosition + 1);
+						}
+						// insert the Prediction at that location
+						adapter.insert(p, insertPosition);
+						adapter.notifyDataSetChanged();
+//						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+//							if ((insertPosition >= predictionList.getFirstVisiblePosition() &&
+//									insertPosition <= predictionList.getLastVisiblePosition()) ||
+//									predictionList.getCount() == 0) {
+//								Animation appear = AnimationUtils.loadAnimation(StopTimes.this, R.anim.prediction_in);
+//								View row = (View)predictionList.getChildAt(insertPosition);
+//								row.setAnimation(appear);
+//							}
+//						}
 					}
-					adapter.notifyDataSetChanged();
 				}
 				else {
 					updatePredictionsWithMessageRes(routeView.route, routeView.msgResource());
@@ -210,35 +241,10 @@ public class StopTimes extends Activity {
 					++probCount;
 					break;
 				}
-				Calendar now = Calendar.getInstance();
 				for (Prediction p: predictions) {
 					p.update(StopTimes.this, now);
-//					if (p.containsKey(BusDb.ERROR_MESSAGE)) {
-//						Resources res = getResources();
-//						p.put(BusDb.CROSSING_TIME, res.getString(R.string.no_time_diff));						
-//						p.put(BusDb.TEXT_TIME, res.getString(R.string.no_time));	
-//						p.put(BusDb.DATE_VALUE, LTCScraper.VERY_FAR_AWAY);
-//						p.put(BusDb.DESTINATION, p.get(BusDb.ERROR_MESSAGE));
-//					}
-//					else {
-//						int timeDifference = getTimeDiffAsMinutes(now, p.get(BusDb.RAW_TIME));
-//						if (timeDifference >= 0) {
-//							Calendar absTime = (Calendar)now.clone();
-//							absTime.add(Calendar.MINUTE, timeDifference);
-//							java.text.DateFormat absFormatter = DateFormat.getTimeFormat(StopTimes.this);
-//							absFormatter.setCalendar(absTime);
-//							p.put(BusDb.DATE_VALUE, String.format("%08d", timeDifference));
-//							p.put(BusDb.CROSSING_TIME, minutesAsText(timeDifference));
-//							p.put(BusDb.TEXT_TIME, absFormatter.format(absTime.getTime()));
-//						}
-//						else {
-//							Resources res = getResources();
-//							p.put(BusDb.CROSSING_TIME, res.getString(R.string.no_time_diff));						
-//							p.put(BusDb.TEXT_TIME, res.getString(R.string.no_time));	
-//						}
-//					}
 				}
-				adapter.sort(new PredictionComparator());
+				//adapter.sort(new PredictionComparator());
 				adapter.notifyDataSetChanged();
 				routeView.updateDisplay();
 				int right = routeView.getRight();
@@ -310,27 +316,6 @@ public class StopTimes extends Activity {
 		
 	}
 
-//	String minutesAsText(long minutes) {
-//		if (minutes < 0) {
-//			return "?";
-//		}
-//		if (minutes < 60) {
-//			return String.format("%d min", minutes);
-//		}
-//		else {
-//			return String.format("%dh%dm", minutes / 60, minutes % 60);
-//		}
-//	}
-
-	/* given a time in text scraped from the website, get the best guess of the time it
-	 * represents; we do this all manually rather than use Calendar because the AM/PM
-	 * behaviour of Calendar is broken
-	 */
-//	int getTimeDiffAsMinutes(Calendar reference, String textTime) {
-//		HourMinute time = new HourMinute(textTime);
-//		return time.timeDiff(reference);
-//	}
-
 	class PredictionComparator implements Comparator<Prediction> {
 		
 	    public int compare(Prediction first, Prediction second) {
@@ -338,15 +323,5 @@ public class StopTimes extends Activity {
 	    }
 
 	}
-
-	//	class PredictionComparator implements Comparator<Map<String, String>> {
-//		
-//	    public int compare(Map<String, String> first, Map<String, String> second) {
-//	    	String firstValue = first.get(BusDb.DATE_VALUE);
-//	    	String secondValue = second.get(BusDb.DATE_VALUE);
-//	    	return firstValue.compareTo(secondValue);
-//	    }
-//
-//	}
 
 }

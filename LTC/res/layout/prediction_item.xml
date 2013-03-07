@@ -30,15 +30,6 @@
             android:textStyle="bold"
             android:textSize="25dip" />
 
-<!--         <TextView -->
-<!--             android:id="@+id/route_short_direction" -->
-<!--             android:layout_width="fill_parent" -->
-<!--             android:layout_height="wrap_content" -->
-<!--             android:textColor="#ffd000" -->
-<!--             android:minWidth="20dip" -->
-<!--             android:gravity="center" -->
-<!--             android:textAppearance="?android:attr/textAppearanceSmall" /> -->
-
 		<ImageView 
 		    android:id="@+id/route_direction_img"
 		    android:contentDescription="@string/direction"
