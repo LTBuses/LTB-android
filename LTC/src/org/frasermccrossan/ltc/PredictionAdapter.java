@@ -52,23 +52,22 @@ public class PredictionAdapter extends ArrayAdapter<Prediction> {
 		routeLongName.setText(p.routeLongName());
 		destination.setText(p.destination());
 		if (!p.isQuerying()) {
-			// let the old values fade out without alteration
+			// let the old values fade without alteration
 			crossingTime.setText(p.crossInMinutes());
 			rawCrossingTime.setText(p.crossAt());
 		}
 		
 		if (p.isValid()) {
 			destination.setTextAppearance(context, R.style.destination);
+			int timeTextStyle;
 			if (p.isQuerying()) {
-				//predictionTimes.setBackgroundResource(R.drawable.time_border_querying);
-				crossingTime.setTextAppearance(context, R.style.querying_pred_time);
-				rawCrossingTime.setTextAppearance(context, R.style.querying_pred_time);
+				timeTextStyle = R.style.querying_pred_time;
 			}
 			else {
-				//predictionTimes.setBackgroundResource(R.drawable.time_border);
-				crossingTime.setTextAppearance(context, R.style.normal_pred_time);
-				rawCrossingTime.setTextAppearance(context, R.style.normal_pred_time);
+				timeTextStyle = R.style.normal_pred_time;
 			}
+			crossingTime.setTextAppearance(context, timeTextStyle);
+			rawCrossingTime.setTextAppearance(context, timeTextStyle);
 		}
 		else {
 			if (p.isSerious()) {
