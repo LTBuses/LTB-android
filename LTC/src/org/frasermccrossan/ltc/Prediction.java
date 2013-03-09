@@ -13,6 +13,7 @@ import android.text.format.DateFormat;
 public class Prediction implements Comparable<Prediction> {
 
 	static final Pattern DESTINATION_PATTERN = Pattern.compile("(?i) *to +((\\d+[a-z]?) +)?(.*)");
+	static final int OVER_12_HOURS = 12*60+5;
 	static final int VERY_FAR_AWAY = 999999999; // something guaranteed to sort after everything
 
 	LTCRoute route;
@@ -23,10 +24,11 @@ public class Prediction implements Comparable<Prediction> {
 	Boolean seriousError; // just different visual effects when displayed
 	String crossInMinutes;
 	String crossAt;
-	int timeDifference;
+	HourMinute hourMin;
+	public int timeDifference;
 	Boolean isQuerying = false;
 	
-	Prediction(LTCRoute r, String crossTime, String dest) {
+	Prediction(LTCRoute r, String crossTime, String dest, Calendar reference) {
 		route = r;
 		routeNumber = route.getRouteNumber();
 		rawCrossingTime = crossTime;
@@ -41,6 +43,8 @@ public class Prediction implements Comparable<Prediction> {
 				routeNumber = destMatcher.group(2);
 			}
 		}
+		hourMin = new HourMinute(reference, crossTime);
+		timeDifference = hourMin.timeDiff(reference);
 	}
 	
 	Prediction(LTCRoute r, String err, Boolean serious) {
@@ -49,6 +53,7 @@ public class Prediction implements Comparable<Prediction> {
 		rawCrossingTime = destination = null;
 		errorMessage = err;
 		seriousError = serious;
+		timeDifference = VERY_FAR_AWAY;
 	}
 	
 	Prediction(Context c, LTCRoute r, int errRes, Boolean serious) {
@@ -58,6 +63,7 @@ public class Prediction implements Comparable<Prediction> {
 		Resources resources = c.getResources();
 		errorMessage = resources.getString(errRes);
 		seriousError = serious;
+		timeDifference = VERY_FAR_AWAY;
 	}
 	
 	Boolean isValid() {
@@ -98,32 +104,32 @@ public class Prediction implements Comparable<Prediction> {
 	}
 	
 	String crossAt() {
-		return crossAt;
+		if (isQuerying) {
+			return "";
+		}
+		else {
+			return crossAt;
+		}
 	}
 	
 	String crossInMinutes() {
-		return crossInMinutes;
-	}
-	
-	void updateTimediff(Calendar time) {
-		if (isValid()) {
-			timeDifference = getTimeDiffAsMinutes(time, rawCrossingTime);
+		if (isQuerying) {
+			return "";
 		}
 		else {
-			timeDifference = VERY_FAR_AWAY;
+			return crossInMinutes;
 		}
 	}
 	
 	// update the text time representations at the given time-stamp
 	void updateFields(Context context, Calendar time) {
 		if (isValid()) {
-			updateTimediff(time);
-			if (timeDifference >= 0) {
+			if (timeDifference >= 0 && timeDifference < HourMinute.DAY_MINUTES - 60) {
 				Calendar absTime = (Calendar)time.clone();
 				absTime.add(Calendar.MINUTE, timeDifference);
 				java.text.DateFormat absFormatter = DateFormat.getTimeFormat(context);
 				absFormatter.setCalendar(absTime);
-				crossInMinutes = minutesAsText(timeDifference);
+				crossInMinutes = minutesAsText(context, timeDifference);
 				crossAt = absFormatter.format(absTime.getTime());
 			}
 			else {
@@ -132,29 +138,22 @@ public class Prediction implements Comparable<Prediction> {
 		}
 		else {
 			crossInMinutes = crossAt = "";
-			timeDifference = VERY_FAR_AWAY;
 		}
 	}
 	
-	String minutesAsText(long minutes) {
+	String minutesAsText(Context c, long minutes) {
 		if (minutes < 0) {
 			return "?";
 		}
 		if (minutes < 60) {
 			return String.format("%d min", minutes);
 		}
+		if (minutes > OVER_12_HOURS) {
+			return "----";
+		}
 		else {
 			return String.format("%dh%dm", minutes / 60, minutes % 60);
 		}
-	}
-
-	/* given a time in text scraped from the web-site, get the best guess of the time it
-	 * represents; we do this all manually rather than use Calendar because the AM/PM
-	 * behaviour of Calendar is broken
-	 */
-	int getTimeDiffAsMinutes(Calendar reference, String textTime) {
-		HourMinute time = new HourMinute(textTime);
-		return time.timeDiff(reference);
 	}
 
 	void setQuerying() {

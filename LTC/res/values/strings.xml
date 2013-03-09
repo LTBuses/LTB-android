@@ -234,5 +234,6 @@
 <!--     <string name="find_connections">Find connections...</string> -->
     <string name="no_time_diff">---</string>
     <string name="no_time">--:--</string>
+    <string name="arriving">Arr.</string>
 
 </resources>

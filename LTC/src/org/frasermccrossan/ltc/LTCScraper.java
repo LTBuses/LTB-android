@@ -177,7 +177,7 @@ public class LTCScraper {
 					while (arrivalMatcher.find()) {
 						String textTime = arrivalMatcher.group(1);
 						String destination = arrivalMatcher.group(2);
-						predictions.add(new Prediction(route, textTime, destination));
+						predictions.add(new Prediction(route, textTime, destination, now));
 					}
 				}
 			}
@@ -201,52 +201,6 @@ public class LTCScraper {
 		}
 		return predictions;
 	}
-
-//	static HashMap<String, String> predictionEntry(LTCRoute route,
-////			String dateValue,
-////			String crossingTime,
-//			String rawCrossingTime, // the actual text from the website
-//			String destination) {
-//		HashMap<String, String> p = new HashMap<String, String>(5);
-//		p.put(BusDb.ROUTE_INTERNAL_NUMBER, route.number); // useful to look up route later
-//		Matcher destMatcher = DESTINATION_PATTERN.matcher(destination);
-//		p.put(BusDb.ROUTE_NUMBER, route.getRouteNumber());		
-//		if (destination == null) {
-//			// just use the direction for the destination for sugar entries
-//			p.put(BusDb.DESTINATION, route.directionName);
-//		}
-//		else if (destMatcher.find()) {
-//			// a heuristic to convert "2 TO 2A Bla bla Street" into "2A Bla Bla Street"
-//			p.put(BusDb.DESTINATION, destMatcher.group(3));
-//			if (destMatcher.group(2) != null) {
-//				p.put(BusDb.ROUTE_NUMBER, destMatcher.group(2));
-//			}
-//		}
-//		else {
-//			// well, worth a try, just use whatever they gave us
-//			p.put(BusDb.DESTINATION, destination == null ? route.directionName : destination);
-//		}
-//		p.put(BusDb.RAW_TIME, rawCrossingTime);
-//		p.put(BusDb.DIRECTION_NAME, route.directionName);
-//		p.put(BusDb.ROUTE_NAME, route.name);
-//		p.put(BusDb.SHORT_DIRECTION_NAME, route.getOneLetterDirection());
-//		p.put(BusDb.DIRECTION_IMG_RES, route.getDirectionDrawableRes());
-////		p.put(BusDb.DATE_VALUE, dateValue);
-//		return p;
-//	}
-//
-//	static HashMap<String, String> predictionEntry(Context c, LTCRoute route,
-////			String dateValue,
-//			int errorMsgRes, // look up this string resource to get displayed dateValue
-//			String destination) {
-//		Resources res = c.getResources();
-//		if (destination == null) {
-//			destination = res.getString(errorMsgRes);
-//		}
-//		HashMap<String, String> entry = predictionEntry(route, null, destination);
-//		entry.put(BusDb.ERROR_MESSAGE, destination);
-//		return entry;
-//	}
 
 	public ArrayList<LTCRoute> loadRoutes() throws ScrapeException, IOException {
 		ArrayList<LTCRoute> routes = new ArrayList<LTCRoute>();

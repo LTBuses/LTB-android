@@ -207,7 +207,6 @@ public class StopTimes extends Activity {
 				if (routeView.isOkToPost()) {
 					removeRouteFromPredictions(routeView.route);
 					for (Prediction p: routeView.getPredictions()) {
-						p.updateTimediff(now);
 						// find the position where this Prediction should be inserted
 						int insertPosition = Collections.binarySearch(predictions, p);
 						// we don't care if we get a direct hit or just an insert position, we do the same thing

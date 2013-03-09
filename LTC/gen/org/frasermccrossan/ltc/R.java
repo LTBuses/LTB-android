@@ -128,6 +128,7 @@ public final class R {
         public static final int all_routes_long=0x7f06003e;
         public static final int all_routes_short=0x7f06003d;
         public static final int app_name=0x7f060001;
+        public static final int arriving=0x7f06005d;
         public static final int at_this_stop=0x7f060007;
         public static final int cancel=0x7f060047;
         public static final int database_ready=0x7f060042;
