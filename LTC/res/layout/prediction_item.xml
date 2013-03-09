@@ -72,7 +72,7 @@
             android:background="@drawable/time_border"
             android:layout_margin="3dip"
             android:orientation="vertical"
-        android:minHeight="?android:attr/listPreferredItemHeight" >
+            android:minHeight="?android:attr/listPreferredItemHeight" >
 
         <TextView
              android:id="@+id/crossing_time"
@@ -82,6 +82,7 @@
              android:minEms="3"
              android:gravity="center"
              android:singleLine="true"
+             style="@style/normal_pred_time"
              android:textAppearance="?android:attr/textAppearanceLarge" />
         
         <TextView

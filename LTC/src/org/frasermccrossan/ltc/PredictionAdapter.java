@@ -1,20 +1,24 @@
 package org.frasermccrossan.ltc;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Typeface;
+import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class PredictionAdapter extends ArrayAdapter<Prediction> {
-
+	
 	Context context;
 	int layoutResourceId;
 	ArrayList<Prediction> predictions = null;
@@ -30,10 +34,10 @@ public class PredictionAdapter extends ArrayAdapter<Prediction> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View row = convertView;
 		
-		//if (row == null) {
+		if (row == null) {
 			LayoutInflater inflater = ((Activity)context).getLayoutInflater();
 			row = inflater.inflate(layoutResourceId, parent, false);
-		//}
+		}
 		
 		Prediction p = predictions.get(position);
 		TextView routeNumber = (TextView)row.findViewById(R.id.route_number);
@@ -46,15 +50,24 @@ public class PredictionAdapter extends ArrayAdapter<Prediction> {
 		routeNumber.setText(p.routeNumber());
 		routeDirImg.setImageResource(p.routeDirectionImgRes());
 		routeLongName.setText(p.routeLongName());
-		crossingTime.setText(p.crossInMinutes());
 		destination.setText(p.destination());
-		rawCrossingTime.setText(p.crossAt());
+		if (!p.isQuerying()) {
+			// let the old values fade out without alteration
+			crossingTime.setText(p.crossInMinutes());
+			rawCrossingTime.setText(p.crossAt());
+		}
 		
 		if (p.isValid()) {
 			destination.setTextAppearance(context, R.style.destination);
 			if (p.isQuerying()) {
-				LinearLayout predictionTimes = (LinearLayout)row.findViewById(R.id.prediction_times);
-				predictionTimes.setBackgroundResource(R.drawable.time_border_querying);
+				//predictionTimes.setBackgroundResource(R.drawable.time_border_querying);
+				crossingTime.setTextAppearance(context, R.style.querying_pred_time);
+				rawCrossingTime.setTextAppearance(context, R.style.querying_pred_time);
+			}
+			else {
+				//predictionTimes.setBackgroundResource(R.drawable.time_border);
+				crossingTime.setTextAppearance(context, R.style.normal_pred_time);
+				rawCrossingTime.setTextAppearance(context, R.style.normal_pred_time);
 			}
 		}
 		else {

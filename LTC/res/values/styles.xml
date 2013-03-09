@@ -13,6 +13,12 @@
     <style name="seriously_invalid_destination" parent="@style/destination">
         <item name="android:textColor">#ff0000</item>
     </style>
+    <style name="normal_pred_time">
+        <item name="android:textColor">#000000</item>
+    </style>
+    <style name="querying_pred_time">
+        <item name="android:textColor">#c0c0c0</item>
+    </style>
     
     <color name="bg_querying">#ffffa0</color>
     <color name="bg_failed">#ff0000</color>

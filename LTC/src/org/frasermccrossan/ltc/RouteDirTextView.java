@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.view.Gravity;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
 /* a sub-class of TextView that contains an LTC route and knows how to render it properly */

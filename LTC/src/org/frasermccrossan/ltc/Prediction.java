@@ -1,8 +1,6 @@
 package org.frasermccrossan.ltc;
 
 import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -166,7 +164,11 @@ public class Prediction implements Comparable<Prediction> {
 	
 	@Override
 	public int compareTo(Prediction other) {
-		return timeDifference - other.timeDifference;
+		int timeDiff = timeDifference - other.timeDifference;
+		if (timeDiff != 0) {
+			return timeDiff;
+		}
+		return route.number.compareTo(other.route.number);
 	}
 
 }
