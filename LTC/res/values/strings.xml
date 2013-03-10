@@ -3,7 +3,7 @@
 
     <string name="status">Status field initial value</string>
     <string name="app_name">LTC</string>
-    <string name="long_app_name">LTC Buses</string>
+    <string name="long_app_name">London Transit Buses</string>
     <string name="find_hint">Enter stop number or keywords, e.g. \"dundas well\"</string>
     <string name="stop_number">Stop #</string>
     <string name="stop_name">Stop Name</string>
@@ -18,8 +18,8 @@
     <string name="about_text">
     <![CDATA[<html>
     <body>
-    <h1>LTC Buses</h1>
-    <h3>Version 1.7 &copy; 2012 Fraser McCrossan</h3>
+    <h1>London Transit (LTC) Buses</h1>
+    <h3>Version 1.71 &copy; 2012 Fraser McCrossan</h3>
     <h2>Notice</h2>
     <p>
     Although this app uses data from the

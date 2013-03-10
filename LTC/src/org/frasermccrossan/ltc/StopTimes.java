@@ -200,6 +200,9 @@ public class StopTimes extends Activity {
 			scheduleTimer();
 			Calendar now = Calendar.getInstance();
 			for (RouteDirTextView routeView: routeViews) {
+				if (isCancelled()) {
+					break;
+				}
 				if (routeView.isOkToPost()) {
 					removeRouteFromPredictions(routeView.route);
 					for (Prediction p: routeView.getPredictions()) {
@@ -239,6 +242,9 @@ public class StopTimes extends Activity {
 				//adapter.sort(new PredictionComparator());
 				adapter.notifyDataSetChanged();
 				routeView.updateDisplay();
+				if (isCancelled()) {
+					break;
+				}
 				int right = routeView.getRight();
 				int svWidth = routeViewScrollview.getWidth();
 				if (right > svWidth) {

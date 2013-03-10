@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -177,7 +178,7 @@ public class BusDb {
 	}
 
 	HashMap<String, Long> getFreshnesses(long nowMillis) {
-		Cursor c = db.rawQuery(String.format("select %s, %s, %s, %s, %s, %s from %s",
+		Cursor c = db.rawQuery(String.format(Locale.US, "select %s, %s, %s, %s, %s, %s from %s",
 				WEEKDAY_FRESHNESS_COLUMN, SATURDAY_FRESHNESS_COLUMN, SUNDAY_FRESHNESS_COLUMN,
 				WEEKDAY_LOCATION_FRESHNESS_COLUMN, SATURDAY_LOCATION_FRESHNESS_COLUMN, SUNDAY_LOCATION_FRESHNESS_COLUMN,
 				FRESHNESS_TABLE), null);
@@ -227,7 +228,7 @@ public class BusDb {
 		cv.put(STOP_LAST_USE_TIME, now);
 		db.insert(STOP_LAST_USE_TABLE, null, cv);
 		// now delete all but the last STOP_HISTORY_LENGTH
-		String q = String.format("delete from %s " +
+		String q = String.format(Locale.US, "delete from %s " +
 				"where %s < " +
 				"(select %s from %s " +
 				"order by %s desc limit 1 offset %d)",
@@ -242,7 +243,7 @@ public class BusDb {
 	
 	void forgetStopUse(int stopNumber) {
 		db.delete(STOP_LAST_USE_TABLE,
-				String.format("%s = %d", STOP_NUMBER, stopNumber),
+				String.format(Locale.US, "%s = %d", STOP_NUMBER, stopNumber),
 				null);
 	}
 	
@@ -273,7 +274,7 @@ public class BusDb {
 		LTCRoute route = null;
 		Cursor c = db.query(ROUTE_TABLE,
 				new String[] { ROUTE_NUMBER, ROUTE_NAME, DIRECTION_NUMBER, DIRECTION_NAME },
-				String.format("%s = ?", ROUTE_NUMBER), new String[] { routeNumber },
+				String.format(Locale.US, "%s = ?", ROUTE_NUMBER), new String[] { routeNumber },
 				null, null, null);
 		if (c.moveToFirst()) {
 			route = new LTCRoute(c.getString(0), c.getString(1), c.getInt(2), c.getString(3));
@@ -286,7 +287,7 @@ public class BusDb {
 		LTCStop stop = null;
 		Cursor c = db.query(STOP_TABLE,
 				new String[] { STOP_NUMBER, STOP_NAME },
-				String.format("%s = ?", STOP_NUMBER), new String[] { stopNumber },
+				String.format(Locale.US, "%s = ?", STOP_NUMBER), new String[] { stopNumber },
 				null, null, null);
 		if (c.moveToFirst()) {
 			stop = new LTCStop(c.getInt(0), c.getString(1));
@@ -297,7 +298,7 @@ public class BusDb {
 	
 	/* this fetches all stops for a given route */
 	HashMap<Integer, LTCStop> findStopRoutesAnyDir(String routeNumber) {
-		Cursor c = db.rawQuery(String.format("select %s, %s, %s, %s from %s where %s in (select %s from %s where %s = ?)",
+		Cursor c = db.rawQuery(String.format(Locale.US, "select %s, %s, %s, %s from %s where %s in (select %s from %s where %s = ?)",
 											 STOP_NUMBER, STOP_NAME, LATITUDE, LONGITUDE,
 											 STOP_TABLE,
 											 STOP_NUMBER,
@@ -318,7 +319,7 @@ public class BusDb {
 	
 	/* given a route, return how many stops on that route lack location information */
 	int getLocationlessStopCount(LTCRoute route) {
-		Cursor c = db.rawQuery(String.format("select count(*) from %s where (%s is null or %s < 0.1) and %s in (select %s from %s where %s = ?);",
+		Cursor c = db.rawQuery(String.format(Locale.US, "select count(*) from %s where (%s is null or %s < 0.1) and %s in (select %s from %s where %s = ?);",
 				STOP_TABLE,
 				LATITUDE, LATITUDE,
 				STOP_NUMBER,
@@ -338,7 +339,7 @@ public class BusDb {
 	/* this fetches routes, but it also adds the direction and direction initial letter */
 	ArrayList<LTCRoute> findStopRoutes(String stopNumber, String routeNumber, int directionNumber) {
 		String freshCol = currentFreshnessColumnNow();
-		Cursor c = db.rawQuery(String.format("select %s.%s, %s.%s, %s.%s, %s.%s from %s, %s, %s where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ? and %s.%s != 0",
+		Cursor c = db.rawQuery(String.format(Locale.US, "select %s.%s, %s.%s, %s.%s, %s.%s from %s, %s, %s where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ? and %s.%s != 0",
 											 ROUTE_TABLE, ROUTE_NUMBER,
 											 ROUTE_TABLE, ROUTE_NAME,
 											 LINK_TABLE, DIRECTION_NUMBER,
@@ -365,7 +366,7 @@ public class BusDb {
 	/* this fetches routes, but it also adds the direction and direction initial letter */
 	private String findStopRouteSummary(String stopNumber) {
 		String freshCol = currentFreshnessColumnNow();
-		String query = String.format("select ltrim(%s.%s, '0'), substr(%s.%s, 1, 1) " +
+		String query = String.format(Locale.US, "select ltrim(%s.%s, '0'), substr(%s.%s, 1, 1) " +
 				"from %s, %s, %s " +
 				"where %s.%s = %s.%s and %s.%s = %s.%s and %s.%s = ? and %s.%s != 0 " +
 				"order by %s.%s",
@@ -417,19 +418,19 @@ public class BusDb {
 		double lat = 0, lon = 0; // cache of contents of location
 		int i; // note - used multiple places
 		for (i = 0; i < words.length; ++i) {
-			likes[i] = String.format("stop_name like %s", DatabaseUtils.sqlEscapeString("%"+words[i]+"%"));
+			likes[i] = String.format(Locale.US, "stop_name like %s", DatabaseUtils.sqlEscapeString("%"+words[i]+"%"));
 		}
 		whereClause = "(" + TextUtils.join(" and ", likes) + ")";
 		if (searchText.matches("^\\d+$")) {
-			whereClause += String.format(" or (%s like %s)", STOP_NUMBER, DatabaseUtils.sqlEscapeString(text + "%"));
+			whereClause += String.format(Locale.US, " or (%s like %s)", STOP_NUMBER, DatabaseUtils.sqlEscapeString(text + "%"));
 		}
 		if (mustServiceRoute != null) {
-			whereClause = String.format("(%s) and stop_number in (select %s from %s where %s = '%s')",
+			whereClause = String.format(Locale.US, "(%s) and stop_number in (select %s from %s where %s = '%s')",
 					whereClause, STOP_NUMBER, LINK_TABLE, ROUTE_NUMBER, mustServiceRoute.number);
 		}
 		String order;
 		if (location == null) {
-			order = String.format("%s desc, %s", STOP_USES_COUNT, STOP_NAME);
+			order = String.format(Locale.US, "%s desc, %s", STOP_USES_COUNT, STOP_NAME);
 		}
 		else {
 			/* this pretends that the coordinates are Cartesian for quick fetching from
@@ -438,7 +439,7 @@ public class BusDb {
 			 */
 			lat = location.getLatitude();
 			lon = location.getLongitude();
-			order = String.format("(latitude-(%f))*(latitude-(%f)) + (longitude-(%f))*(longitude-(%f))",
+			order = String.format(Locale.US, "(latitude-(%f))*(latitude-(%f)) + (longitude-(%f))*(longitude-(%f))",
 					lat, lat, lon, lon);
 		}
 		List<HashMap<String, String>> stops = new ArrayList<HashMap<String, String>>();
@@ -458,7 +459,7 @@ public class BusDb {
 						results);
 				
 				map.put(DISTANCE_TEXT, niceDistance(results[0]));
-				String distorder = String.format("%09.0f", results[0]);
+				String distorder = String.format(Locale.US, "%09.0f", results[0]);
 				map.put(DISTANCE_ORDER, distorder);
 			}
 			stops.add(map);
@@ -525,7 +526,7 @@ public class BusDb {
 //			value = stop.longitude;
 //			break;
 //		}
-//		return String.format("%s %s %f AND %s IN (SELECT %s FROM %s WHERE %s = '%s' AND %s = %s)",
+//		return String.format(Locale.US, "%s %s %f AND %s IN (SELECT %s FROM %s WHERE %s = '%s' AND %s = %s)",
 //				field, op, value,
 //				STOP_NUMBER, STOP_NUMBER, LINK_TABLE,
 //				ROUTE_NUMBER, route.number,
@@ -561,7 +562,7 @@ public class BusDb {
 //			order = "desc";
 //			break;
 //		}
-//		return String.format("%s %s", field, order);
+//		return String.format(Locale.US, "%s %s", field, order);
 //	}
 //	
 //	/* find stops on a route that are "after" the current stop, that is, in the same
@@ -588,7 +589,7 @@ public class BusDb {
 //	ArrayList<LTCStop> findStopsCloseTo(LTCStop stopFrom, LTCRoute route, ArrayList<LTCStop> refStops) {
 //		ArrayList<String> closeConditions = new ArrayList<String>();
 //		for (LTCStop refStop: refStops) {
-//			closeConditions.add(String.format("(latitude-(%.9f))*(latitude-(%.9f)) + (longitude-(%.9f))*(longitude-(%.9f)) < %.9f",
+//			closeConditions.add(String.format(Locale.US, "(latitude-(%.9f))*(latitude-(%.9f)) + (longitude-(%.9f))*(longitude-(%.9f)) < %.9f",
 //					refStop.latitude, refStop.latitude, refStop.longitude, refStop.longitude, CLOSE_DISTANCE_SQUARED_DEGREES));
 //		}
 //		String closeCondition = TextUtils.join(" OR ", closeConditions);
@@ -621,16 +622,16 @@ public class BusDb {
 	private String niceDistance(float val) {
 		
 		if (val < 20) {
-			return String.format("%.0fm", val);
+			return String.format(Locale.US, "%.0fm", val);
 		}
 		else if (val < 250) {
-			return String.format("%.0fm", Math.rint(val/5) * 5);
+			return String.format(Locale.US, "%.0fm", Math.rint(val/5) * 5);
 		}
 		else if (val < 1000) {
-			return String.format("%.0fm", Math.rint(val/10) * 10);
+			return String.format(Locale.US, "%.0fm", Math.rint(val/10) * 10);
 		}
 		else {
-			return String.format("%.1fkm", val/1000);
+			return String.format(Locale.US, "%.1fkm", val/1000);
 		}
 	}
 	
@@ -643,16 +644,16 @@ public class BusDb {
 
 	// zero any freshnesses older than the "current" freshness
 	public void clearOldFreshnesses(String table, String col) {
-		Log.i("db", String.format("clearOld(%s,  %s)", table, col));
-		String s = String.format("UPDATE %s set %s = 0 WHERE %s < (SELECT %s from %s)",
+		//Log.i("db", String.format(Locale.US, "clearOld(%s,  %s)", table, col));
+		String s = String.format(Locale.US, "UPDATE %s set %s = 0 WHERE %s < (SELECT %s from %s)",
 				table, col, col, col, FRESHNESS_TABLE);
 		db.execSQL(s);
 	}
 	
 	// delete any rows where all freshnesses are old
 	public void deleteStaleRecords(String table) {
-		Log.i("db", String.format("deleteStale(%s)", table));
-		String s = String.format("DELETE FROM %s WHERE %s = 0 and %s = 0 and %s = 0",
+		Log.i("db", String.format(Locale.US, "deleteStale(%s)", table));
+		String s = String.format(Locale.US, "DELETE FROM %s WHERE %s = 0 and %s = 0 and %s = 0",
 				table,
 				WEEKDAY_FRESHNESS_COLUMN, SATURDAY_FRESHNESS_COLUMN, SUNDAY_FRESHNESS_COLUMN);
 		db.execSQL(s);
@@ -660,7 +661,7 @@ public class BusDb {
 	
 	// called by saveBusData() to clear out stale records
 	public void purgeStaleRecords(String table, String col) {
-		Log.i("db", String.format("purgeStale(%s,  %s)", table, col));
+		Log.i("db", String.format(Locale.US, "purgeStale(%s,  %s)", table, col));
 		clearOldFreshnesses(table, col);
 		deleteStaleRecords(table);
 	}
@@ -694,7 +695,7 @@ public class BusDb {
 					cv.put(ROUTE_NUMBER, route.number);
 					cv.put(ROUTE_NAME, route.name);
 					cv.put(freshCol, nowMillis);
-					if (db.update(ROUTE_TABLE, cv, String.format("%s = '%s'", ROUTE_NUMBER, route.number), null) == 0) {
+					if (db.update(ROUTE_TABLE, cv, String.format(Locale.US, "%s = '%s'", ROUTE_NUMBER, route.number), null) == 0) {
 						db.insertWithOnConflict(ROUTE_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 					}
 				}
@@ -707,7 +708,7 @@ public class BusDb {
 					cv.put(DIRECTION_NUMBER, dir.number);
 					cv.put(DIRECTION_NAME, dir.name);
 					cv.put(freshCol, nowMillis);
-					if (db.update(DIRECTION_TABLE, cv, String.format("%s = %d", DIRECTION_NUMBER, dir.number), null) == 0) {
+					if (db.update(DIRECTION_TABLE, cv, String.format(Locale.US, "%s = %d", DIRECTION_NUMBER, dir.number), null) == 0) {
 						db.insertWithOnConflict (DIRECTION_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 					}
 				}
@@ -725,7 +726,7 @@ public class BusDb {
 						cv.put(LONGITUDE, stop.longitude);
 					}
 					cv.put(freshCol, nowMillis);
-					if (db.update(STOP_TABLE, cv, String.format("%s = %d", STOP_NUMBER, stop.number), null) == 0) {
+					if (db.update(STOP_TABLE, cv, String.format(Locale.US, "%s = %d", STOP_NUMBER, stop.number), null) == 0) {
 						db.insertWithOnConflict (STOP_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 					}
 				}
@@ -739,7 +740,7 @@ public class BusDb {
 					cv.put(DIRECTION_NUMBER, link.directionNumber);
 					cv.put(STOP_NUMBER, link.stopNumber);
 					cv.put(freshCol, nowMillis);
-					if (db.update(LINK_TABLE, cv, String.format("%s = '%s' and %s = %d and %s = %d",
+					if (db.update(LINK_TABLE, cv, String.format(Locale.US, "%s = '%s' and %s = %d and %s = %d",
 							ROUTE_NUMBER, link.routeNumber,
 							DIRECTION_NUMBER, link.directionNumber,
 							STOP_NUMBER, link.stopNumber), null) == 0) {
