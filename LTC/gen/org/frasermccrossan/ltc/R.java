@@ -53,6 +53,7 @@ public final class R {
         public static final int find_hint=0x7f09000b;
         public static final int find_stop_help=0x7f09003a;
         public static final int find_stop_help_web_view=0x7f090011;
+        public static final int horiz_route_list_scrollview=0x7f09001e;
         public static final int message=0x7f090034;
         public static final int network_settings=0x7f090002;
         public static final int not_working=0x7f090022;
@@ -65,14 +66,12 @@ public final class R {
         public static final int right_side=0x7f090023;
         public static final int route_direction_img=0x7f090013;
         public static final int route_list=0x7f09001c;
-        public static final int route_list_scrollview=0x7f09001e;
         public static final int route_long_name=0x7f090014;
         public static final int route_number=0x7f090012;
         public static final int route_spinner=0x7f09000e;
         public static final int route_view_text=0x7f090019;
         public static final int saturday_stops=0x7f09002c;
         public static final int scrollView1=0x7f090025;
-        public static final int scrollView2=0x7f090024;
         public static final int search=0x7f09000c;
         public static final int search_type_spinner=0x7f09000d;
         public static final int share_app=0x7f09003b;
@@ -96,6 +95,7 @@ public final class R {
         public static final int update_database=0x7f09003c;
         public static final int update_database_help=0x7f09003d;
         public static final int update_database_help_web_view=0x7f090038;
+        public static final int vert_route_list_scrollview=0x7f090024;
         public static final int website_problems=0x7f090006;
         public static final int weekday_stops=0x7f090029;
         public static final int wifi_settings=0x7f090004;

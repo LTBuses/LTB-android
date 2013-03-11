@@ -5,7 +5,7 @@
     android:orientation="vertical" >
 
     <HorizontalScrollView
-        android:id="@+id/route_list_scrollview"
+        android:id="@+id/horiz_route_list_scrollview"
         
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >

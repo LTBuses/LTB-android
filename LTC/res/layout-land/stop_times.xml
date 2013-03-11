@@ -12,8 +12,7 @@
         android:paddingLeft="3dip" >
         
 	    <ScrollView
-	    xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/scrollView2"
+        android:id="@+id/vert_route_list_scrollview"
        	android:layout_width="fill_parent"
        	android:layout_gravity="center_horizontal"
     	android:layout_height="0dip"

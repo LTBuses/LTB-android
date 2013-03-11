@@ -9,6 +9,7 @@ import java.util.TimerTask;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -20,6 +21,7 @@ import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 public class StopTimes extends Activity {
@@ -29,7 +31,8 @@ public class StopTimes extends Activity {
 	
 	String stopNumber;
 	LinearLayout routeViewLayout;
-	HorizontalScrollView routeViewScrollview;
+	ScrollView vertRouteViewScrollview;
+	HorizontalScrollView horizRouteViewScrollview;
 	Button refreshButton;
 	Button notWorkingButton;
 	Button tweakButton;
@@ -78,7 +81,8 @@ public class StopTimes extends Activity {
         notWorkingButton.setOnClickListener(buttonListener);
         
         routeViewLayout = (LinearLayout)findViewById(R.id.route_list);        
-        routeViewScrollview = (HorizontalScrollView)findViewById(R.id.route_list_scrollview);        
+        vertRouteViewScrollview = (ScrollView)findViewById(R.id.vert_route_list_scrollview);        
+        horizRouteViewScrollview = (HorizontalScrollView)findViewById(R.id.horiz_route_list_scrollview);        
 
         String routeNumberOnly = intent.getStringExtra(BusDb.ROUTE_NUMBER);
         int routeDirectionOnly = intent.getIntExtra(BusDb.DIRECTION_NUMBER, 0);
@@ -245,16 +249,33 @@ public class StopTimes extends Activity {
 				if (isCancelled()) {
 					break;
 				}
-				int right = routeView.getRight();
-				int svWidth = routeViewScrollview.getWidth();
-				if (right > svWidth) {
-					routeViewScrollview.smoothScrollTo(right - svWidth, 0);
+				if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT &&
+						horizRouteViewScrollview != null) {
+					int right = routeView.getRight();
+					int svWidth = horizRouteViewScrollview.getWidth();
+					if (right > svWidth) {
+						horizRouteViewScrollview.smoothScrollTo(right - svWidth, 0);
+					}
+					else {
+						int left = routeView.getLeft();
+						int scrollPos = horizRouteViewScrollview.getScrollX();
+						if (left < scrollPos) {
+							horizRouteViewScrollview.smoothScrollTo(left, 0);						
+						}
+					}
 				}
-				else {
-					int left = routeView.getLeft();
-					int scrollPos = routeViewScrollview.getScrollX();
-					if (left < scrollPos) {
-						routeViewScrollview.smoothScrollTo(left, 0);						
+				else if (vertRouteViewScrollview != null) {
+					int bottom = routeView.getBottom();
+					int svHeight = vertRouteViewScrollview.getHeight();
+					if (bottom > svHeight) {
+						vertRouteViewScrollview.smoothScrollTo(0, bottom - svHeight);
+					}
+					else {
+						int top = routeView.getTop();
+						int scrollPos = vertRouteViewScrollview.getScrollY();
+						if (top < scrollPos) {
+							vertRouteViewScrollview.smoothScrollTo(top, 0);
+						}
 					}
 				}
 			}
