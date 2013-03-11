@@ -7,6 +7,10 @@
         <item name="android:gravity">center</item>=
         <item name="android:textColor">#ffd000</item>
     </style>
+    <style name="blank_destination" parent="@style/destination">
+        <item name="android:textColor">#d0d0d0</item>
+        <item name="android:textStyle">italic</item>
+    </style>
     <style name="invalid_destination" parent="@style/destination">
         <item name="android:textColor">#ffa0a0</item>
     </style>

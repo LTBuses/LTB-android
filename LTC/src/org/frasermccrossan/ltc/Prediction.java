@@ -68,6 +68,10 @@ public class Prediction implements Comparable<Prediction> {
 		return errorMessage == null;
 	}
 	
+	Boolean blankDestination() {
+		return destination != null && destination.equals("");
+	}
+	
 	Boolean isError() {
 		return !isValid();
 	}

@@ -55,7 +55,7 @@ public class LTCScraper {
 	static final String PREDICTIONS_URL = "http://teuchter.lan:8000/foo.html";
 	static final Pattern TIME_PATTERN = Pattern.compile("(\\d{1,2}):(\\d{2}) ?([AP])?");
 	// matches arrival text in the MobileAda.aspx prediction
-	static final Pattern ARRIVAL_PATTERN = Pattern.compile("(?i) *(\\d{1,2}:\\d{2} *[\\.apm]*) +(to .+)");
+	static final Pattern ARRIVAL_PATTERN = Pattern.compile("(?i) *(\\d{1,2}:\\d{2} *[\\.apm]*) +(to .*)");
 	// pattern for route number in a[href]
 	static final Pattern ROUTE_NUM_PATTERN = Pattern.compile("\\?r=(\\d{1,2})");
 	// pattern for direction number in a[href]
@@ -65,7 +65,6 @@ public class LTCScraper {
 	// if no buses are found
 	static final Pattern NO_INFO_PATTERN = Pattern.compile("(?mi)no stop information");
 	static final Pattern NO_BUS_PATTERN = Pattern.compile("(?mi)no further buses");
-	static final Pattern DESTINATION_PATTERN = Pattern.compile("(?i) *to +((\\d+[a-z]?) +)?(.*)");
 	static final Pattern LOCATION_STOP_PATTERN = Pattern.compile("(\\d+)");
 	static final String VERY_CLOSE = "000000000000000"; // something guaranteed to sort before everything
 	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything

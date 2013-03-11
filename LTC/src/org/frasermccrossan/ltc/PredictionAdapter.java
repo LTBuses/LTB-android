@@ -50,7 +50,12 @@ public class PredictionAdapter extends ArrayAdapter<Prediction> {
 		routeNumber.setText(p.routeNumber());
 		routeDirImg.setImageResource(p.routeDirectionImgRes());
 		routeLongName.setText(p.routeLongName());
-		destination.setText(p.destination());
+		if (p.destination().equals("")) {
+			destination.setText(R.string.no_destination);
+		}
+		else {
+			destination.setText(p.destination());
+		}
 		if (!p.isQuerying()) {
 			// let the old values fade without alteration
 			crossingTime.setText(p.crossInMinutes());
@@ -58,7 +63,12 @@ public class PredictionAdapter extends ArrayAdapter<Prediction> {
 		}
 		
 		if (p.isValid()) {
-			destination.setTextAppearance(context, R.style.destination);
+			if (p.blankDestination()) {
+				destination.setTextAppearance(context, R.style.blank_destination);
+			}
+			else {
+				destination.setTextAppearance(context, R.style.destination);
+			}
 			int timeTextStyle;
 			if (p.isQuerying()) {
 				timeTextStyle = R.style.querying_pred_time;

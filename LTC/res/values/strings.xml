@@ -235,5 +235,6 @@
     <string name="no_time_diff">---</string>
     <string name="no_time">--:--</string>
     <string name="arriving">Arr.</string>
+    <string name="no_destination">Missing Destination</string>
 
 </resources>

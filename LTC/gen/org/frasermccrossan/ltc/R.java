@@ -159,6 +159,7 @@ public final class R {
         public static final int never=0x7f05001d;
         public static final int no_bus=0x7f05002f;
         public static final int no_connecting_found=0x7f05005a;
+        public static final int no_destination=0x7f05005e;
         public static final int no_further=0x7f05003c;
         public static final int no_network=0x7f050035;
         public static final int no_provider=0x7f05000c;
@@ -220,16 +221,17 @@ public final class R {
     public static final class style {
         /**  Any customizations for your app running on pre-3.0 devices here 
          */
-        public static final int MyTheme=0x7f06000a;
+        public static final int MyTheme=0x7f06000b;
+        public static final int blank_destination=0x7f060001;
         public static final int destination=0x7f060000;
-        public static final int invalid_destination=0x7f060001;
-        public static final int normal_pred_time=0x7f060003;
-        public static final int querying_pred_time=0x7f060004;
-        public static final int route_failed=0x7f060009;
-        public static final int route_idle=0x7f060006;
-        public static final int route_ok=0x7f060008;
-        public static final int route_querying=0x7f060007;
-        public static final int route_view=0x7f060005;
-        public static final int seriously_invalid_destination=0x7f060002;
+        public static final int invalid_destination=0x7f060002;
+        public static final int normal_pred_time=0x7f060004;
+        public static final int querying_pred_time=0x7f060005;
+        public static final int route_failed=0x7f06000a;
+        public static final int route_idle=0x7f060007;
+        public static final int route_ok=0x7f060009;
+        public static final int route_querying=0x7f060008;
+        public static final int route_view=0x7f060006;
+        public static final int seriously_invalid_destination=0x7f060003;
     }
 }
