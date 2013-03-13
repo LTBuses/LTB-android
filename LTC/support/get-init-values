@@ -1,0 +1,13 @@
+#!/bin/bash
+
+shopt -s extglob
+
+TMPDIR=/tmp
+DBNAME=ltcdb
+DBFILE="$TMPDIR/$DBNAME"
+INIT=${0%%*([^/])}/../assets/init-stops.sql
+
+adb -e pull /data/data/org.frasermccrossan.ltc/databases/$DBNAME $DBFILE
+echo Pulled database to $DBFILE
+( sqlite3 $DBFILE ".dump stops" ; sqlite3 $DBFILE ".dump route_stops" )|grep INSERT > $INIT
+echo Created $INIT

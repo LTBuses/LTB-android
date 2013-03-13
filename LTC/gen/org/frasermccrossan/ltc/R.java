@@ -148,6 +148,7 @@ public final class R {
         public static final int last_updated=0x7f050006;
         public static final int loading_route_nodir=0x7f05004c;
         public static final int loading_route_stop_locations=0x7f05004b;
+        public static final int loading_stop_cache=0x7f05005f;
         public static final int location_disabled=0x7f050054;
         public static final int location_download_complete=0x7f050041;
         public static final int location_status=0x7f050012;

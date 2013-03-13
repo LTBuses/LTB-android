@@ -1,5 +1,9 @@
 package org.frasermccrossan.ltc;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -13,6 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
@@ -315,6 +320,35 @@ public class BusDb {
 			c.close();
 		}
 		return stops;
+	}
+	
+	/* given a route, return how many stops exist */
+	int getStopCount() {
+		Cursor c = db.rawQuery(String.format(Locale.US, "select count(*) from %s;",
+				LINK_TABLE),
+				null);
+		int count = 0;
+		if (c.moveToFirst()) {
+			count = c.getInt(0);
+			c.close();
+		}
+		return count;
+
+	}
+	
+	/* given a route, return how many stops are on that route */
+	int getStopCount(LTCRoute route) {
+		Cursor c = db.rawQuery(String.format(Locale.US, "select count(*) from %s where %s = ?;",
+				LINK_TABLE,
+				ROUTE_NUMBER),
+				new String[] { route.number });
+		int count = 0;
+		if (c.moveToFirst()) {
+			count = c.getInt(0);
+			c.close();
+		}
+		return count;
+
 	}
 	
 	/* given a route, return how many stops on that route lack location information */
@@ -652,7 +686,7 @@ public class BusDb {
 	
 	// delete any rows where all freshnesses are old
 	public void deleteStaleRecords(String table) {
-		Log.i("db", String.format(Locale.US, "deleteStale(%s)", table));
+		//Log.i("db", String.format(Locale.US, "deleteStale(%s)", table));
 		String s = String.format(Locale.US, "DELETE FROM %s WHERE %s = 0 and %s = 0 and %s = 0",
 				table,
 				WEEKDAY_FRESHNESS_COLUMN, SATURDAY_FRESHNESS_COLUMN, SUNDAY_FRESHNESS_COLUMN);
@@ -661,11 +695,40 @@ public class BusDb {
 	
 	// called by saveBusData() to clear out stale records
 	public void purgeStaleRecords(String table, String col) {
-		Log.i("db", String.format(Locale.US, "purgeStale(%s,  %s)", table, col));
+		//Log.i("db", String.format(Locale.US, "purgeStale(%s,  %s)", table, col));
 		clearOldFreshnesses(table, col);
 		deleteStaleRecords(table);
 	}
-		
+
+	// used to populate the stop table, with coordinates, from the included asset file
+	public void ensureStopPreload() {
+		if (getStopCount() == 0) {
+			// don't attempt to preload unless we have no data at all
+			try {
+				AssetManager assetManager = context.getAssets();
+				InputStream is = assetManager.open("init-stops.sql");
+				InputStreamReader isr = new InputStreamReader(is);
+				BufferedReader reader = new BufferedReader(isr);
+				db.beginTransaction();
+				String line;
+				while ((line = reader.readLine()) != null) {
+					db.execSQL(line);
+				}
+				db.setTransactionSuccessful();
+				reader.close();
+			}
+			catch (IOException e) {
+				// do nothing
+			}
+			catch (SQLException e) {
+				// do nothing
+			}
+			finally {
+				db.endTransaction();
+			}
+		}
+	}
+	
 	// called by the scraper to load everything it found into the database
 	public void saveBusData(Collection<LTCRoute> routes,
 			Collection<LTCDirection> directions,
@@ -686,36 +749,38 @@ public class BusDb {
 			if (withLocations) {
 				cv.put(currentLocationFreshnessColumn(now), nowMillis);
 			}
-			Log.i("db", "Update freshnesses");
+			//Log.i("db", "Update freshnesses");
 			db.update(FRESHNESS_TABLE, cv, null, null);
 			if (routes != null) {
-				Log.i("db", "Update routes");
+				//Log.i("db", "Update routes");
 				for (LTCRoute route : routes) {
 					cv.clear();
 					cv.put(ROUTE_NUMBER, route.number);
 					cv.put(ROUTE_NAME, route.name);
 					cv.put(freshCol, nowMillis);
-					if (db.update(ROUTE_TABLE, cv, String.format(Locale.US, "%s = '%s'", ROUTE_NUMBER, route.number), null) == 0) {
+					if (db.update(ROUTE_TABLE, cv, String.format(Locale.US, "%s = ?", ROUTE_NUMBER),
+							new String[] { route.number }) == 0) {
 						db.insertWithOnConflict(ROUTE_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 					}
 				}
 				purgeStaleRecords(ROUTE_TABLE, freshCol);
 			}
 			if (directions != null) {
-				Log.i("db", "Update directions");
+				//Log.i("db", "Update directions");
 				for (LTCDirection dir : directions) {
 					cv.clear();
 					cv.put(DIRECTION_NUMBER, dir.number);
 					cv.put(DIRECTION_NAME, dir.name);
 					cv.put(freshCol, nowMillis);
-					if (db.update(DIRECTION_TABLE, cv, String.format(Locale.US, "%s = %d", DIRECTION_NUMBER, dir.number), null) == 0) {
+					if (db.update(DIRECTION_TABLE, cv, String.format(Locale.US, "%s = ?", DIRECTION_NUMBER),
+							new String[] { String.valueOf(dir.number) }) == 0) {
 						db.insertWithOnConflict (DIRECTION_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 					}
 				}
 				purgeStaleRecords(DIRECTION_TABLE, freshCol);
 			}
 			if (stops != null) {
-				Log.i("db", "Update stops");
+				//Log.i("db", "Update stops");
 				for (LTCStop stop : stops) {
 					cv.clear();
 					cv.put(STOP_NUMBER, stop.number);
@@ -726,24 +791,26 @@ public class BusDb {
 						cv.put(LONGITUDE, stop.longitude);
 					}
 					cv.put(freshCol, nowMillis);
-					if (db.update(STOP_TABLE, cv, String.format(Locale.US, "%s = %d", STOP_NUMBER, stop.number), null) == 0) {
+					if (db.update(STOP_TABLE, cv, String.format(Locale.US, "%s = ?", STOP_NUMBER),
+							new String[] { String.valueOf(stop.number) }) == 0) {
 						db.insertWithOnConflict (STOP_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 					}
 				}
 				purgeStaleRecords(STOP_TABLE, freshCol);
 			}
 			if (links != null) {
-				Log.i("db", "Update links");
+				//Log.i("db", "Update links");
 				for (RouteStopLink link : links) {
 					cv.clear();
 					cv.put(ROUTE_NUMBER, link.routeNumber);
 					cv.put(DIRECTION_NUMBER, link.directionNumber);
 					cv.put(STOP_NUMBER, link.stopNumber);
 					cv.put(freshCol, nowMillis);
-					if (db.update(LINK_TABLE, cv, String.format(Locale.US, "%s = '%s' and %s = %d and %s = %d",
-							ROUTE_NUMBER, link.routeNumber,
-							DIRECTION_NUMBER, link.directionNumber,
-							STOP_NUMBER, link.stopNumber), null) == 0) {
+					if (db.update(LINK_TABLE, cv, String.format(Locale.US, "%s = ? and %s = ? and %s = ?",
+							ROUTE_NUMBER,
+							DIRECTION_NUMBER,
+							STOP_NUMBER),
+							new String[] { link.routeNumber, String.valueOf(link.directionNumber), String.valueOf(link.stopNumber) }) == 0) {
 						db.insertWithOnConflict (LINK_TABLE, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
 					}
 				}

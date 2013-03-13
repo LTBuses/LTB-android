@@ -236,5 +236,6 @@
     <string name="no_time">--:--</string>
     <string name="arriving">Arr.</string>
     <string name="no_destination">Missing Destination</string>
+    <string name="loading_stop_cache">Checking stop cache</string>
 
 </resources>

@@ -71,7 +71,7 @@ public class HourMinute {
 				}
 			}
 			minsAfterMidnight = hour * 60 + minute;
-			Log.d("HourMinute", String.format("orig %s hour %d min %d", textTime, hour, minute));
+			//Log.d("HourMinute", String.format("orig %s hour %d min %d", textTime, hour, minute));
 		}
 	}
 	

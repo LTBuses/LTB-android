@@ -125,7 +125,7 @@ public class LTCScraper {
 		connection.setReadTimeout(FETCH_TIMEOUT);
 		doc = null;
 		try {
-			InputStream in = new BufferedInputStream(connection.getInputStream());
+			InputStream in = new BufferedInputStream(connection.getInputStream(), 8192);
 			doc = Jsoup.parse(in, null, uri);
 		}
 		finally {
@@ -313,8 +313,13 @@ public class LTCScraper {
 			//Resources res = getApplicationContext().getResources();
 			Resources res = context.getResources();
 			LoadProgress progress = new LoadProgress();
-			publishProgress(progress.title(res.getString(R.string.downloading_routes)));
+			BusDb db;
 			try {
+				publishProgress(progress.title(res.getString(R.string.loading_stop_cache)).percent(0));
+				db = new BusDb(context);
+				db.ensureStopPreload();
+				db.close();
+				publishProgress(progress.title(res.getString(R.string.downloading_routes)).percent(3));
 				routesToDo = loadRoutes();
 				if (routesToDo.size() == 0) {
 					publishProgress(progress.title(res.getString(R.string.download_failed))
@@ -333,6 +338,7 @@ public class LTCScraper {
 										.percent(5 + 90 * routesDone.size() / totalToDo));
 								ArrayList<LTCDirection> routeDirections = loadDirections(routesToDo.get(i).number);
 								//        				Log.d("loadtask", String.format("route %s has %d directions", routes.get(i).number, routeDirections.size()));
+								int routeStopCount = 0;
 								for (LTCDirection dir: routeDirections) {
 									if (!allDirections.containsKey(dir.number)) {
 										allDirections.put(dir.number, dir);
@@ -342,20 +348,25 @@ public class LTCScraper {
 									if (isCancelled()) {
 										break MAINLOOP;
 									}
-									HashMap<Integer, LTCStop> stops = loadStops(routesToDo.get(i).number, dir.number);
-									publishProgress(progress.message(String.format(res.getString(R.string.loading_route_stop_locations), routesToDo.get(i).name))
-											.percent(6 + 90 * routesDone.size() / totalToDo));
+									HashMap<Integer, LTCStop> dirStops = loadStops(routesToDo.get(i).number, dir.number);
+									routeStopCount += dirStops.size();
 									if (isCancelled()){
 										break MAINLOOP;
 									}
-									loadStopLocations(routesToDo.get(i).number, stops);
-									for (int stopNumber: stops.keySet()) {
+									for (int stopNumber: dirStops.keySet()) {
 										if (!allStops.containsKey(stopNumber)) {
-											allStops.put(stopNumber, stops.get(stopNumber));
+											allStops.put(stopNumber, dirStops.get(stopNumber));
 										}
 										links.add(new RouteStopLink(routesToDo.get(i).number, dir.number, stopNumber));
 									}
 								}
+								db = new BusDb(context);
+								if (db.getStopCount(routesToDo.get(i)) < routeStopCount || db.getLocationlessStopCount(routesToDo.get(i)) > 0) {
+									publishProgress(progress.message(String.format(res.getString(R.string.loading_route_stop_locations), routesToDo.get(i).name))
+											.percent(6 + 90 * routesDone.size() / totalToDo));
+									loadStopLocations(routesToDo.get(i).number, allStops);
+								}
+								db.close();
 								routesDone.add(routesToDo.get(i));
 								routesToDo.remove(i); // don't increment i, just remove the one we just did
 							}
@@ -371,7 +382,7 @@ public class LTCScraper {
 					publishProgress(progress.message(res.getString(R.string.saving_database))
 							.percent(95));
 					if (!isCancelled()) {
-						BusDb db = new BusDb(context);
+						db = new BusDb(context);
 						db.saveBusData(routesDone, allDirections.values(), allStops.values(), links, false);
 						db.close();
 						publishProgress(progress.title(res.getString(R.string.stop_download_complete))
