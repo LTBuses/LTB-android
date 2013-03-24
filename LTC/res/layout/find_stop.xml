@@ -1,15 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical" >
-
-    <TextView
-        android:id="@+id/find_hint"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@android:style/TextAppearance.DeviceDefault.Small"
-        android:text="@string/find_hint" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,11 +10,26 @@
         
         <EditText
             android:id="@+id/search"
-            style="@android:style/TextAppearance.DeviceDefault.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:inputType="text|textNoSuggestions" />
+
+<!--         <Spinner -->
+<!--             android:id="@+id/view_type_spinner" -->
+<!--             android:entries="@array/view_types" -->
+<!--             android:layout_width="wrap_content" -->
+<!--             android:layout_height="wrap_content" -->
+<!--             android:layout_weight="1" -->
+<!--             android:visibility="gone" -->
+<!--             android:spinnerMode="dropdown" /> -->
+        
+        <Spinner
+            android:id="@+id/route_spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:spinnerMode="dropdown" />
 
         <Spinner
             android:id="@+id/search_type_spinner"
@@ -30,15 +38,14 @@
             android:layout_height="wrap_content"
             android:layout_weight="0"
             android:spinnerMode="dropdown" />
+        
+    </LinearLayout>
 
-        <Spinner
-            android:id="@+id/route_spinner"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:spinnerMode="dropdown" />
-
-        </LinearLayout>
+    <TextView
+        android:id="@+id/find_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/find_hint" />
     
     <ListView
         android:id="@+id/stop_list"

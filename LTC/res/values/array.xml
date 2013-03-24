@@ -4,4 +4,8 @@
         <item >Favourites</item>
         <item >Nearby</item>
     </string-array>
+    <string-array name="view_types">
+        <item >List</item>
+        <item >Map</item>
+    </string-array>
     </resources>

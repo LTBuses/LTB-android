@@ -10,6 +10,7 @@ package org.frasermccrossan.ltc;
 public final class R {
     public static final class array {
         public static final int search_types=0x7f040000;
+        public static final int view_types=0x7f040001;
     }
     public static final class attr {
     }
@@ -50,7 +51,7 @@ public final class R {
         public static final int empty_conn_list=0x7f09000a;
         public static final int empty_prediction_list=0x7f090020;
         public static final int empty_stop_list=0x7f090010;
-        public static final int find_hint=0x7f09000b;
+        public static final int find_hint=0x7f09000e;
         public static final int find_stop_help=0x7f09003a;
         public static final int find_stop_help_web_view=0x7f090011;
         public static final int horiz_route_list_scrollview=0x7f09001e;
@@ -68,11 +69,11 @@ public final class R {
         public static final int route_list=0x7f09001c;
         public static final int route_long_name=0x7f090014;
         public static final int route_number=0x7f090012;
-        public static final int route_spinner=0x7f09000e;
+        public static final int route_spinner=0x7f09000c;
         public static final int route_view_text=0x7f090019;
         public static final int saturday_stops=0x7f09002c;
         public static final int scrollView1=0x7f090025;
-        public static final int search=0x7f09000c;
+        public static final int search=0x7f09000b;
         public static final int search_type_spinner=0x7f09000d;
         public static final int share_app=0x7f09003b;
         public static final int stop_list=0x7f09000f;

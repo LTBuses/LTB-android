@@ -39,7 +39,9 @@ import android.widget.Toast;
 
 public class FindStop extends Activity {
 
+	TextView findHint;
 	EditText searchField;
+	//Spinner viewTypeSpinner;
 	ListView stopList;
 	TextView emptyStopListText;
 	SimpleAdapter stopListAdapter;
@@ -92,6 +94,10 @@ public class FindStop extends Activity {
 					locToast.show();
 					return;
 				}
+				enableViewType();
+			}
+			else {
+				enableSearchField();
 			}
 			setLocationUpdates();
 			updateStops();
@@ -104,6 +110,18 @@ public class FindStop extends Activity {
 		}
 	};
 
+	void enableSearchField() {
+		findHint.setVisibility(View.VISIBLE);
+		searchField.setVisibility(View.VISIBLE);
+		//viewTypeSpinner.setVisibility(View.GONE);
+	}
+
+	void enableViewType() {
+		findHint.setVisibility(View.GONE);
+		searchField.setVisibility(View.GONE);
+		//viewTypeSpinner.setVisibility(View.VISIBLE);
+	}
+	
 	OnItemSelectedListener routeListener = new OnItemSelectedListener() {
 
 		@Override
@@ -171,6 +189,7 @@ public class FindStop extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.find_stop);
 		//db = new BusDb(this);
+		findHint = (TextView)findViewById(R.id.find_hint);
 		searchField = (EditText)findViewById(R.id.search);
 		searchField.addTextChangedListener(new TextWatcher() {
 			public void afterTextChanged(Editable s) {
@@ -181,6 +200,7 @@ public class FindStop extends Activity {
 			public void	beforeTextChanged(CharSequence s, int start, int count, int after) {}
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
 		});
+		//viewTypeSpinner = (Spinner)findViewById(R.id.view_type_spinner);
 		myLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 		stopList = (ListView)findViewById(R.id.stop_list);
 		emptyStopListText = (TextView)findViewById(R.id.empty_stop_list);

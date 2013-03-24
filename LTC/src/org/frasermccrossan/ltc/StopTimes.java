@@ -182,6 +182,9 @@ public class StopTimes extends Activity {
 				routeView.setStatus(RouteDirTextView.IDLE, null);
 				routeView.updateDisplay();
 			}
+			for (Prediction pred: predictions) {
+				pred.setQuerying();
+			}
 		}
 		
 		protected Void doInBackground(RouteDirTextView... routeViews) {
@@ -229,9 +232,9 @@ public class StopTimes extends Activity {
 //						}
 					}
 				}
-				else {
-					updatePredictionsWithMessageRes(routeView.route, routeView.msgResource());
-				}
+//				else {
+//					updatePredictionsWithMessageRes(routeView.route, routeView.msgResource());
+//				}
 				switch (routeView.problemType) {
 				case ScrapeStatus.PROBLEM_IMMEDIATELY:
 					notWorkingButton.setVisibility(Button.VISIBLE);
@@ -320,18 +323,18 @@ public class StopTimes extends Activity {
 		}
 		
 		// updates the times on a particular route with a given text resource
-		private void updatePredictionsWithMessageRes(LTCRoute route, int strRes) {
-			Resources res = getResources();
-			String str = res.getString(strRes);
-			int i = 0;
-			while (i < predictions.size()) {
-				Prediction entry = predictions.get(i);
-				if (entry.isOnRoute(route)) {
-					entry.setQuerying();
-				}
-				++i;
-			}
-		}
+//		private void updatePredictionsWithMessageRes(LTCRoute route, int strRes) {
+//			Resources res = getResources();
+//			String str = res.getString(strRes);
+//			int i = 0;
+//			while (i < predictions.size()) {
+//				Prediction entry = predictions.get(i);
+//				if (entry.isOnRoute(route)) {
+//					entry.setQuerying();
+//				}
+//				++i;
+//			}
+//		}
 		
 	}
 
