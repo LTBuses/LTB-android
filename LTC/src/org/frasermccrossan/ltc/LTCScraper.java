@@ -33,21 +33,15 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.text.TextUtils.SimpleStringSplitter;
 import android.text.TextUtils.StringSplitter;
+import android.util.Log;
 
 // everything required to load the LTC_supplied data into the database
 @SuppressLint("UseSparseArrays")
 public class LTCScraper {
 
-	//BusDb db = null;
 	LoadDataTask task = null;
 	ScrapingStatus status = null;
 	Context context;
-	// for development only
-	//	static final String ROUTE_URL = "http://teuchter.lan:8000/routes.html";
-	//	static final String DIRECTION_URL = "http://teuchter.lan:8000/direction%s.html";
-	//	static final String STOPS_URL = "http://teuchter.lan:8000/direction%sd%d.html";
-	//	static final String MAP_URL = "http://teuchter.lan:8000/map%s.html";
-	// for production
 	public static final String ROUTE_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx";
 	static final String DIRECTION_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx?r=%s";
 	static final String STOPS_URL = "http://www.ltconline.ca/WebWatch/MobileAda.aspx?r=%s&d=%d";
@@ -68,7 +62,12 @@ public class LTCScraper {
 	static final Pattern LOCATION_STOP_PATTERN = Pattern.compile("(\\d+)");
 	static final String VERY_CLOSE = "000000000000000"; // something guaranteed to sort before everything
 	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything
-	static final int FETCH_TIMEOUT = 30 * 1000;
+	/* parseDocFromUri() starts with the initial timeout then retries doubling the timeout each time until
+	 * greater than the maximum timeout, thus we get (for example) 1, 2, 4, 8, 16
+	 */
+	static final int INITIAL_FETCH_TIMEOUT = 1000;
+	static final int CONSERVATIVE_INITIAL_FETCH_TIMEOUT = 8*1000;
+	static final int MAXIMUM_FETCH_TIMEOUT = 32*1000;
 	static final int FAILURE_LIMIT = 20;
 
 	LTCScraper(Context c, ScrapingStatus s) {
@@ -83,9 +82,6 @@ public class LTCScraper {
 	}
 
 	public void close() {
-		//		if (db != null) {
-		//			db.close();
-		//		}
 		if (task != null) {
 			task.cancel(true);
 		}
@@ -117,19 +113,39 @@ public class LTCScraper {
 	}
 
 	private Document parseDocFromUri(String uri) throws IOException, MalformedURLException {
-		Document doc;
+		return parseDocFromUri(uri, CONSERVATIVE_INITIAL_FETCH_TIMEOUT);
+	}
+	
+	private Document parseDocFromUri(String uri, int initial_timeout) throws IOException, MalformedURLException {
 		
+		Document doc;
 		URL url = new URL(uri);
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setConnectTimeout(FETCH_TIMEOUT);
-		connection.setReadTimeout(FETCH_TIMEOUT);
-		doc = null;
-		try {
-			InputStream in = new BufferedInputStream(connection.getInputStream(), 8192);
-			doc = Jsoup.parse(in, null, uri);
-		}
-		finally {
-			connection.disconnect();
+		
+		int timeout = initial_timeout;
+		while (true) {
+			try {
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				connection.setConnectTimeout(timeout);
+				connection.setReadTimeout(timeout);
+				doc = null;
+				try {
+					InputStream in = new BufferedInputStream(connection.getInputStream(), 8192);
+					doc = Jsoup.parse(in, null, uri);
+				}
+				finally {
+					connection.disconnect();
+				}
+				break;
+			}
+			catch (SocketTimeoutException e) {
+				timeout *= 2;
+				if (timeout <= MAXIMUM_FETCH_TIMEOUT) {
+					continue;
+				}
+				else {
+					throw e;
+				}
+			}
 		}
 		return doc;
 	}
@@ -147,7 +163,7 @@ public class LTCScraper {
 			Calendar now = Calendar.getInstance();
 			now.set(Calendar.SECOND, 0);
 			now.set(Calendar.MILLISECOND, 0); // now we have 'now' set to the current time
-			Document doc = parseDocFromUri(predictionUrl(route, stopNumber));
+			Document doc = parseDocFromUri(predictionUrl(route, stopNumber), INITIAL_FETCH_TIMEOUT);
 			Elements divs = doc.select("div");
 			if (divs.size() == 0) {
 				throw new ScrapeException("LTC down?", ScrapeStatus.PROBLEM_IMMEDIATELY, true);
@@ -257,8 +273,8 @@ public class LTCScraper {
 		String line;
 		URL url = new URL(String.format(LOCATIONS_URL, routeNum));
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setConnectTimeout(FETCH_TIMEOUT);
-		connection.setReadTimeout(FETCH_TIMEOUT);
+		connection.setConnectTimeout(MAXIMUM_FETCH_TIMEOUT);
+		connection.setReadTimeout(MAXIMUM_FETCH_TIMEOUT);
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 			while ((line = reader.readLine()) != null) {
@@ -361,12 +377,14 @@ public class LTCScraper {
 									}
 								}
 								db = new BusDb(context);
-								if (db.getStopCount(routesToDo.get(i)) < routeStopCount || db.getLocationlessStopCount(routesToDo.get(i)) > 0) {
+								int stopCount = db.getStopCount(routesToDo.get(i));
+								int locationlessStopCount = db.getLocationlessStopCount(routesToDo.get(i));
+								db.close();
+								if (stopCount < routeStopCount || locationlessStopCount > 0) {
 									publishProgress(progress.message(String.format(res.getString(R.string.loading_route_stop_locations), routesToDo.get(i).name))
 											.percent(6 + 90 * routesDone.size() / totalToDo));
 									loadStopLocations(routesToDo.get(i).number, allStops);
 								}
-								db.close();
 								routesDone.add(routesToDo.get(i));
 								routesToDo.remove(i); // don't increment i, just remove the one we just did
 							}
