@@ -377,10 +377,10 @@ public class LTCScraper {
 									}
 								}
 								db = new BusDb(context);
-								int stopCount = db.getStopCount(routesToDo.get(i));
-								int locationlessStopCount = db.getLocationlessStopCount(routesToDo.get(i));
+								boolean doLoadStop = db.getStopCount(routesToDo.get(i)) < routeStopCount ||
+										db.getLocationlessStopCount(routesToDo.get(i)) > 0;
 								db.close();
-								if (stopCount < routeStopCount || locationlessStopCount > 0) {
+								if (doLoadStop) {
 									publishProgress(progress.message(String.format(res.getString(R.string.loading_route_stop_locations), routesToDo.get(i).name))
 											.percent(6 + 90 * routesDone.size() / totalToDo));
 									loadStopLocations(routesToDo.get(i).number, allStops);
