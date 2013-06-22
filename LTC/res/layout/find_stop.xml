@@ -15,6 +15,17 @@
             android:layout_weight="1"
             android:inputType="text|textNoSuggestions" />
 
+        <TextView
+            android:id="@+id/disp_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textStyle="italic"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="#808080"
+            android:gravity="center_horizontal"
+            android:visibility="gone" />
+
 <!--         <Spinner -->
 <!--             android:id="@+id/view_type_spinner" -->
 <!--             android:entries="@array/view_types" -->

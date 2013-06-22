@@ -25,6 +25,13 @@
             android:layout_margin="3dip"
             android:inputType="text|textNoSuggestions" />
 
+        <TextView
+            android:id="@+id/disp_search"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="3dip"
+            android:visibility="gone" />
+        
         <Spinner
             android:id="@+id/search_type_spinner"
             android:entries="@array/search_types"

@@ -237,5 +237,6 @@
     <string name="arriving">Arr.</string>
     <string name="no_destination">Missing Destination</string>
     <string name="loading_stop_cache">Checking stop cache</string>
+    <string name="nearby_stops">Nearby stops</string>
 
 </resources>

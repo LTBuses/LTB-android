@@ -41,6 +41,7 @@ public class FindStop extends Activity {
 
 	TextView findHint;
 	EditText searchField;
+	TextView dispSearch;
 	//Spinner viewTypeSpinner;
 	ListView stopList;
 	TextView emptyStopListText;
@@ -94,10 +95,10 @@ public class FindStop extends Activity {
 					locToast.show();
 					return;
 				}
-				enableViewType();
+				//disableSearchField(R.string.nearby_stops);
 			}
 			else {
-				enableSearchField();
+				//enableSearchField();
 			}
 			setLocationUpdates();
 			updateStops();
@@ -113,14 +114,28 @@ public class FindStop extends Activity {
 	void enableSearchField() {
 		findHint.setVisibility(View.VISIBLE);
 		searchField.setVisibility(View.VISIBLE);
+		dispSearch.setVisibility(View.GONE);
 		//viewTypeSpinner.setVisibility(View.GONE);
 	}
 
-	void enableViewType() {
+	void disableSearchField(int reasonRes) {
+		disableSearchField();
+		dispSearch.setText(reasonRes);
+	}
+	
+	void disableSearchField(CharSequence reason) {
+		disableSearchField();
+		dispSearch.setText(reason);
+	}
+	
+	void disableSearchField() {
 		findHint.setVisibility(View.GONE);
 		searchField.setVisibility(View.GONE);
+		dispSearch.setVisibility(View.VISIBLE);
 		//viewTypeSpinner.setVisibility(View.VISIBLE);
 	}
+	
+	
 	
 	OnItemSelectedListener routeListener = new OnItemSelectedListener() {
 
@@ -191,6 +206,7 @@ public class FindStop extends Activity {
 		//db = new BusDb(this);
 		findHint = (TextView)findViewById(R.id.find_hint);
 		searchField = (EditText)findViewById(R.id.search);
+		dispSearch = (TextView)findViewById(R.id.disp_search);
 		searchField.addTextChangedListener(new TextWatcher() {
 			public void afterTextChanged(Editable s) {
 				updateStops();
