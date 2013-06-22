@@ -59,7 +59,7 @@ public class FindStop extends Activity {
 	static final int RECENT_STOPS = 0;
 	static final int CLOSEST_STOPS = 1;
 
-	static final long LOCATION_TIME_UPDATE = 30; // seconds between GPS update
+	static final long LOCATION_TIME_UPDATE = 15; // seconds between GPS update
 	static final float LOCATION_DISTANCE_UPDATE = 100; // minimum metres between GPS updates
 	
 	static final int FORGET_FAVOURITE = 1; // id for context menu item lacking an intent
