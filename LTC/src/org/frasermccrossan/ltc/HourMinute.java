@@ -49,28 +49,43 @@ public class HourMinute {
 					am_pm = AM;
 				}
 			}
+			minsAfterMidnight = hour * 60 + minute;
 			if (!hasAmPm()) {
 				/* no am/pm indicator, assume it's within 12 hours of now and take a best guess,
 				 * then correct the hour value
 				 */
-				int ref12Hour = reference.get(Calendar.HOUR);
-				if (ref12Hour == 12) { ref12Hour = 0; }
+				int ref12Hour = reference.get(Calendar.HOUR); // 12-hour hour of reference
+				int refMinute = reference.get(Calendar.MINUTE); // minute of reference
+				if (ref12Hour == 12) { ref12Hour = 0; } // easier calculation
+				int refMinutes12 = ref12Hour * 60 + refMinute;
 				int ref24hour = reference.get(Calendar.HOUR_OF_DAY);
-				if (hour > ref12Hour) {
+				int refMinutes24 = ref24hour * 60 + refMinute;
+				if (minsAfterMidnight >= refMinutes12) {
 					/* the 12-hour time hour is greater than the reference 12-hour, assume it's
-					 * *after* the reference time
+					 * *after* the reference time in the same 12-hour segment
 					 */
-					hour = hour - ref12Hour + ref24hour;
+					minsAfterMidnight = refMinutes24 + (minsAfterMidnight - refMinutes12);
 				}
 				else {
 					/* otherwise, the 12-hour time is less than the reference, so it's 
-					 * in the next 12 hour segment
+					 * in the "other" 12 hour segment
 					 */
-					hour = (12 - hour) + ref24hour;
-					if (hour >= 24) { hour -= 24; }
+					if (refMinutes24 >= HALF_DAY_MINUTES) {
+						// reference is second half of day, so time we seek is after midnight, in the early hours
+						// we need do nothing
+					}
+					else {
+						// reference is first half of day, so time we seek is afternoon
+						minsAfterMidnight += HALF_DAY_MINUTES;
+					}
+//					minsAfterMidnight += refMinutes24 + (minsAfterMidnight - refMinutes12) + HALF_DAY_MINUTES;
+//					while (minsAfterMidnight >= DAY_MINUTES) {
+//						minsAfterMidnight -= DAY_MINUTES;
+//					}
 				}
+				hour = minsAfterMidnight / 60;
+				minute = minsAfterMidnight % 60;
 			}
-			minsAfterMidnight = hour * 60 + minute;
 			//Log.d("HourMinute", String.format("orig %s hour %d min %d", textTime, hour, minute));
 		}
 	}
