@@ -1,9 +1,10 @@
 
     <resources>
     <string-array name="search_types">
-        <item >Favourites</item>
-        <item >Nearby</item>
-    </string-array>
+        <item >Recent/Search</item>
+        <item >Only Recent</item>
+        <item >Nearby/Search</item>
+        </string-array>
     <string-array name="view_types">
         <item >List</item>
         <item >Map</item>

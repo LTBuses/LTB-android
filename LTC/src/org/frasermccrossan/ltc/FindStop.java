@@ -7,6 +7,7 @@ import java.util.List;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.location.Criteria;
 import android.location.Location;
@@ -25,6 +26,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
@@ -54,11 +56,14 @@ public class FindStop extends Activity {
 	String locProvider = null;
 	Location lastLocation;
 	SearchTask mySearchTask = null;
+	SharedPreferences prefs;
+	static final String lastTypePref = "lastType";
 	int downloadTry;
 
 	// entries in R.array.search_types
 	static final int RECENT_STOPS = 0;
-	static final int CLOSEST_STOPS = 1;
+	static final int RECENT_ONLY = 1;
+	static final int CLOSEST_STOPS = 2;
 
 	static final long LOCATION_TIME_UPDATE = 15; // seconds between GPS update
 	static final float LOCATION_DISTANCE_UPDATE = 100; // minimum metres between GPS updates
@@ -79,7 +84,8 @@ public class FindStop extends Activity {
 
 		@Override
 		public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-			if (searchTypeSpinner.getSelectedItemPosition() == CLOSEST_STOPS) {
+			int selected = searchTypeSpinner.getSelectedItemPosition(); 
+			if (selected == CLOSEST_STOPS) {
 				BusDb db = new BusDb(FindStop.this);
 				int failReason = 0;
 				if (locProvider == null) {
@@ -96,6 +102,14 @@ public class FindStop extends Activity {
 					return;
 				}
 				//disableSearchField(R.string.nearby_stops);
+			}
+			else if (selected == RECENT_ONLY) {
+				// must clear search field when only favourites selected, for consistency
+				searchField.setText("");
+				searchField.clearFocus();
+				InputMethodManager imm = (InputMethodManager)getSystemService(
+					      Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(searchField.getWindowToken(), 0);
 			}
 			else {
 				//enableSearchField();
@@ -204,11 +218,16 @@ public class FindStop extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.find_stop);
 		//db = new BusDb(this);
+		prefs = getPreferences(Context.MODE_PRIVATE);
 		findHint = (TextView)findViewById(R.id.find_hint);
 		searchField = (EditText)findViewById(R.id.search);
 		dispSearch = (TextView)findViewById(R.id.disp_search);
 		searchField.addTextChangedListener(new TextWatcher() {
 			public void afterTextChanged(Editable s) {
+				// switch from favourites-only to just favourites if string is empty
+				if (s.length() > 0 && searchTypeSpinner.getSelectedItemPosition() == RECENT_ONLY) {
+					searchTypeSpinner.setSelection(RECENT_STOPS);
+				}
 				updateStops();
 			}
 
@@ -232,6 +251,10 @@ public class FindStop extends Activity {
 		stopList.setAdapter(stopListAdapter);
 		searchTypeSpinner = (Spinner)findViewById(R.id.search_type_spinner);
 		searchTypeSpinner.setOnItemSelectedListener(searchTypeListener);
+		int lastType = prefs.getInt(lastTypePref, -1);
+		if (lastType != -1) {
+			searchTypeSpinner.setSelection(lastType);
+		}
 		routeSpinner = (Spinner)findViewById(R.id.route_spinner);
 		routeSpinner.setOnItemSelectedListener(routeListener);
 		registerForContextMenu(stopList);
@@ -281,6 +304,9 @@ public class FindStop extends Activity {
 	@Override
 	protected void onDestroy() {
 		//db.close();
+		SharedPreferences.Editor edit = prefs.edit();
+		edit.putInt(lastTypePref, searchTypeSpinner.getSelectedItemPosition());
+		edit.commit();
 		super.onDestroy();
 	}
 
@@ -423,7 +449,10 @@ public class FindStop extends Activity {
 		@SuppressWarnings("unchecked")
 		protected Void doInBackground(CharSequence... strings) {
 			BusDb db = new BusDb(FindStop.this);
-			List<HashMap<String, String>> newStops = db.findStops(strings[0], lastLocation, (LTCRoute)routeSpinner.getSelectedItem());
+			List<HashMap<String, String>> newStops = db.findStops(strings[0],
+					lastLocation,
+					strings[0].length() == 0 && searchTypeSpinner.getSelectedItemPosition() == RECENT_ONLY,
+					(LTCRoute)routeSpinner.getSelectedItem());
 			if (!isCancelled()) {
 				publishProgress(newStops);
 			}
@@ -446,6 +475,11 @@ public class FindStop extends Activity {
 				}
 				stopListAdapter.notifyDataSetChanged();
 				emptyStopListText.setText(R.string.no_stops_found);
+				// reset the favourites-only to favourites if nothing found
+				if (stopListAdapter.getCount() == 0 && searchTypeSpinner.getSelectedItemPosition() == RECENT_ONLY) {
+					searchTypeSpinner.setSelection(RECENT_STOPS);
+					Toast.makeText(FindStop.this, R.string.no_favourites, Toast.LENGTH_SHORT).show();
+				}
 			}
 		}
 	}

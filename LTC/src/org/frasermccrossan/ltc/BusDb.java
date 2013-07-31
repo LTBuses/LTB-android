@@ -443,7 +443,7 @@ public class BusDb {
 		}
 	}
 	
-	List<HashMap<String, String>> findStops(CharSequence text, Location location, LTCRoute mustServiceRoute) {
+	List<HashMap<String, String>> findStops(CharSequence text, Location location, boolean onlyFavourites, LTCRoute mustServiceRoute) {
 		String searchText = text.toString();
 		String whereClause;
 		String[] words = searchText.trim().toLowerCase().split("\\s+");
@@ -458,13 +458,21 @@ public class BusDb {
 		if (searchText.matches("^\\d+$")) {
 			whereClause += String.format(Locale.US, " or (%s like %s)", STOP_NUMBER, DatabaseUtils.sqlEscapeString(text + "%"));
 		}
+		if (onlyFavourites) {
+			whereClause = String.format(Locale.US, "(%s) and (%s > 0)", whereClause, STOP_USES_COUNT);
+		}
 		if (mustServiceRoute != null) {
 			whereClause = String.format(Locale.US, "(%s) and stop_number in (select %s from %s where %s = '%s')",
 					whereClause, STOP_NUMBER, LINK_TABLE, ROUTE_NUMBER, mustServiceRoute.number);
 		}
 		String order;
 		if (location == null) {
-			order = String.format(Locale.US, "%s desc, %s", STOP_USES_COUNT, STOP_NAME);
+			if (onlyFavourites) {
+				order = String.format(Locale.US, "%s asc", STOP_NAME);
+			}
+			else {
+				order = String.format(Locale.US, "%s desc, %s asc", STOP_USES_COUNT, STOP_NAME);
+			}
 		}
 		else {
 			/* this pretends that the coordinates are Cartesian for quick fetching from

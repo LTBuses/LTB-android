@@ -164,6 +164,7 @@ public final class R {
         public static final int no_bus=0x7f05002f;
         public static final int no_connecting_found=0x7f05005a;
         public static final int no_destination=0x7f05005e;
+        public static final int no_favourites=0x7f050061;
         public static final int no_further=0x7f05003c;
         public static final int no_network=0x7f050035;
         public static final int no_provider=0x7f05000c;

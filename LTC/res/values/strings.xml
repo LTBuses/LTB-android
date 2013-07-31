@@ -105,8 +105,10 @@
     </dl>
     <h3>Menus</h3>
     <dl>
-    <dt>Favourites</dt>
-    <dd>Stops you\'ve checked most often, otherwise alphabetical</dd>
+    <dt>Recent/Search</dt>
+    <dd>Stops you\'ve checked most often, otherwise alphabetical, that match the search</dd>
+    <dt>Only Recent</dt>
+    <dd>Only the stops you\'ve checked before, sorted alphabetically, and only if the search is blank</dd>
     <dt>Nearby</dt>
     <dd>Stops closest to you (needs GPS enabled)</dd>
     <dt>Any</dt>
@@ -238,5 +240,6 @@
     <string name="no_destination">Missing Destination</string>
     <string name="loading_stop_cache">Checking stop cache</string>
     <string name="nearby_stops">Nearby stops</string>
+    <string name="no_favourites">No favourites yet</string>
 
 </resources>
