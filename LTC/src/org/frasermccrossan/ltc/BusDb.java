@@ -252,11 +252,16 @@ public class BusDb {
 				null);
 	}
 	
-	LTCRoute[] getAllRoutes(boolean withNull) {
+	LTCRoute[] getAllRoutes(boolean withNull, boolean favsOnly) {
 		LTCRoute[] routes = null;
+		String selection = null;
+		if (favsOnly) {
+			selection = String.format(Locale.US, "%s in (select distinct %s from %s where %s in (select %s from %s where %s > 0))",
+					ROUTE_NUMBER, ROUTE_NUMBER, LINK_TABLE, STOP_NUMBER, STOP_NUMBER, STOPS_WITH_USES, STOP_USES_COUNT);
+		}
 		Cursor c = db.query(ROUTE_TABLE,
 				new String[] { ROUTE_NUMBER, ROUTE_NAME },
-				null, null, null, null, ROUTE_NUMBER);
+				selection, null, null, null, ROUTE_NUMBER);
 		if (c.moveToFirst()) {
 			int size = c.getCount();
 			int i = 0;

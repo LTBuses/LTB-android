@@ -50,6 +50,7 @@ public class FindStop extends Activity {
 	SimpleAdapter stopListAdapter;
 	List<HashMap<String, String>> stops;
 	Spinner routeSpinner;
+	RouteAdapter routeAdapter;
 	LTCRoute[] routes;
 	Spinner searchTypeSpinner;
 	LocationManager myLocationManager;
@@ -114,6 +115,11 @@ public class FindStop extends Activity {
 			else {
 				//enableSearchField();
 			}
+			BusDb db = new BusDb(FindStop.this);
+			setRoutes(db);
+			db.close();
+			routeAdapter.notifyDataSetInvalidated();
+			routeAdapter.notifyDataSetChanged();
 			setLocationUpdates();
 			updateStops();
 		}
@@ -212,7 +218,18 @@ public class FindStop extends Activity {
 
 		public void onProviderDisabled(String provider) {}
 	};
+	
+	void setRoutes(BusDb db) {
+		boolean onlyFavourites = (searchTypeSpinner.getSelectedItemPosition() == RECENT_ONLY);
+		LTCRoute[] tmpRoutes = db.getAllRoutes(true, onlyFavourites);
+		if (tmpRoutes != null) {
+			routes = tmpRoutes;
+			routeAdapter = new RouteAdapter(this, R.layout.route_view, routes);
+			routeSpinner.setAdapter(routeAdapter);
+		}
 
+	}
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -260,11 +277,7 @@ public class FindStop extends Activity {
 		registerForContextMenu(stopList);
 		downloadTry = 0;
 		BusDb db = new BusDb(this);
-		routes = db.getAllRoutes(true);
-		if (routes != null) {
-			RouteAdapter routeAdapter = new RouteAdapter(this, R.layout.route_view, routes);
-			routeSpinner.setAdapter(routeAdapter);
-		}
+		setRoutes(db);
 		int updateStatus = db.getUpdateStatus();
 		db.close();
 		if (updateStatus != BusDb.UPDATE_NOT_REQUIRED) {

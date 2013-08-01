@@ -19,7 +19,7 @@
     <![CDATA[<html>
     <body>
     <h1>London Transit (LTC) Buses</h1>
-    <h3>Version 1.75 &copy; 2013 Fraser McCrossan</h3>
+    <h3>Version 1.80 &copy; 2013 Fraser McCrossan</h3>
     <h2>Notice</h2>
     <p>
     Although this app uses data from the
@@ -84,6 +84,7 @@
     <li>everyone on Twitter who reported problems and suggestions</li>
     <li>everyone on the <a href="http://www.reddit.com/r/londonontario/comments/11kr5w/testers_wanted_for_a_london_transit_android_app/">Reddit thread</a></li>
     <li>Andrew Lim, for showing me the source code of his app which helped me figure out how some things were done</li>
+    <li>Roxanne Patel for suggesting the recent-stop-only option</li>
     </ul>
     </p>
     </body>
@@ -203,7 +204,7 @@
     <string name="no_service">No Service</string>
     <string name="no_further">No More Buses</string>
     <string name="all_routes_short">Any</string>
-    <string name="all_routes_long">Stops serviced by any route</string>
+    <string name="all_routes_long">Any route</string>
     <string name="only_check_route">Check %1$s only</string>
     <string name="stop_download_complete">Bus update done</string>
     <string name="location_download_complete">Bus update done</string>
