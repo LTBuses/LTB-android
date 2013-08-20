@@ -277,6 +277,9 @@ public class BusDb {
 			}
 			c.close();
 		}
+		else {
+			routes = new LTCRoute[0];
+		}
 		return routes;
 	}
 

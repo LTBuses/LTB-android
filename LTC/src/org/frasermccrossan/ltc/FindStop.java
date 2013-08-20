@@ -222,11 +222,9 @@ public class FindStop extends Activity {
 	void setRoutes(BusDb db) {
 		boolean onlyFavourites = (searchTypeSpinner.getSelectedItemPosition() == RECENT_ONLY);
 		LTCRoute[] tmpRoutes = db.getAllRoutes(true, onlyFavourites);
-		if (tmpRoutes != null) {
-			routes = tmpRoutes;
-			routeAdapter = new RouteAdapter(this, R.layout.route_view, routes);
-			routeSpinner.setAdapter(routeAdapter);
-		}
+		routes = tmpRoutes;
+		routeAdapter = new RouteAdapter(this, R.layout.route_view, routes);
+		routeSpinner.setAdapter(routeAdapter);
 
 	}
 	

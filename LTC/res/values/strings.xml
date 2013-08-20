@@ -10,7 +10,7 @@
     <string name="last_updated">Last updated</string>
     <string name="at_this_stop">At this stop: %1$s</string>
     <string name="stop_times">Stop Times</string>
-    <string name="download_instructions">Updating bus route and stop data takes a couple of minutes and uses between 1M and 2M of data. You can leave this screen during the update.</string>
+    <string name="download_instructions">Updating bus route and stop data usually takes less than 30 seconds and uses about 250KB of data but may use up to 2M. You can leave this screen, the app will notify you when done.</string>
     <string name="update">Start update</string>
     <string name="using_provider">Location provider: %1$s</string>
     <string name="no_provider">No location provider</string>
