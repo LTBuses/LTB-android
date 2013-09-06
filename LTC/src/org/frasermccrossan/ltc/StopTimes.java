@@ -63,6 +63,9 @@ public class StopTimes extends Activity {
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+		overridePendingTransition(R.anim.pull_in, R.anim.hold);
+        
         setContentView(R.layout.stop_times);
         BusDb db = new BusDb(this);
                 
@@ -119,6 +122,12 @@ public class StopTimes extends Activity {
 	protected void onStart () {
 		super.onStart();
         getPredictions();
+	}
+	
+	@Override
+	protected void onPause() {
+		overridePendingTransition(R.anim.hold, R.anim.pull_out);
+		super.onPause();
 	}
 	
 	@Override

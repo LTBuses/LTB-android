@@ -106,12 +106,12 @@
     </dl>
     <h3>Menus</h3>
     <dl>
-    <dt>Recent/Search</dt>
+    <dt>Recent+Search</dt>
     <dd>Stops you\'ve checked most often, otherwise alphabetical, that match the search</dd>
-    <dt>Only Recent</dt>
+    <dt>Recent (alphabetical)</dt>
     <dd>Only the stops you\'ve checked before, sorted alphabetically, and only if the search is blank</dd>
-    <dt>Nearby</dt>
-    <dd>Stops closest to you (needs GPS enabled)</dd>
+    <dt>Nearby+Search</dt>
+    <dd>Stops closest to you (needs GPS enabled) that match the search</dd>
     <dt>Any</dt>
     <dd>Stops serviced by any route</dd>
     <dt>Route Number</dt>
@@ -136,9 +136,7 @@
     ever take the bus on a weekday, you can safely ignore Saturdays and Sundays.
     </p>
     <p>
-    Updating routes takes around 20 seconds. Adding stop locations takes several minutes, which is
-    why it\'s optional. If you do not
-    download locations then you cannot find nearby stops.
+    Updating routes usually takes less than 30 seconds. If the app needs to find the locations of new stops then it may take longer.
     </p>
     <ul>
     <li>
