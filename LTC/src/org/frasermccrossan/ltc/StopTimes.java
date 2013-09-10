@@ -126,7 +126,6 @@ public class StopTimes extends Activity {
 	
 	@Override
 	protected void onPause() {
-		overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right);
 		super.onPause();
 	}
 	

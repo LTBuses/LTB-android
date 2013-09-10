@@ -304,6 +304,12 @@ public class FindStop extends Activity {
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		overridePendingTransition(R.anim.slide_in_from_left, R.anim.slide_out_to_right);
+	}
+	
+	@Override
 	protected void onStop() {
 		myLocationManager.removeUpdates(locationListener);
 		if (mySearchTask != null && ! mySearchTask.isCancelled()) {

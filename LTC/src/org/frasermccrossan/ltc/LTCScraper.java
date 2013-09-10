@@ -65,9 +65,8 @@ public class LTCScraper {
 	/* parseDocFromUri() starts with the initial timeout then retries doubling the timeout each time until
 	 * greater than the maximum timeout, thus we get (for example) 1, 2, 4, 8, 16
 	 */
-	static final int INITIAL_FETCH_TIMEOUT = 1000;
-	static final int CONSERVATIVE_INITIAL_FETCH_TIMEOUT = 8*1000;
-	static final int MAXIMUM_FETCH_TIMEOUT = 32*1000;
+	static final int INITIAL_FETCH_TIMEOUT = 2000;
+	static final int MAXIMUM_FETCH_TIMEOUT = 128*1000;
 	static final int FAILURE_LIMIT = 20;
 
 	LTCScraper(Context c, ScrapingStatus s) {
@@ -113,7 +112,7 @@ public class LTCScraper {
 	}
 
 	private Document parseDocFromUri(String uri) throws IOException, MalformedURLException {
-		return parseDocFromUri(uri, CONSERVATIVE_INITIAL_FETCH_TIMEOUT);
+		return parseDocFromUri(uri, INITIAL_FETCH_TIMEOUT);
 	}
 	
 	private Document parseDocFromUri(String uri, int initial_timeout) throws IOException, MalformedURLException {
@@ -138,7 +137,7 @@ public class LTCScraper {
 				break;
 			}
 			catch (SocketTimeoutException e) {
-				timeout *= 2;
+				timeout *= 8;
 				if (timeout <= MAXIMUM_FETCH_TIMEOUT) {
 					continue;
 				}
