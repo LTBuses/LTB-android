@@ -3,7 +3,7 @@
 	<classpathentry excluding="org/frasermccrossan/ltc/NonMobileLTCScraper.java|org/frasermccrossan/ltc/FindConnections.java" kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="lib" path="libs/jsoup-1.6.3.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/home/fraser/Downloads/jsoup-1.6.3-javadoc.jar!/"/>
