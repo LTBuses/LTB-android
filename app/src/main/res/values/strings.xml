@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="status">Status field initial value</string>
+    <string name="app_name">LTC</string>
+    <string name="long_app_name">London Transit Buses</string>
+    <string name="find_hint">Enter stop number or keywords, e.g. \"dundas well\"</string>
+    <string name="stop_number">Stop #</string>
+    <string name="stop_name">Stop Name</string>
+    <string name="last_updated">Last updated</string>
+    <string name="at_this_stop">At this stop: %1$s</string>
+    <string name="stop_times">Stop Times</string>
+    <string name="download_instructions">Updating bus route and stop data usually takes less than 30 seconds and uses about 250KB of data but may use up to 2M. You can leave this screen, the app will notify you when done.</string>
+    <string name="update">Start update</string>
+    <string name="using_provider">Location provider: %1$s</string>
+    <string name="no_provider">No location provider</string>
+    <string name="about">About</string>
+    <string name="desupported">Desupported</string>
+    <string name="about_text">
+    <![CDATA[<html>
+    <body>
+    <h1>London Transit (LTC) Buses</h1>
+    <h3>Version 1.86 &copy; 2014 Fraser McCrossan</h3>
+    <h2>Notice</h2>
+    <p>
+    Although this app uses data from the
+    <a href="http://www.ltconline.ca/">London Transit Commission</a> (LTC) website it is
+    not affiliated with the LTC. <em>Do not report problems with this app to the LTC.</em>
+    This app may break suddenly and without warning if the LTC alter their
+    <a href="http://www.ltconline.ca/WebWatch/">Webwatch</a> service.
+    </p>
+    <h2>License</h2>
+    <p>
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    </p>
+    <p>
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    </p>
+    <p>
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see
+    <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.
+    </p>
+    <h2>Acknowledgments</h2>
+    <p>
+    HTML parsing using <a href="http://jsoup.org/">jsoup</a> by Jonathan Hedley.
+    </p>
+    <p>
+    Bus stop bus icon from \"Bus\" symbol by Roger Cook & Don Shanosky,
+    from <a href="http://thenounproject.com">The Noun Project</a> collection.
+    </p>
+    <p>
+    About icon from \"Information\" symbol by Sven Hofmann,
+    from <a href="http://thenounproject.com">The Noun Project</a> collection.
+    </p>
+    <p>
+    Refresh icon is \"Cloud Refresh\" by Adam Whitfield, from
+    <a href="http://thenounproject.com">The Noun Project</a>.
+    </p>
+    <p>
+    Arrow in designed by Naomi Atkinson from
+    <a href="http://thenounproject.com">The Noun Project</a>
+    (used in route directions).
+    </p>
+    <p>
+    Thanks to:
+    <ul>
+    <li>everyone on Twitter who reported problems and suggestions</li>
+    <li>everyone on the <a href="http://www.reddit.com/r/londonontario/comments/11kr5w/testers_wanted_for_a_london_transit_android_app/">Reddit thread</a></li>
+    <li>Andrew Lim, for showing me the source code of his app which helped me figure out how some things were done</li>
+    <li>Roxanne Patel for suggesting the recent-stop-only option</li>
+    </ul>
+    </p>
+    </body>
+    </html>
+    ]]>
+    </string>
+    <string name="stop_list_help_text">
+    <![CDATA[
+    <html>
+    <body>
+    <big>Press a stop to check all buses at the stop, long-press for more options.</big>
+    <h3>Search</h3>
+    You can search for stop numbers (on the blue signs) or names.
+    <dl>
+    <dt>\"123\"</dt>
+    <dd>Stop names containing \"123\", or stop numbers starting with \"123\"</dd>
+    <dt>\"dun rich\"</dt>
+    <dd>Stop names containing all words, e.g. \"Dundas at Richmond St EB\"<dd>
+    </dl>
+    <h3>Menus</h3>
+    <dl>
+    <dt>Recent+Search</dt>
+    <dd>Stops you\'ve checked most often, otherwise alphabetical, that match the search</dd>
+    <dt>Recent (alphabetical)</dt>
+    <dd>Only the stops you\'ve checked before, sorted alphabetically, and only if the search is blank</dd>
+    <dt>Nearby+Search</dt>
+    <dd>Stops closest to you (needs GPS enabled) that match the search</dd>
+    <dt>Any</dt>
+    <dd>Stops serviced by any route</dd>
+    <dt>Route Number</dt>
+    <dd>Only stops serviced by that route</dd>
+    </dl>
+    <p>
+    Be patient with GPS - it may take a few seconds to find your position.
+    Only GPS is supported - Google\'s location service is not accurate enough, especially in areas with lots of stops like downtown.
+    </p>
+    </body>
+    </html>
+    ]]>
+    </string>
+    <string name="desupport_notice">
+    <![CDATA[
+    <html>
+    <body>
+    <h2>Take Over This App</h2>
+    <p>
+    Hi, I\'m Fraser, the author of this app.
+    </p>
+    <p>
+    I don\'t use this app any more because I\'ve stopped riding London Transit.
+    I\'m not going to keep developing or supporting it and plan to remove it from the Play Store on
+    December 1 2014. If you keep it installed you\'ll still be able to use it after this time but
+    there will be no more updates.
+    </p>
+    <p>
+    Are you willing and able to take over while keeping the app free and open-source?
+    If so, I will turn over all code and related materials to you and answer any questions
+    you may have to the best of my ability. Please contact me at
+    <a href="mailto:fraser@mccrossan.ca">fraser@mccrossan.ca</a>.
+    </p>
+    <p>
+    Thanks to everyone who has used it over the years and in particular to the many people
+    who have made suggestions that have made the app better.
+    </p>
+    <p>
+    Use the back button to return to the app. To see this notice again, select \"Desupported\"
+    from the main menu.
+    </p>
+    </body>
+    </html>
+    ]]>
+    </string>
+    <string name="update_database_help_text">
+    <![CDATA[
+    <html>
+    <body>
+    <h2>Update Bus Data</h2>
+    <p>
+    LTC routes vary between weekdays, Saturdays and Sundays (that is, some buses call at different stops or in different
+    directions). Therefore the app works best if it can update the database on each type of day. If you only
+    ever take the bus on a weekday, you can safely ignore Saturdays and Sundays.
+    </p>
+    <p>
+    Updating routes usually takes less than 30 seconds. If the app needs to find the locations of new stops then it may take longer.
+    </p>
+    <ul>
+    <li>
+    If all of the downloads are older than the age limit, an update is <em>required</em>, and you must
+    update the database before you can check bus times.
+    </li>
+    <li>
+    If today\'s update is older than the age limit, but another update is younger,
+    an update is <em>recommended</em>. You should probably update the database, but
+    you may press the back key and check bus times. The app will keep annoying you
+    about it, though.
+    </li>
+    <li>
+    If today\'s update is younger than the age limit, an update is <em>not required</em>.
+    </li>
+    </ul>
+    </body>
+    </html>
+    ]]>
+    </string>
+    <string name="help">Help</string>
+    <string name="location_status">location status</string>
+    <string name="refresh">Refresh</string>
+    <string name="msg_idle">wait</string>
+    <string name="msg_querying">fetch</string>
+    <string name="msg_fail">fail</string>
+    <string name="msg_bug">bug!</string>
+    <string name="weekday">Weekday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    <string name="status_format">Last %1$s download: %2$s</string>
+    <string name="age_limit">Age limit: %1$s</string>
+    <string name="never">never</string>
+    <string name="days_ago">%1$d days ago</string>
+    <string name="day_ago">%1$d day ago</string>
+    <string name="update_recommended">An update is recommended.</string>
+    <string name="update_required">An update is required.</string>
+    <string name="update_not_required">An update is not required.</string>
+    <string name="update_database">Update bus data&#8230;</string>
+    <string name="retrying">Connection took too long, retrying&#8230;</string>
+    <string name="times_none">None</string>
+    <string name="times_fail">[Failed]</string>
+    <string name="times_timeout">[Timeout]</string>
+    <string name="finding_routes">Finding routes&#8230;</string>
+    <string name="show_map">Show in Maps</string>
+    <string name="searching_for_buses">Searching for next arrivals&#8230;</string>
+    <string name="searching_for_stops">Searching for stops&#8230;</string>
+    <string name="no_stops_found">No stops found. Try different search text.</string>
+    <string name="forget_favourite">Forget favourite</string>
+    <string name="website_slow">Sorry, still waiting for the LTC website&#8230;</string>
+    <string name="no_bus">(No Bus)</string>
+    <string name="failed">Network error</string>
+    <string name="fetch_positions">Fetch stop GPS coordinates</string>
+    <string name="status_location_format">Last %1$s stop location download: %2$s</string>
+    <string name="direction">Direction</string>
+    <string name="not_working">Not working?</string>
+    <string name="no_network">A network is needed to query the LTC WebWatch service, but none is available.</string>
+    <string name="wifi_settings">WiFi settings&#8230;</string>
+    <string name="wireless_settings">Wireless data settings&#8230;</string>
+    <string name="website_problems">The LTC WebWatch service may be down or slow. Tap button below to check. If it isn\'t working, wait and try later, otherwise please report a bug.</string>
+    <string name="goto_website">Test WebWatch</string>
+    <string name="sorry">Sorry you\'re having a problem.</string>
+    <string name="no_service">No Service</string>
+    <string name="no_further">No More Buses</string>
+    <string name="all_routes_short">Any</string>
+    <string name="all_routes_long">Any route</string>
+    <string name="only_check_route">Check %1$s only</string>
+    <string name="stop_download_complete">Bus update done</string>
+    <string name="location_download_complete">Bus update done</string>
+    <string name="database_ready">Bus data is ready</string>
+    <string name="download_failed">Bus update failed</string>
+    <string name="tap_to_diagnose">Tap to diagnose.</string>
+    <string name="notification_progress_format_pct">%1$d%%: %2$s</string>
+    <string name="downloading">Downloading bus data</string>
+    <string name="cancel">Cancel</string>
+    <string name="no_routes_found">No routes found</string>
+    <string name="downloading_routes">Updating routes</string>
+    <string name="downloading_locations">Routes done, fetching stop locations</string>
+    <string name="loading_route_stop_locations">%1$s (stop locations)</string>
+    <string name="loading_route_nodir">%1$s</string>
+    <string name="too_many_failures">Too many failures, try again later.</string>
+    <string name="unable_to_load_routes">Unable to load routes</string>
+    <string name="saving_database">Saving data&#8230;</string>
+    <string name="notification_progress_format">%1$s</string>
+    <string name="share">Tell your friends&#8230;</string>
+    <string name="share_text">Find all LTC buses at a stop with http://play.google.com/store/apps/details?id=org.frasermccrossan.ltc</string>
+    <string name="share_subject">App to find all LTC buses at a stop</string>
+    <string name="location_disabled">GPS is disabled</string>
+    <string name="old_stop_locations">Stop locations are too old, update database</string>
+    <string name="no_stop_locations">Stop locations not available, update database</string>
+    <string name="update_type">Day Type</string>
+    <string name="last_update">Last Update</string>
+    <string name="none_stop_today">No routes stop here today</string>
+    <string name="no_connecting_found">No connecting routes found</string>
+<!--     <string name="searching_for_connections">Searching for connections...</string> -->
+<!--     <string name="find_connections">Find connections...</string> -->
+    <string name="no_time_diff">---</string>
+    <string name="no_time">--:--</string>
+    <string name="arriving">Arr.</string>
+    <string name="no_destination">Missing Destination</string>
+    <string name="loading_stop_cache">Checking stop cache</string>
+    <string name="nearby_stops">Nearby stops</string>
+    <string name="no_favourites">No favourites yet</string>
+
+</resources>
