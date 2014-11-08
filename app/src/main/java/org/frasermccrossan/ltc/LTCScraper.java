@@ -43,7 +43,8 @@ public class LTCScraper {
 	ScrapingStatus status = null;
 	Context context;
 
-    static final String PROXY_BASE = "http://ltcproxy.mccrossan.ca:16947";
+    static final String PROXY_BASE = "";
+    static final Boolean PROXY_ENABLED = false;
     static final String LTC_BASE = "http://www.ltconline.ca";
     static final String ROUTE_PATH = "/WebWatch/MobileAda.aspx";
     //static final String ROUTE_PATH = "/";
@@ -129,7 +130,7 @@ public class LTCScraper {
 		
 		Document doc;
 		URL url;
-        boolean try_proxy = true;
+        boolean try_proxy = PROXY_ENABLED;
 		
 		int timeout = initial_timeout;
 		while (true) {
@@ -317,7 +318,7 @@ public class LTCScraper {
         String line;
         URL url;
         HttpURLConnection connection;
-        boolean try_proxy = true;
+        boolean try_proxy = PROXY_ENABLED;
         while (true) {
             try {
                 if (try_proxy) {

@@ -16,6 +16,7 @@
     <string name="no_provider">No location provider</string>
     <string name="about">About</string>
     <string name="desupported">Desupported</string>
+    <string name="resupported">Resupported</string>
     <string name="about_text">
     <![CDATA[<html>
     <body>
@@ -141,6 +142,40 @@
     </p>
     <p>
     Use the back button to return to the app. To see this notice again, select \"Desupported\"
+    from the main menu.
+    </p>
+    </body>
+    </html>
+    ]]>
+    </string>
+    <string name="resupport_notice">
+    <![CDATA[
+    <html>
+    <body>
+    <h2>Under new management</h2>
+    <p>
+    Hi, I\'m Mike. I\'m taking over from Fraser as the maintainer of this app.
+    </p>
+    <p>
+    I use this app daily to make sure I\'m at work on time, so I fully intend to keep it supported
+    and updated. There are no longer plans to remove it from the Play Store, and you should continue
+    to receive updates as usual.
+    </p>
+    <p>
+    Fraser asked that this app remain free and open-source, and actually several people have stepped
+    up and offered to take over. To that end I\'ve released the code on GitHub at
+    <a href="https://github.com/LTBuses/LTB-android">LTBuses/LTB-android</a>. If you have a feature
+    request, problems with the app, or wish to help out, the
+    <a href="https://github.com/LTBuses/LTB-android/issues">issue queue</a> there is the best place to
+    start.
+    </p>
+    <p>
+    Thanks for bearing with this app through the transition, I look forward to helping you stay on
+    time.
+    </p>
+    <p>Mike</p>
+    <p>
+    Use the back button to return to the app. To see this notice again, select \"Resupported\"
     from the main menu.
     </p>
     </body>
