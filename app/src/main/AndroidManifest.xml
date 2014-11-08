@@ -33,8 +33,8 @@
         <activity
             android:name=".About"
             android:label="@string/about" />
-        <activity
-            android:name=".Desupport"
+         <activity
+            android:name=".Resupport"
             android:label="@string/about" />
         <activity
             android:name=".DiagnoseProblems"
