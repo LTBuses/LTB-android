@@ -33,9 +33,6 @@
         <activity
             android:name=".About"
             android:label="@string/about" />
-         <activity
-            android:name=".Resupport"
-            android:label="@string/about" />
         <activity
             android:name=".DiagnoseProblems"
             android:label="@string/about" />
