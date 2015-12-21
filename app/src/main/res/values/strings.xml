@@ -15,8 +15,6 @@
     <string name="using_provider">Location provider: %1$s</string>
     <string name="no_provider">No location provider</string>
     <string name="about">About</string>
-    <string name="desupported">Desupported</string>
-    <string name="resupported">Resupported</string>
     <string name="about_text">
     <![CDATA[<html>
     <body>
@@ -111,72 +109,6 @@
     <p>
     Be patient with GPS - it may take a few seconds to find your position.
     Only GPS is supported - Google\'s location service is not accurate enough, especially in areas with lots of stops like downtown.
-    </p>
-    </body>
-    </html>
-    ]]>
-    </string>
-    <string name="desupport_notice">
-    <![CDATA[
-    <html>
-    <body>
-    <h2>Take Over This App</h2>
-    <p>
-    Hi, I\'m Fraser, the author of this app.
-    </p>
-    <p>
-    I don\'t use this app any more because I\'ve stopped riding London Transit.
-    I\'m not going to keep developing or supporting it and plan to remove it from the Play Store on
-    December 1 2014. If you keep it installed you\'ll still be able to use it after this time but
-    there will be no more updates.
-    </p>
-    <p>
-    Are you willing and able to take over while keeping the app free and open-source?
-    If so, I will turn over all code and related materials to you and answer any questions
-    you may have to the best of my ability. Please contact me at
-    <a href="mailto:fraser@mccrossan.ca">fraser@mccrossan.ca</a>.
-    </p>
-    <p>
-    Thanks to everyone who has used it over the years and in particular to the many people
-    who have made suggestions that have made the app better.
-    </p>
-    <p>
-    Use the back button to return to the app. To see this notice again, select \"Desupported\"
-    from the main menu.
-    </p>
-    </body>
-    </html>
-    ]]>
-    </string>
-    <string name="resupport_notice">
-    <![CDATA[
-    <html>
-    <body>
-    <h2>Under new management</h2>
-    <p>
-    Hi, I\'m Mike. I\'m taking over from Fraser as the maintainer of this app.
-    </p>
-    <p>
-    I use this app daily to make sure I\'m at work on time, so I fully intend to keep it supported
-    and updated. There are no longer plans to remove it from the Play Store, and you should continue
-    to receive updates as usual.
-    </p>
-    <p>
-    Fraser asked that this app remain free and open-source, and actually several people have stepped
-    up and offered to take over. To that end I\'ve released the code on GitHub at
-    <a href="https://github.com/LTBuses/LTB-android">LTBuses/LTB-android</a>. If you have a feature
-    request, problems with the app, or wish to help out, the
-    <a href="https://github.com/LTBuses/LTB-android/issues">issue queue</a> there is the best place to
-    start.
-    </p>
-    <p>
-    Thanks for bearing with this app through the transition, I look forward to helping you stay on
-    time.
-    </p>
-    <p>Mike</p>
-    <p>
-    Use the back button to return to the app. To see this notice again, select \"Resupported\"
-    from the main menu.
     </p>
     </body>
     </html>

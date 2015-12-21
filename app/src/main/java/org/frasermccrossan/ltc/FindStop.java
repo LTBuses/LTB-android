@@ -59,8 +59,6 @@ public class FindStop extends Activity {
 	SearchTask mySearchTask = null;
 	SharedPreferences prefs;
 	static final String lastTypePref = "lastType";
-    static final String desupportSeenPref = "desupportSeen";
-    static final String resupportSeenPref = "resupportSeen";
 	int downloadTry;
 
 	// entries in R.array.search_types
@@ -291,17 +289,11 @@ public class FindStop extends Activity {
 			}
 			updateStops();
 		}
-		else {
-			boolean resupportSeen = prefs.getBoolean(resupportSeenPref, false);
-			if (!resupportSeen) {
-				SharedPreferences.Editor edit = prefs.edit();
-				edit.remove(desupportSeenPref);
-				edit.putBoolean(resupportSeenPref, true);
-				edit.commit();
-				Intent showResupportIntent = new Intent(FindStop.this, Resupport.class);
-				startActivity(showResupportIntent);
-			}
-			updateStops();
+
+		// Remove the settings for the various support messages that have existed.
+		if (prefs.contains("desupportSeen") || prefs.contains(("resupportSeen"))) {
+			SharedPreferences.Editor edit = prefs.edit();
+			edit.remove("desupportSeen").remove("resupportSeen").commit();
 		}
 	}
 
@@ -358,9 +350,6 @@ public class FindStop extends Activity {
                 return true;
             case R.id.find_stop_help:
                 startActivity(new Intent(this, FindStopHelp.class));
-                return true;
-            case R.id.resupported:
-                startActivity(new Intent(this, Resupport.class));
                 return true;
             case R.id.share_app:
                 Resources r = getResources();

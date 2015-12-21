@@ -3,6 +3,7 @@
 *.iml
 build/
 local.properties
+keystore.properties
 *.apk
 bin/
 gen/

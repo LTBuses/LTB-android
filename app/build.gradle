@@ -1,20 +1,42 @@
 apply plugin: 'android'
 
+def keystorePropertiesFile = rootProject.file("keystore.properties");
+def keystoreProperties = new Properties();
+keystoreProperties.load(new FileInputStream(keystorePropertiesFile));
+
 android {
+    signingConfigs {
+        LTBusses {
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+            storeFile file(keystoreProperties['storeFile'])
+            storePassword keystoreProperties['storePassword']
+        }
+    }
     compileSdkVersion 15
     buildToolsVersion "19.1.0"
-
     defaultConfig {
         applicationId "org.frasermccrossan.ltc"
         minSdkVersion 8
         targetSdkVersion 15
     }
-
     buildTypes {
-        release {
-            runProguard true
+        debug {
+            applicationIdSuffix ".debug"
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-project.txt'
+            signingConfig signingConfigs.LTBusses
         }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-project.txt'
+            signingConfig signingConfigs.LTBusses
+        }
+    }
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_1_6
+    }
+    productFlavors {
     }
 }
 

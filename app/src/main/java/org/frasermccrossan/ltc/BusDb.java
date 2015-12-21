@@ -83,8 +83,8 @@ public class BusDb {
 	static final int UPDATE_NOT_REQUIRED = 0;
 	static final int UPDATE_RECOMMENDED = 1;
 	static final int UPDATE_REQUIRED = 2;
-	static final long UPDATE_DATABASE_AGE_LIMIT_SOFT = 1000L * 60L * 60L * 24L * 75L; // 90 days
-	static final long UPDATE_DATABASE_AGE_LIMIT_HARD = 1000L * 60L * 60L * 24L * 90L; // 90 days
+	static final long UPDATE_DATABASE_AGE_LIMIT_SOFT = 1000L * 60L * 60L * 24L * 15L; // 15 days
+	static final long UPDATE_DATABASE_AGE_LIMIT_HARD = 1000L * 60L * 60L * 24L * 30L; // 30 days
 	static final long DELETE_ROWS_AFTER = 1000L * 60L * 60L * 24L * 180L;
 	
 	static final String LINK_TABLE = "route_stops";
