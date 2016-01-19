@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-	android:baselineAligned="false"
+    android:baselineAligned="false"
     android:orientation="horizontal" >
 
     <LinearLayout
@@ -10,13 +12,13 @@
         android:layout_height="fill_parent"
         android:layout_weight="0"
         android:orientation="vertical" >
-        
- 	   <TextView
-    	    android:id="@+id/find_hint"
-        	android:layout_width="fill_parent"
-        	android:layout_height="wrap_content"
-        	android:singleLine="false"
-        	android:text="@string/find_hint" />
+
+        <TextView
+            android:id="@+id/find_hint"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:singleLine="false"
+            android:text="@string/find_hint" />
 
         <EditText
             android:id="@+id/search"
@@ -31,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="3dip"
             android:visibility="gone" />
-        
+
         <Spinner
             android:id="@+id/search_type_spinner"
             android:entries="@array/search_types"
@@ -46,27 +48,29 @@
             android:spinnerMode="dropdown" />
 
     </LinearLayout>
-    
+
     <LinearLayout
         android:layout_width="0dip"
         android:layout_height="fill_parent"
         android:layout_weight="1"
         android:orientation="vertical" >
-    
-	    <ListView
-    	    android:id="@+id/stop_list"
-        	android:layout_width="fill_parent"
-	        android:layout_height="fill_parent" >
-    	</ListView>
 
-	    <TextView
-    	    android:id="@+id/empty_stop_list"
-	        android:layout_width="fill_parent"
-    	    android:layout_height="fill_parent"
-        	android:gravity="center_horizontal"
-	        android:textAppearance="?android:attr/textAppearanceLarge"
-    	    android:visibility="gone" />
-	    
-	</LinearLayout>
-    
+        <ListView
+            android:id="@+id/stop_list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            tools:listitem="@layout/stop_list_item"
+            >
+        </ListView>
+
+        <TextView
+            android:id="@+id/empty_stop_list"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center_horizontal"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
 </LinearLayout>

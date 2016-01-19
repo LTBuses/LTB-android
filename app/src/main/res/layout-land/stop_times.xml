@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal" >
@@ -9,48 +11,52 @@
         android:orientation="vertical"
         android:layout_width="160dip"
         android:layout_height="fill_parent"
-        android:paddingLeft="3dip" >
-        
-	    <ScrollView
-        android:id="@+id/vert_route_list_scrollview"
-       	android:layout_width="fill_parent"
-       	android:layout_gravity="center_horizontal"
-    	android:layout_height="0dip"
-    	android:layout_weight="1" >
-	    
-	    	<LinearLayout
-    	    	android:id="@+id/route_list"
-	        	android:orientation="vertical"
-		        android:layout_width="wrap_content"
-    		    android:layout_height="wrap_content"
-    	    	android:textAppearance="?android:attr/textAppearanceMedium"
-			    android:paddingLeft="3dp"
-				android:paddingRight="3dp" />
+        android:paddingLeft="3dip"
+        android:paddingStart="3dip"
+        >
 
-   		</ScrollView>
-   		
-	<Button
+        <ScrollView
+            android:id="@+id/vert_route_list_scrollview"
+            android:layout_width="fill_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_height="0dip"
+            android:layout_weight="1" >
+
+            <LinearLayout
+                android:id="@+id/route_list"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:paddingLeft="3dp"
+                android:paddingRight="3dp" />
+
+        </ScrollView>
+
+        <Button
             android:id="@+id/refresh"
             android:layout_width="fill_parent"
             android:layout_weight="0"
             android:layout_height="wrap_content"
             android:text="@string/refresh" />
 
-	<Button
+        <Button
             android:id="@+id/not_working"
             android:layout_width="fill_parent"
             android:layout_weight="0"
             android:layout_height="wrap_content"
             android:visibility="gone"
             android:text="@string/not_working" />
-        
+
     </LinearLayout>
 
     <ListView
         android:id="@+id/prediction_list"
         android:layout_weight="1"
         android:layout_width="0dip"
-        android:layout_height="fill_parent" >
+        android:layout_height="fill_parent"
+        tools:listitem="@layout/prediction_item"
+        >
     </ListView>
 
     <TextView
@@ -62,6 +68,5 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:visibility="gone"
         android:text="@string/searching_for_buses" />
-    
 
 </LinearLayout>
