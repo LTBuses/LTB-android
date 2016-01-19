@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content" >
 
@@ -29,7 +30,8 @@
                 android:minWidth="40dip"
                 android:gravity="center"
                 android:textStyle="bold"
-                android:textSize="25dip" />
+                android:textSize="25dip"
+                tools:text="20"/>
 
             <ImageView
                 android:id="@+id/route_direction_img"
@@ -37,6 +39,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:minWidth="20dip"
+                tools:src="@drawable/westbound"
                 />
 
         </LinearLayout>
@@ -56,11 +59,15 @@
                 android:singleLine="true"
                 android:gravity="center_horizontal"
                 android:textStyle="bold"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                tools:text="CHERRYHILL"
+                />
 
             <TextView
                 android:id="@+id/destination"
-                style="@style/destination" />
+                style="@style/destination"
+                tools:text="Capulet at Oxford"
+                />
 
         </LinearLayout>
 
@@ -84,7 +91,9 @@
             android:gravity="center"
             android:singleLine="true"
             style="@style/normal_pred_time"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            tools:text="24 min"
+            />
 
         <TextView
             android:id="@+id/raw_crossing_time"
@@ -95,7 +104,9 @@
             android:gravity="center"
             android:singleLine="true"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textStyle="italic" />
+            android:textStyle="italic"
+            tools:text="21:05"
+            />
 
     </LinearLayout>
 

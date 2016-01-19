@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="2dip"
@@ -24,7 +25,9 @@
         android:background="@drawable/bus_stop"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="#ffffff"
-        android:textStyle="italic" />
+        android:textStyle="italic"
+        tools:text="372"
+        />
 
     <!--         <TextView -->
     <!--             android:id="@+id/distance" -->
@@ -47,7 +50,9 @@
             android:id="@+id/stop_name"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            tools:text="Cheryyhill West of Cherryhill Circle EB(CHERRYHILL &amp; CHERRYHILL E)"
+            />
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -61,7 +66,9 @@
                 android:layout_weight="1"
                 android:paddingLeft="3dip"
                 android:paddingRight="3dip"
-                android:textAppearance="?android:attr/textAppearanceSmall" />
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                tools:text="20E 33E"
+                />
 
             <TextView
                 android:id="@+id/distance"

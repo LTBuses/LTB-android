@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scrollView1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
@@ -58,7 +59,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="right"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    tools:text="14 days ago"
+                    />
 
             </TableRow>
 
@@ -79,7 +82,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="right"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    tools:text="2 days ago"
+                    />
 
             </TableRow>
 
@@ -100,7 +105,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="right"
-                    android:textAppearance="?android:attr/textAppearanceMedium" />
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    tools:text="1 day ago"
+                    />
 
             </TableRow>
         </TableLayout>
@@ -110,7 +117,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="8dip"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            tools:text="Age limit: 30 days ago"
+            />
 
         <TextView
             android:id="@+id/download_instructions"
@@ -136,7 +145,9 @@
             android:singleLine="true"
             android:ellipsize="end"
             android:paddingTop="8dip"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            tools:text="An update is not required"
+            />
 
         <TextView
             android:id="@+id/message"
