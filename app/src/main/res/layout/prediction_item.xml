@@ -20,6 +20,7 @@
             android:layout_height="fill_parent"
             android:gravity="center"
             android:paddingRight="2dip"
+            android:paddingEnd="2dip"
             android:orientation="vertical" >
 
             <TextView
@@ -87,6 +88,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingRight="3dp"
+            android:paddingEnd="3dp"
             android:minEms="3"
             android:gravity="center"
             android:singleLine="true"
@@ -100,6 +102,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingRight="3dp"
+            android:paddingEnd="3dp"
             android:minEms="5"
             android:gravity="center"
             android:singleLine="true"

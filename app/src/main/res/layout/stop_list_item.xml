@@ -43,6 +43,7 @@
         android:layout_width="0dip"
         android:layout_height="wrap_content"
         android:paddingLeft="8dip"
+        android:paddingStart="8dip"
         android:layout_weight="1"
         android:orientation="vertical" >
 
