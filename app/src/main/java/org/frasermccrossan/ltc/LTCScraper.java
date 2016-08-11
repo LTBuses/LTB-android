@@ -47,7 +47,6 @@ public class LTCScraper {
     static final Boolean PROXY_ENABLED = false;
     static final String LTC_BASE = "http://www.ltconline.ca";
     static final String ROUTE_PATH = "/WebWatch/MobileAda.aspx";
-    //static final String ROUTE_PATH = "/";
     public static final String ROUTE_URL = LTC_BASE + ROUTE_PATH; // used when calling the diagnostic screen
 	static final String DIRECTION_PATH = "/WebWatch/MobileAda.aspx?r=%s";
 	static final String STOPS_PATH = "/WebWatch/MobileAda.aspx?r=%s&d=%d";
@@ -67,8 +66,6 @@ public class LTCScraper {
 	static final Pattern NO_INFO_PATTERN = Pattern.compile("(?mi)no stop information");
 	static final Pattern NO_BUS_PATTERN = Pattern.compile("(?mi)no further buses");
 	static final Pattern LOCATION_STOP_PATTERN = Pattern.compile("(\\d+)");
-	static final String VERY_CLOSE = "000000000000000"; // something guaranteed to sort before everything
-	static final String VERY_FAR_AWAY = "999999999999999"; // something guaranteed to sort after everything
 	/* parseDocFromUri() starts with the initial timeout then retries doubling the timeout each time until
 	 * greater than the maximum timeout, thus we get (for example) 1, 2, 4, 8, 16
 	 */
@@ -90,16 +87,6 @@ public class LTCScraper {
 	public void close() {
 		if (task != null) {
 			task.cancel(true);
-		}
-	}
-	
-	String userAgent() {
-		try {
-			PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-			return String.format("%s %s", info.packageName, info.versionName);
-		}
-		catch (PackageManager.NameNotFoundException e) {
-			return "Unknown";
 		}
 	}
 
@@ -188,12 +175,10 @@ public class LTCScraper {
 	}
 
     public String ltcPredictionPath(LTCRoute route, String stopNumber) {
-        //		return PREDICTIONS_URL;
         return String.format(LTC_PREDICTION_PATH, route.number, route.direction, stopNumber);
     }
 
     public String proxyPredictionPath(LTCRoute route, String stopNumber) {
-        //		return PREDICTIONS_URL;
         return String.format(PROXY_PREDICTION_PATH, route.number, route.direction, stopNumber);
     }
 
@@ -386,7 +371,6 @@ public class LTCScraper {
 			HashMap<Integer, LTCStop> allStops = new HashMap<Integer, LTCStop>();
 			// all stops that each route stops at in each direction
 			ArrayList<RouteStopLink> links = new ArrayList<RouteStopLink>();
-			//Resources res = getApplicationContext().getResources();
 			Resources res = context.getResources();
 			LoadProgress progress = new LoadProgress();
 			BusDb db;
@@ -419,8 +403,6 @@ public class LTCScraper {
 									if (!allDirections.containsKey(dir.number)) {
 										allDirections.put(dir.number, dir);
 									}
-//									publishProgress(progress.message(String.format(res.getString(R.string.loading_route_dir), routesToDo.get(i).name, dir.name))
-//											.percent(pct));
 									if (isCancelled()) {
 										break MAINLOOP;
 									}
@@ -450,7 +432,6 @@ public class LTCScraper {
 							}
 							catch (IOException e) {
 								failures++; // note that one failed
-                                //Toast.makeText(context, "IOException: " + e.getMessage(), Toast.LENGTH_SHORT).show();
 								if (failures > FAILURE_LIMIT) {
 									throw(new ScrapeException(res.getString(R.string.too_many_failures), ScrapeStatus.PROBLEM_IMMEDIATELY, true));
 								}

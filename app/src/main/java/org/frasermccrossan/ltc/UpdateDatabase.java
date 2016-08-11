@@ -6,7 +6,6 @@ import java.util.HashMap;
 import org.frasermccrossan.ltc.DownloadService.DownloadBinder;
 
 import android.app.Activity;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -26,7 +25,6 @@ public class UpdateDatabase extends Activity {
 	
 	LTCScraper scraper = null;
 	ProgressBar progressBar;
-	TextView freshnessText;
 	TextView weekdayStops;
 	TextView saturdayStops;
 	TextView sundayStops;
@@ -101,7 +99,6 @@ public class UpdateDatabase extends Activity {
 			@Override
 			public void onClick(View v) {
 		    	Intent diagnoseIntent = new Intent(UpdateDatabase.this, DiagnoseProblems.class);
-		    	//LTCScraper scraper = new LTCScraper(UpdateDatabase.this, false);
 		    	diagnoseIntent.putExtra("testurl", LTCScraper.ROUTE_URL);
 		    	startActivity(diagnoseIntent);
 			}

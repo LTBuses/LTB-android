@@ -11,14 +11,7 @@ public class LTCStop {
 		this.number = number.intValue();
 		this.name = name;
 	}
-	
-	LTCStop(Integer number, String name, double lat, double longi) {
-		this.number = number.intValue();
-		this.name = name;
-		this.latitude = lat;
-		this.longitude = longi;
-	}
-	
+
 	@Override
 	public String toString() {
 		return this.name;

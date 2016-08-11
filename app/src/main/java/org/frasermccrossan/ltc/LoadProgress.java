@@ -28,25 +28,13 @@ public class LoadProgress {
 		percent = p;
 		return this;
 	}
-	
-	LoadProgress enough(boolean enough) {
-		completeEnough = enough;
-		return this;
-	}
-	
+
 	LoadProgress complete() {
 		percent = 100;
 		completeEnough = true;
 		return this;
 	}
-	
-	LoadProgress reset() {
-		title = message = "";
-		percent = 0;
-		completeEnough = false;
-		return this;
-	}
-	
+
 	LoadProgress failed() {
 		percent = FAILED;
 		completeEnough = true;

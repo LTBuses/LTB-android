@@ -15,12 +15,9 @@ import android.support.v4.app.NotificationCompat;
 public class DownloadService extends Service {
 
 	static final int NOTIF_ID = 12345;
-//	static final int NOTIF_COMPLETED_ID = NOTIF_ID + 1;
-	static final String FETCH_POSITIONS = "getpos";
 
 	LTCScraper scraper = null;
 	NotificationCompat.Builder notifBuilder = null;
-	String notifTitle = null;
 	NotificationManager notifManager = null;
 	ScrapingStatus remoteScrapingStatus = null;
 	LoadProgress lastProgress = null;
@@ -44,7 +41,6 @@ public class DownloadService extends Service {
 	public void cancel() {
 		manuallyStopped = true;
 		if (scraper != null) {
-//			scraper.cancelLoadAll();
 			scraper.close();
 			scraper = null;
 		}
@@ -69,7 +65,6 @@ public class DownloadService extends Service {
 					// rely on the progress bar
 					msgMaybePct = progress.message;
 				}
-//				int id = progress.alert ? NOTIF_COMPLETED_ID : NOTIF_ID;
 				notifBuilder.setContentText(msgMaybePct);
 				notifBuilder.setProgress(100, progress.percent, false);
 				notifBuilder.setContentTitle(progress.title);
@@ -142,7 +137,6 @@ public class DownloadService extends Service {
 	@Override
 	public void onDestroy() {
 		if (scraper != null) {
-//			scraper.cancelLoadAll();
 			scraper.close();
 			scraper = null;
 		}

@@ -10,7 +10,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,7 +34,6 @@ public class StopTimes extends Activity {
 	HorizontalScrollView horizRouteViewScrollview;
 	Button refreshButton;
 	Button notWorkingButton;
-	Button tweakButton;
 	ArrayList<LTCRoute> routeList;
 	ArrayList<RouteDirTextView> routeViews;
 	PredictionAdapter adapter;
@@ -108,11 +106,6 @@ public class StopTimes extends Activity {
         	predictionList = (ListView)findViewById(R.id.prediction_list);
         	predictionList.setEmptyView(findViewById(R.id.empty_prediction_list));
         	predictions = new ArrayList<Prediction>(3);
-//        	adapter = new SimpleAdapter(StopTimes.this,
-//        			predictions,
-//        			R.layout.prediction_item,
-//        			new String[] { BusDb.CROSSING_TIME, BusDb.ROUTE_NUMBER, BusDb.DIRECTION_IMG_RES, BusDb.ROUTE_NAME, BusDb.DESTINATION, BusDb.TEXT_TIME },
-//        			new int[] { R.id.crossing_time, R.id.route_number, R.id.route_direction_img, R.id.route_long_name, R.id.destination, R.id.raw_crossing_time });
         	adapter = new PredictionAdapter(this, R.layout.prediction_item, predictions);
         	predictionList.setAdapter(adapter);
         }
@@ -230,20 +223,8 @@ public class StopTimes extends Activity {
 						}
 						// insert the Prediction at that location
 						adapter.insert(p, insertPosition);
-//						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-//							if ((insertPosition >= predictionList.getFirstVisiblePosition() &&
-//									insertPosition <= predictionList.getLastVisiblePosition()) ||
-//									predictionList.getCount() == 0) {
-//								Animation appear = AnimationUtils.loadAnimation(StopTimes.this, R.anim.prediction_in);
-//								View row = (View)predictionList.getChildAt(insertPosition);
-//								row.setAnimation(appear);
-//							}
-//						}
 					}
 				}
-//				else {
-//					updatePredictionsWithMessageRes(routeView.route, routeView.msgResource());
-//				}
 				switch (routeView.problemType) {
 				case ScrapeStatus.PROBLEM_IMMEDIATELY:
 					notWorkingButton.setVisibility(Button.VISIBLE);
@@ -255,7 +236,6 @@ public class StopTimes extends Activity {
 				for (Prediction p: predictions) {
 					p.updateFields(StopTimes.this, now);
 				}
-				//adapter.sort(new PredictionComparator());
 				adapter.notifyDataSetChanged();
 				routeView.updateDisplay();
 				if (isCancelled()) {
@@ -330,20 +310,6 @@ public class StopTimes extends Activity {
 				}
 			}
 		}
-		
-		// updates the times on a particular route with a given text resource
-//		private void updatePredictionsWithMessageRes(LTCRoute route, int strRes) {
-//			Resources res = getResources();
-//			String str = res.getString(strRes);
-//			int i = 0;
-//			while (i < predictions.size()) {
-//				Prediction entry = predictions.get(i);
-//				if (entry.isOnRoute(route)) {
-//					entry.setQuerying();
-//				}
-//				++i;
-//			}
-//		}
 		
 	}
 
