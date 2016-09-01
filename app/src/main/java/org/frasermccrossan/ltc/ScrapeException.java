@@ -10,11 +10,6 @@ public class ScrapeException extends Exception {
 	int problemType;
 	Boolean seriousProblem;
 
-	ScrapeException(String message) {
-		super(message);
-		problemType = ScrapeStatus.NOT_PROBLEM;
-	}
-	
 	ScrapeException(String message, int prob, Boolean serious) {
 		super(message);
 		problemType = prob;

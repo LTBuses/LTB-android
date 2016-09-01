@@ -44,7 +44,6 @@ public class FindStop extends Activity {
 	TextView findHint;
 	EditText searchField;
 	TextView dispSearch;
-	//Spinner viewTypeSpinner;
 	ListView stopList;
 	TextView emptyStopListText;
 	SimpleAdapter stopListAdapter;
@@ -102,7 +101,6 @@ public class FindStop extends Activity {
 					locToast.show();
 					return;
 				}
-				//disableSearchField(R.string.nearby_stops);
 			}
 			else if (selected == RECENT_ONLY) {
 				// must clear search field when only favourites selected, for consistency
@@ -111,9 +109,6 @@ public class FindStop extends Activity {
 				InputMethodManager imm = (InputMethodManager)getSystemService(
 					      Context.INPUT_METHOD_SERVICE);
 				imm.hideSoftInputFromWindow(searchField.getWindowToken(), 0);
-			}
-			else {
-				//enableSearchField();
 			}
 			BusDb db = new BusDb(FindStop.this);
 			setRoutes(db);
@@ -131,32 +126,7 @@ public class FindStop extends Activity {
 		}
 	};
 
-	void enableSearchField() {
-		findHint.setVisibility(View.VISIBLE);
-		searchField.setVisibility(View.VISIBLE);
-		dispSearch.setVisibility(View.GONE);
-		//viewTypeSpinner.setVisibility(View.GONE);
-	}
 
-	void disableSearchField(int reasonRes) {
-		disableSearchField();
-		dispSearch.setText(reasonRes);
-	}
-	
-	void disableSearchField(CharSequence reason) {
-		disableSearchField();
-		dispSearch.setText(reason);
-	}
-	
-	void disableSearchField() {
-		findHint.setVisibility(View.GONE);
-		searchField.setVisibility(View.GONE);
-		dispSearch.setVisibility(View.VISIBLE);
-		//viewTypeSpinner.setVisibility(View.VISIBLE);
-	}
-	
-	
-	
 	OnItemSelectedListener routeListener = new OnItemSelectedListener() {
 
 		@Override
@@ -232,7 +202,6 @@ public class FindStop extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.find_stop);
-		//db = new BusDb(this);
 		prefs = getPreferences(Context.MODE_PRIVATE);
 		findHint = (TextView)findViewById(R.id.find_hint);
 		searchField = (EditText)findViewById(R.id.search);
@@ -250,7 +219,6 @@ public class FindStop extends Activity {
 			public void	beforeTextChanged(CharSequence s, int start, int count, int after) {}
 			public void onTextChanged(CharSequence s, int start, int before, int count) {}
 		});
-		//viewTypeSpinner = (Spinner)findViewById(R.id.view_type_spinner);
 		myLocationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 		stopList = (ListView)findViewById(R.id.stop_list);
 		emptyStopListText = (TextView)findViewById(R.id.empty_stop_list);
@@ -323,7 +291,6 @@ public class FindStop extends Activity {
 
 	@Override
 	protected void onDestroy() {
-		//db.close();
 		SharedPreferences.Editor edit = prefs.edit();
 		edit.putInt(lastTypePref, searchTypeSpinner.getSelectedItemPosition());
 		edit.commit();
@@ -389,10 +356,6 @@ public class FindStop extends Activity {
 			Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
 			MenuItem map = menu.add(ContextMenu.NONE, Menu.NONE, 1, R.string.show_map);
 			map.setIntent(mapIntent);
-//			Intent connIntent = new Intent(FindStop.this, FindConnections.class);
-//			connIntent.putExtra(BusDb.STOP_NUMBER, stop.get(BusDb.STOP_NUMBER));
-//			MenuItem conn = menu.add(ContextMenu.NONE, Menu.NONE, 3, R.string.find_connections);
-//			conn.setIntent(connIntent);
 		}
 		BusDb db = new BusDb(this);
 		ArrayList<LTCRoute> stopRoutes = db.findStopRoutes(stop.get(BusDb.STOP_NUMBER), null, 0);
@@ -411,18 +374,6 @@ public class FindStop extends Activity {
 	public boolean onContextItemSelected(MenuItem item) {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
-//		case SHOW_MAP:
-//			HashMap<String, String> stop = stops.get(info.position);
-//			String query = Uri.encode(String.format("%s@%s,%s",
-//					stop.get(BusDb.STOP_NAME), 
-//					stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE)
-//					));
-//			String geoUri = String.format("geo:%s,%s?q=%s",
-//					stop.get(BusDb.LATITUDE), stop.get(BusDb.LONGITUDE),
-//					query);
-//			Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
-//			startActivity(mapIntent);
-//			return true;
 		case FORGET_FAVOURITE:
 			BusDb db = new BusDb(this);
 			db.forgetStopUse(Integer.valueOf(stops.get(info.position).get(BusDb.STOP_NUMBER)));
@@ -495,7 +446,6 @@ public class FindStop extends Activity {
 				}
 				stopListAdapter.notifyDataSetChanged();
 				emptyStopListText.setText(R.string.no_stops_found);
-				// reset the favourites-only to favourites if nothing found
 				if (stopListAdapter.getCount() == 0 && searchTypeSpinner.getSelectedItemPosition() == RECENT_ONLY) {
 					searchTypeSpinner.setSelection(RECENT_STOPS);
 					Toast.makeText(FindStop.this, R.string.no_favourites, Toast.LENGTH_SHORT).show();

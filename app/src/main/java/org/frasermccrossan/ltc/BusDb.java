@@ -24,7 +24,6 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.location.Location;
 import android.text.TextUtils;
-import android.util.Log;
 
 /* although called BusDb, this is actually a helper class to abstract all the
  * database stuff into method calls
@@ -44,19 +43,11 @@ public class BusDb {
 	
 	// latitude must be this big for latitude data to be valid
 	static final double MIN_LATITUDE = 0.1;
-	
-	// for finding stops close to another stop; all distances in metres
-	static final double EARTH_CIRCUMFERENCE = 40075 * 1000;
-	static final double CLOSE_DISTANCE = 100;
-	static final double CLOSE_DISTANCE_DEGREES = 360 * (CLOSE_DISTANCE / EARTH_CIRCUMFERENCE);
-	static final double CLOSE_DISTANCE_SQUARED_DEGREES = CLOSE_DISTANCE_DEGREES * CLOSE_DISTANCE_DEGREES;
-	
+
 	static final String DIRECTION_TABLE = "directions";
 	static final String DIRECTION_NUMBER = "direction_number";
 	static final String DIRECTION_NAME = "direction_name";
-	static final String SHORT_DIRECTION_NAME = "short_direction_name";
-	static final String DIRECTION_IMG_RES = "direction_img_res";
-	
+
 	static final String STOP_LAST_USE_TABLE = "stop_uses";
 	static final String STOP_LAST_USE_TIME = "stop_last_use_time";
 	static final String STOPS_WITH_USES = "stops_with_uses";
@@ -67,9 +58,6 @@ public class BusDb {
 	static final String FRESHNESS = "freshness";
 	
 	static final String FRESHNESS_TABLE = "last_updates";
-	static final int WEEKDAY_FRESHNESS = 0;
-	static final int SATURDAY_FRESHNESS = 1;
-	static final int SUNDAY_FRESHNESS = 2;
 	static final int WEEKDAY_LOCATION_FRESHNESS = 3;
 	static final int SATURDAY_LOCATION_FRESHNESS = 4;
 	static final int SUNDAY_LOCATION_FRESHNESS = 5;
@@ -85,25 +73,13 @@ public class BusDb {
 	static final int UPDATE_REQUIRED = 2;
 	static final long UPDATE_DATABASE_AGE_LIMIT_SOFT = 1000L * 60L * 60L * 24L * 15L; // 15 days
 	static final long UPDATE_DATABASE_AGE_LIMIT_HARD = 1000L * 60L * 60L * 24L * 30L; // 30 days
-	static final long DELETE_ROWS_AFTER = 1000L * 60L * 60L * 24L * 180L;
-	
+
 	static final String LINK_TABLE = "route_stops";
-	
-	// fake columns, defined here for consistency
-	static final String DESTINATION = "destination";
-	static final String CROSSING_TIME = "crossing_time";
-	static final String DATE_VALUE = "date_value";
-	static final String FAILED = "failed";
-	static final String TEXT_TIME = "texttime";
-	static final String RAW_TIME = "rawtime";
+
 	static final String DISTANCE_TEXT = "distance";
 	static final String DISTANCE_ORDER = "distance_order";
-	static final String ROUTE_INTERNAL_NUMBER = "route_object"; // for storing route object in prediction entry
-	static final String ROUTE_DIRECTION_NAME = "route_name";
 	static final String ROUTE_LIST = "route_list";
-	static final String CONN_LIST = "conn_list";
-	static final String ERROR_MESSAGE = "err";
-	
+
 	static final private ReentrantLock blocker = new ReentrantLock();
 	
 	SQLiteDatabase db;
@@ -131,18 +107,7 @@ public class BusDb {
 			return WEEKDAY_FRESHNESS_COLUMN;
 		}
 	}
-	
-	public int getCurrentLocationFreshnessDayType(Calendar time) {
-		switch(time.get(Calendar.DAY_OF_WEEK)) {
-		case Calendar.SATURDAY:
-			return SATURDAY_LOCATION_FRESHNESS;
-		case Calendar.SUNDAY:
-			return SUNDAY_LOCATION_FRESHNESS;
-		default:
-			return WEEKDAY_LOCATION_FRESHNESS;
-		}
-	}
-	
+
 	private String currentFreshnessColumn(Calendar time) {
 		String curFresh = getCurrentFreshnessDayType(time);
 		if (curFresh.equals(SATURDAY_FRESHNESS_COLUMN)) {
@@ -201,7 +166,7 @@ public class BusDb {
 		c.close();
 		return null;
 	}
-	
+
 	// determines if an update is recommended or required
 	public int updateStatus(HashMap<String, Long> freshnesses, Calendar now) {
 		if (freshnesses == null) {
@@ -209,6 +174,15 @@ public class BusDb {
 		}
 		String currentFreshnessDayType = getCurrentFreshnessDayType(now);
 		long currentFreshness = freshnesses.get(currentFreshnessDayType);
+
+		// Temporary check, due to the LTC updating all schedules on 2016/09/06/
+		Calendar sept6 = Calendar.getInstance();
+		sept6.set(2016, 8, 6, 0, 0, 0);
+		Long update_database_sept6_switch = now.getTimeInMillis() - sept6.getTimeInMillis();
+		if (update_database_sept6_switch >= 0 && currentFreshness > update_database_sept6_switch) {
+			return UPDATE_REQUIRED;
+		}
+
 		if (currentFreshness < UPDATE_DATABASE_AGE_LIMIT_SOFT) {
 			// freshness for today's day type is younger than the threshold, we can bail out now
 			return UPDATE_NOT_REQUIRED;
@@ -283,19 +257,6 @@ public class BusDb {
 		return routes;
 	}
 
-	LTCRoute findRoute(String routeNumber, int directionNumber) {
-		LTCRoute route = null;
-		Cursor c = db.query(ROUTE_TABLE,
-				new String[] { ROUTE_NUMBER, ROUTE_NAME, DIRECTION_NUMBER, DIRECTION_NAME },
-				String.format(Locale.US, "%s = ?", ROUTE_NUMBER), new String[] { routeNumber },
-				null, null, null);
-		if (c.moveToFirst()) {
-			route = new LTCRoute(c.getString(0), c.getString(1), c.getInt(2), c.getString(3));
-		}
-		c.close();
-		return route;		
-	}
-	
 	LTCStop findStop(String stopNumber) {
 		LTCStop stop = null;
 		Cursor c = db.query(STOP_TABLE,
@@ -308,28 +269,7 @@ public class BusDb {
 		c.close();
 		return stop;
 	}
-	
-	/* this fetches all stops for a given route */
-	HashMap<Integer, LTCStop> findStopRoutesAnyDir(String routeNumber) {
-		Cursor c = db.rawQuery(String.format(Locale.US, "select %s, %s, %s, %s from %s where %s in (select %s from %s where %s = ?)",
-											 STOP_NUMBER, STOP_NAME, LATITUDE, LONGITUDE,
-											 STOP_TABLE,
-											 STOP_NUMBER,
-											 STOP_NUMBER,
-											 LINK_TABLE,
-											 ROUTE_NUMBER),
-				new String[] { routeNumber });
-		HashMap<Integer, LTCStop> stops = new HashMap<Integer, LTCStop>();
-		if (c.moveToFirst()) {
-			for (; !c.isAfterLast(); c.moveToNext()) {
-				LTCStop stop = new LTCStop(c.getInt(0), c.getString(1), c.getDouble(2), c.getDouble(3));
-				stops.put(stop.number, stop);
-			}
-			c.close();
-		}
-		return stops;
-	}
-	
+
 	/* given a route, return how many stops exist */
 	int getStopCount() {
 		Cursor c = db.rawQuery(String.format(Locale.US, "select count(*) from %s;",
@@ -522,152 +462,15 @@ public class BusDb {
 	}
 	
 	class StopComparator implements Comparator<Map<String, String>> {
-		
-	    public int compare(Map<String, String> first, Map<String, String> second) {
-	    	String firstValue = first.get(DISTANCE_ORDER);
-	    	String secondValue = second.get(DISTANCE_ORDER);
-	    	return firstValue.compareTo(secondValue);
-	    }
+
+		public int compare(Map<String, String> first, Map<String, String> second) {
+			String firstValue = first.get(DISTANCE_ORDER);
+			String secondValue = second.get(DISTANCE_ORDER);
+			return firstValue.compareTo(secondValue);
+		}
 
 	}
 
-//	public HashMap<String, LTCConnection> findConnections(String stopNumber) {
-//		HashMap<String, LTCConnection> connections = new HashMap<String, LTCConnection>();
-//		LTCStop stop = findStop(stopNumber);
-//		
-//		ArrayList<LTCRoute> routesLeavingHere = findStopRoutes(stopNumber, null, 0);
-//		for (LTCRoute route: routesLeavingHere) {
-//			// for each route leaving this stop, find all routes it connects to, at which stop
-//			ArrayList<LTCConnection> routeConnections = findRouteConnections(stop, route, routesLeavingHere);
-//		}
-//		return connections;
-//	}
-//	
-//	/* return the SQL search condition for stops on route "route" after stop "stop"
-//	 * note this is pretty simplistic: for a northbound route is just returns all stops north of this one
-//	 */
-//	String afterCondition(LTCStop stop, LTCRoute route) {
-//		String op;
-//		String field;
-//		double value;
-//		
-//		switch (route.dirChar()) {
-//		case 'N':
-//		case 'n':
-//			op = ">";
-//			field = LATITUDE;
-//			value = stop.latitude;
-//			break;
-//		case 'S':
-//		case 's':
-//			op = "<";
-//			field = LATITUDE;
-//			value = stop.latitude;
-//			break;
-//		case 'E':
-//		case 'e':
-//			op = ">";
-//			field = LONGITUDE;
-//			value = stop.longitude;
-//			break;
-//		default:
-//			op = "<";
-//			field = LONGITUDE;
-//			value = stop.longitude;
-//			break;
-//		}
-//		return String.format(Locale.US, "%s %s %f AND %s IN (SELECT %s FROM %s WHERE %s = '%s' AND %s = %s)",
-//				field, op, value,
-//				STOP_NUMBER, STOP_NUMBER, LINK_TABLE,
-//				ROUTE_NUMBER, route.number,
-//				DIRECTION_NUMBER, route.direction);
-//	}
-//
-//	/* condition used to determine whether a stop on a route is "after" a given stop;
-//	 * the current heuristic is that it is further in the direction of travel of a route,
-//	 * e.g. it is further north on a northbound route
-//	 */
-//	String afterOrder(LTCStop stop, LTCRoute route) {
-//		String field;
-//		String order;
-//		
-//		switch (route.dirChar()) {
-//		case 'N':
-//		case 'n':
-//			field = LATITUDE;
-//			order = "asc";
-//			break;
-//		case 'S':
-//		case 's':
-//			field = LATITUDE;
-//			order = "desc";
-//			break;
-//		case 'E':
-//		case 'e':
-//			field = LONGITUDE;
-//			order = "asc";
-//			break;
-//		default:
-//			field = LONGITUDE;
-//			order = "desc";
-//			break;
-//		}
-//		return String.format(Locale.US, "%s %s", field, order);
-//	}
-//	
-//	/* find stops on a route that are "after" the current stop, that is, in the same
-//	 * direction of travel
-//	 */
-//	ArrayList<LTCStop> findStopsAfter(LTCStop stopFrom, LTCRoute route) {
-//		ArrayList<LTCStop> stops = new ArrayList<LTCStop>();
-//		Cursor c = db.query(STOP_TABLE,
-//				new String[] { STOP_NUMBER, STOP_NAME, LATITUDE, LONGITUDE },
-//				afterCondition(stopFrom, route),
-//				null, null, null,
-//				afterOrder(stopFrom, route));
-//		if (c.moveToFirst()) {
-//			for (; !c.isAfterLast(); c.moveToNext()) {
-//				LTCStop stop = new LTCStop(c.getInt(0), c.getString(1), c.getDouble(2), c.getDouble(3));
-//				stops.add(stop);
-//			}
-//			c.close();
-//		}
-//		return stops;
-//	}
-//	
-//	/* find all stops that are "close" to the given list of stops */
-//	ArrayList<LTCStop> findStopsCloseTo(LTCStop stopFrom, LTCRoute route, ArrayList<LTCStop> refStops) {
-//		ArrayList<String> closeConditions = new ArrayList<String>();
-//		for (LTCStop refStop: refStops) {
-//			closeConditions.add(String.format(Locale.US, "(latitude-(%.9f))*(latitude-(%.9f)) + (longitude-(%.9f))*(longitude-(%.9f)) < %.9f",
-//					refStop.latitude, refStop.latitude, refStop.longitude, refStop.longitude, CLOSE_DISTANCE_SQUARED_DEGREES));
-//		}
-//		String closeCondition = TextUtils.join(" OR ", closeConditions);
-//		ArrayList<LTCStop> stops = new ArrayList<LTCStop>();
-//		Cursor c = db.query(STOP_TABLE,
-//				new String[] { STOP_NUMBER, STOP_NAME, LATITUDE, LONGITUDE },
-//				closeCondition,
-//				null, null, null,
-//				afterOrder(stopFrom, route));
-//		if (c.moveToFirst()) {
-//			for (; !c.isAfterLast(); c.moveToNext()) {
-//				LTCStop stop = new LTCStop(c.getInt(0), c.getString(1), c.getDouble(2), c.getDouble(3));
-//				stops.add(stop);
-//			}
-//			c.close();
-//		}
-//		return stops;
-//	}
-//	
-//	ArrayList<LTCConnection> findRouteConnections(LTCStop afterStop, LTCRoute route, ArrayList<LTCRoute> routesToIgnore) {
-//		ArrayList<LTCConnection> conns = new ArrayList<LTCConnection>();
-//		ArrayList<LTCStop> stopsAfter = findStopsAfter(afterStop, route);
-//		ArrayList<LTCStop> stopsClose = findStopsCloseTo(afterStop, route, stopsAfter);
-//		
-//		
-//		return conns;
-//	}
-	
 	// format a distance nicely
 	private String niceDistance(float val) {
 		

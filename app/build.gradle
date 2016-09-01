@@ -1,4 +1,4 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 def keystorePropertiesFile = rootProject.file("keystore.properties");
 def keystoreProperties = new Properties();
@@ -13,12 +13,12 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
-    compileSdkVersion 15
-    buildToolsVersion "19.1.0"
+    compileSdkVersion 23
+    buildToolsVersion "21.1.2"
     defaultConfig {
         applicationId "org.frasermccrossan.ltc"
         minSdkVersion 8
-        targetSdkVersion 15
+        targetSdkVersion 23
     }
     buildTypes {
         debug {
@@ -34,13 +34,13 @@ android {
         }
     }
     compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_6
+        targetCompatibility JavaVersion.VERSION_1_7
     }
     productFlavors {
     }
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:20.0.0'
+    compile 'com.android.support:support-v4:23.1.1'
     compile files('libs/jsoup-1.6.3.jar')
 }

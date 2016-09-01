@@ -1,43 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content" >
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content" >
 
-        <LinearLayout
-            android:layout_width="0dip"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_margin="3dip"
-            android:padding="4dip"
-            android:orientation="horizontal"
-            android:background="@drawable/destination_sign"
-            android:minHeight="?android:attr/listPreferredItemHeight" >
-        
+    <LinearLayout
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_margin="3dip"
+        android:padding="4dip"
+        android:orientation="horizontal"
+        android:background="@drawable/destination_sign"
+        android:minHeight="?android:attr/listPreferredItemHeight" >
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:gravity="center"
             android:paddingRight="2dip"
+            android:paddingEnd="2dip"
             android:orientation="vertical" >
-        
-        <TextView
-            android:id="@+id/route_number"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#ffd000"
-            android:minWidth="40dip"
-            android:gravity="center"
-            android:textStyle="bold"
-            android:textSize="25dip" />
 
-		<ImageView 
-		    android:id="@+id/route_direction_img"
-		    android:contentDescription="@string/direction"
-		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content"
-		    android:minWidth="20dip"
-		    />
-        
+            <TextView
+                android:id="@+id/route_number"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#ffd000"
+                android:minWidth="40dip"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textSize="25dip"
+                tools:text="20"/>
+
+            <ImageView
+                android:id="@+id/route_direction_img"
+                android:contentDescription="@string/direction"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:minWidth="20dip"
+                tools:src="@drawable/westbound"
+                />
+
         </LinearLayout>
 
         <LinearLayout
@@ -45,58 +50,67 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:orientation="vertical" >
-        
-        <TextView
-            android:id="@+id/route_long_name"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="0dip"
-            android:textColor="#ffd000"
-            android:singleLine="true"
-            android:gravity="center_horizontal"
-            android:textStyle="bold"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-        
-        <TextView
-            android:id="@+id/destination"
-            style="@style/destination" />
-        
-        </LinearLayout>
-        
-        </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/prediction_times"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:background="@drawable/time_border"
-            android:layout_margin="3dip"
-            android:orientation="vertical"
-            android:minHeight="?android:attr/listPreferredItemHeight" >
+            <TextView
+                android:id="@+id/route_long_name"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="0dip"
+                android:textColor="#ffd000"
+                android:singleLine="true"
+                android:gravity="center_horizontal"
+                android:textStyle="bold"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                tools:text="CHERRYHILL"
+                />
 
-        <TextView
-             android:id="@+id/crossing_time"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:paddingRight="3dp"
-             android:minEms="3"
-             android:gravity="center"
-             android:singleLine="true"
-             style="@style/normal_pred_time"
-             android:textAppearance="?android:attr/textAppearanceLarge" />
-        
-        <TextView
-             android:id="@+id/raw_crossing_time"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:paddingRight="3dp"
-             android:minEms="5"
-             android:gravity="center"
-             android:singleLine="true"
-             android:textAppearance="?android:attr/textAppearanceSmall"
-             android:textStyle="italic" />
-        
+            <TextView
+                android:id="@+id/destination"
+                style="@style/destination"
+                tools:text="Capulet at Oxford"
+                />
+
         </LinearLayout>
-        
 
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/prediction_times"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:background="@drawable/time_border"
+        android:layout_margin="3dip"
+        android:orientation="vertical"
+        android:minHeight="?android:attr/listPreferredItemHeight" >
+
+        <TextView
+            android:id="@+id/crossing_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="3dp"
+            android:paddingEnd="3dp"
+            android:minEms="3"
+            android:gravity="center"
+            android:singleLine="true"
+            style="@style/normal_pred_time"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            tools:text="24 min"
+            />
+
+        <TextView
+            android:id="@+id/raw_crossing_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="3dp"
+            android:paddingEnd="3dp"
+            android:minEms="5"
+            android:gravity="center"
+            android:singleLine="true"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="italic"
+            tools:text="21:05"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -72,11 +72,7 @@ public class Prediction implements Comparable<Prediction> {
 	Boolean blankDestination() {
 		return destination != null && destination.equals("");
 	}
-	
-	Boolean isError() {
-		return !isValid();
-	}
-	
+
 	Boolean isSerious() {
 		return seriousError;
 	}
@@ -162,11 +158,7 @@ public class Prediction implements Comparable<Prediction> {
 	void setQuerying() {
 		isQuerying = true;
 	}
-	
-	void setFirst(boolean first) {
-		isFirst = first;
-	}
-	
+
 	Boolean isQuerying() {
 		return isQuerying;
 	}

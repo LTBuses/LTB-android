@@ -171,7 +171,5 @@ public class BusDbOpenHelper extends SQLiteOpenHelper {
 		s = String.format("DROP TABLE foo");
 		db.execSQL(s);
 	}
-//	private void upgrade1to2(SQLiteDatabase db) {
-//	}
 
 }

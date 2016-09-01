@@ -12,12 +12,9 @@ public class LTCRoute {
 	public int EASTBOUND_IMG = R.drawable.eastbound;
 	public int WESTBOUND_IMG = R.drawable.westbound;
 	
-	//public String url;
-	
-	LTCRoute(String number, String name/*, String url*/) {
+	LTCRoute(String number, String name) {
 		this.number = number;
 		this.name = name;
-		//this.url = url;
 	}
 	
 	LTCRoute(String number, String name, int dir) {
@@ -44,19 +41,7 @@ public class LTCRoute {
 	String getShortRouteDirection() {
 		return String.format("%d%s", Integer.valueOf(number), directionName == null ? "" : directionName.substring(0,1));
 	}
-	
-	String getRouteDirection() {
-		return String.format("%s %s", name, directionName == null ? "" : directionName);
-	}
-	
-	String getOneLetterDirection() {
-		return directionName.substring(0,1);
-	}
-	
-	String getTwoLetterDirection() {
-		return getOneLetterDirection() + "B";
-	}
-	
+
 	char dirChar() {
 		return directionName.charAt(0);
 	}

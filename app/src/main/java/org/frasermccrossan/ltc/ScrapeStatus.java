@@ -13,7 +13,5 @@ public interface ScrapeStatus {
 
 	public void setStatus(int newState, String message);
 	public void setStatus(int newState, int newProbType, String message);
-	public boolean isImmediateProblem();
-	public boolean isProbIfAll();
-		
+
 }
