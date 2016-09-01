@@ -453,12 +453,12 @@ public class BusDb {
 	}
 	
 	class StopComparator implements Comparator<Map<String, String>> {
-		
-	    public int compare(Map<String, String> first, Map<String, String> second) {
-	    	String firstValue = first.get(DISTANCE_ORDER);
-	    	String secondValue = second.get(DISTANCE_ORDER);
-	    	return firstValue.compareTo(secondValue);
-	    }
+
+		public int compare(Map<String, String> first, Map<String, String> second) {
+			String firstValue = first.get(DISTANCE_ORDER);
+			String secondValue = second.get(DISTANCE_ORDER);
+			return firstValue.compareTo(secondValue);
+		}
 
 	}
 
