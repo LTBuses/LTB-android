@@ -166,7 +166,7 @@ public class BusDb {
 		c.close();
 		return null;
 	}
-	
+
 	// determines if an update is recommended or required
 	public int updateStatus(HashMap<String, Long> freshnesses, Calendar now) {
 		if (freshnesses == null) {
@@ -174,6 +174,15 @@ public class BusDb {
 		}
 		String currentFreshnessDayType = getCurrentFreshnessDayType(now);
 		long currentFreshness = freshnesses.get(currentFreshnessDayType);
+
+		// Temporary check, due to the LTC updating all schedules on 2016/09/06/
+		Calendar sept6 = Calendar.getInstance();
+		sept6.set(2016, 8, 6, 0, 0, 0);
+		Long update_database_sept6_switch = now.getTimeInMillis() - sept6.getTimeInMillis();
+		if (update_database_sept6_switch >= 0 && currentFreshness > update_database_sept6_switch) {
+			return UPDATE_REQUIRED;
+		}
+
 		if (currentFreshness < UPDATE_DATABASE_AGE_LIMIT_SOFT) {
 			// freshness for today's day type is younger than the threshold, we can bail out now
 			return UPDATE_NOT_REQUIRED;
