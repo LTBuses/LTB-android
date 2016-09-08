@@ -177,7 +177,7 @@ public class BusDb {
 
 		// Temporary check, due to the LTC updating all schedules on 2016/09/06/
 		Calendar sept6 = Calendar.getInstance();
-		sept6.set(2016, 8, 6, 0, 0, 0);
+		sept6.set(2016, 8, 4, 0, 0, 0);
 		Long update_database_sept6_switch = now.getTimeInMillis() - sept6.getTimeInMillis();
 		if (update_database_sept6_switch >= 0 && currentFreshness > update_database_sept6_switch) {
 			return UPDATE_REQUIRED;
