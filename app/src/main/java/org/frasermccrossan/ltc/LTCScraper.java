@@ -57,7 +57,7 @@ public class LTCScraper {
 	// matches arrival text in the MobileAda.aspx prediction
 	static final Pattern ARRIVAL_PATTERN = Pattern.compile("(?i) *(\\d{1,2}:\\d{2} *[\\.apm]*) +(to .*)");
 	// pattern for route number in a[href]
-	static final Pattern ROUTE_NUM_PATTERN = Pattern.compile("\\?r=(\\d{1,2})");
+	static final Pattern ROUTE_NUM_PATTERN = Pattern.compile("\\?r=(\\d{1,3})");
 	// pattern for direction number in a[href]
 	static final Pattern DIRECTION_NUM_PATTERN = Pattern.compile("\\&d=(\\d+)");
 	// pattern for stop number in a[href]
