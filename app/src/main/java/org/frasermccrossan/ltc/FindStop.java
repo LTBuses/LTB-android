@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Criteria;
 import android.location.Location;
@@ -16,6 +18,8 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.ContextMenu;
@@ -69,6 +73,7 @@ public class FindStop extends Activity {
 	static final float LOCATION_DISTANCE_UPDATE = 100; // minimum metres between GPS updates
 	
 	static final int FORGET_FAVOURITE = 1; // id for context menu item lacking an intent
+	static final int PERMISSION_REQUEST_FINE_LOCATION = 1;
 
 	OnItemClickListener stopListener = new OnItemClickListener() {
 		public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -282,7 +287,9 @@ public class FindStop extends Activity {
 	
 	@Override
 	protected void onStop() {
-		myLocationManager.removeUpdates(locationListener);
+		if (checkLocationPermission()) {
+			myLocationManager.removeUpdates(locationListener);
+		}
 		if (mySearchTask != null && ! mySearchTask.isCancelled()) {
 			mySearchTask.cancel(true);
 		}
@@ -389,12 +396,20 @@ public class FindStop extends Activity {
 	{
 		switch (searchTypeSpinner.getSelectedItemPosition()) {
 		case RECENT_STOPS:
-			myLocationManager.removeUpdates(locationListener);
+			if (checkLocationPermission()) {
+				myLocationManager.removeUpdates(locationListener);
+			}
 			lastLocation = null;
 			break;
 		case CLOSEST_STOPS:
-			myLocationManager.requestLocationUpdates(locProvider, LOCATION_TIME_UPDATE * 1000, LOCATION_DISTANCE_UPDATE, locationListener);
-			lastLocation = myLocationManager.getLastKnownLocation(locProvider);
+			if (checkLocationPermission()) {
+				myLocationManager.requestLocationUpdates(locProvider, LOCATION_TIME_UPDATE * 1000, LOCATION_DISTANCE_UPDATE, locationListener);
+				lastLocation = myLocationManager.getLastKnownLocation(locProvider);
+			}
+			else {
+				requestLocationPermission();
+				searchTypeSpinner.setSelection(RECENT_STOPS);
+			}
 			break;
 		default:
 			// nothing
@@ -409,6 +424,25 @@ public class FindStop extends Activity {
 		mySearchTask = new SearchTask();
 		mySearchTask.execute(searchField.getText());
 
+	}
+
+    public boolean checkLocationPermission() {
+	    return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+    }
+
+	protected void requestLocationPermission() {
+		ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_FINE_LOCATION);
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+		switch (requestCode) {
+			case PERMISSION_REQUEST_FINE_LOCATION:
+				if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					searchTypeSpinner.setSelection(CLOSEST_STOPS);
+				}
+				break;
+		}
 	}
 
 	class SearchTask extends AsyncTask<CharSequence, List<HashMap<String, String>>, Void> {
